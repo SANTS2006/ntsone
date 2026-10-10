@@ -2,12 +2,12 @@
 # serves both the API (/api/*) and the built React app, so the auth cookie and
 # /api calls stay on a single origin.
 projects:
-  - name: program-registration
+  - name: ntsone
     environments:
       - name: production
         services:
           - type: web
-            name: program-registration
+            name: ntsone
             runtime: node
             plan: free
             # Same AWS region as the Neon database (us-east-2) to keep query latency low.
