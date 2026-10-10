@@ -21,3 +21,4 @@ This folder documents the whole system. Read them in this order.
 - [BACKUP_RECOVERY.md](BACKUP_RECOVERY.md): encrypted daily backups, verification, restore, disaster recovery, API.
 - [RELIABILITY.md](RELIABILITY.md): the blank-page root cause and fix, scaling, concurrency, tests, remaining risks, deployment checklist.
 - [WISHLIST.md](WISHLIST.md): the Wish List module (lists, items, gotten list, summary, activity, API).
+- [PWA.md](PWA.md): installing NTSOne as an app on iPhone, Android and computers, offline behavior, and how it is built.

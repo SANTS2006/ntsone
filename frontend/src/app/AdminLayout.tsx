@@ -10,6 +10,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { Avatar } from "@/components/Avatar";
 import { FeedbackDialog } from "@/features/support/FeedbackDialog";
+import { InstallAppButton } from "@/components/InstallApp";
+import { COMPANY_NAME, PRODUCT_NAME, TAGLINE } from "@/lib/contact";
 
 const navItems = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -97,6 +99,7 @@ function ProfileFooter({ onLogout }: { onLogout: () => void }) {
           }
         />
       )}
+      <InstallAppButton variant="ghost" className="justify-start" />
       <Button variant="ghost" size="sm" className="justify-start text-destructive hover:bg-destructive/10" onClick={onLogout}>
         <LogOut className="h-4 w-4" />
         Log out
@@ -167,6 +170,12 @@ export function AdminLayout() {
         <div className="p-4 sm:p-6 lg:p-8">
           <LazyOutlet />
         </div>
+        <footer className="border-t border-border/60 px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
+          <p className="gradient-text mx-auto w-fit text-sm font-bold">{TAGLINE}</p>
+          <p className="mt-1">
+            &copy; {new Date().getFullYear()} {COMPANY_NAME}. {PRODUCT_NAME}.
+          </p>
+        </footer>
       </main>
     </div>
   );

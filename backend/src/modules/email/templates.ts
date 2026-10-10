@@ -88,6 +88,8 @@ export interface EmailBrand {
   footer?: string;
 }
 
+const TAGLINE = "One platform. Endless possibilities.";
+
 function layout(params: { preheader: string; eyebrow: string; heading: string; body: string; brand?: EmailBrand }): string {
   const year = new Date().getFullYear();
   const brandName = params.brand?.name ?? env.EMAIL_FROM_NAME;
@@ -154,7 +156,7 @@ function layout(params: { preheader: string; eyebrow: string; heading: string; b
             <tr>
               <td style="padding:26px 16px 0;text-align:center;font-family:${FONT};font-size:12px;line-height:1.6;color:${BRAND.faint};">
                 ${footer}<br />
-                &copy; ${year} ${escapeHtml(brandName)}. All rights reserved.
+                &copy; ${year} ${escapeHtml(brandName)}. All rights reserved.${params.brand ? "" : `<br />${TAGLINE}`}
               </td>
             </tr>
           </table>

@@ -1,6 +1,8 @@
 /** Company and contact details shown on the website, legal pages, and forms. */
 export const COMPANY_NAME = "NTS Digital Solutions";
 export const PRODUCT_NAME = "NTSOne";
+/** The line under the name, in every footer. */
+export const TAGLINE = "One platform. Endless possibilities.";
 export const SUPPORT_EMAIL = "hello@ntsdigitalsolutions.com";
 export const SUPPORT_PHONE = "+232 31 034 604";
 export const SUPPORT_PHONE_LINK = "tel:+23231034604";

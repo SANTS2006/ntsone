@@ -102,7 +102,7 @@ export function LoginPage() {
           </div>
 
           <p className="relative text-xs text-white/60">
-            &copy; {new Date().getFullYear()} NTSOne
+            &copy; {new Date().getFullYear()} NTSOne. One platform. Endless possibilities.
           </p>
         </div>
 

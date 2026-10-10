@@ -93,6 +93,9 @@ Records every change, sign-in, download, export, page view of live pages (once p
 ### 3.11 Maintenance mode (super admin only)
 Under **Maintenance** the platform team can switch a notice on, write the message, give an expected end time, show it as a strip at the top or replace the page with a maintenance screen, and choose where it shows: everywhere, or only chosen parts (website, sign-in pages, the admin app, registration and order forms, voting pages, the payment status page, ID card and ticket checks). When it is switched on, an email goes once to the team members (and optionally the voters), with an optional "back" email when it is switched off. Pages check for the notice every minute. The platform team is never locked out, and sign-in pages only ever show the strip. The notice is on screen only: the server keeps working.
 
+### 3.11b Installable app
+NTSOne installs like an app on iPhone, iPad, Android phones and computers (see [PWA.md](PWA.md)). It opens full screen from the home screen, keeps its built files so it opens fast, and shows an offline page when there is no connection. Private data is never stored for offline use. Every footer carries the tagline **One platform. Endless possibilities.**
+
 ### 3.12 Website and legal pages
 Public home page (features, 3D showcases, FAQ), contact form, report-a-concern form, terms, privacy, cookie and acceptable-use policies, sitemap and SEO pages for published programs, polls and order pages.
 

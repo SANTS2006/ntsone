@@ -292,6 +292,11 @@ const FEATURES: { icon: LucideIcon; title: string; description: string }[] = [
     description: "Send a private link or QR code to family and friends, on WhatsApp, Facebook, X or email. Choose view-only or edit access. They need no account and see only that list.",
   },
   {
+    icon: Smartphone,
+    title: "Install it like an app",
+    description: "Add NTSOne to the home screen of an iPhone, iPad or Android phone, or install it on a computer. It opens full screen, loads fast, and shows a friendly page when the connection drops.",
+  },
+  {
     icon: PiggyBank,
     title: "See what you saved",
     description: "The gotten list compares what you paid with what you expected, shows spending by category and month, and keeps a record of every change that cannot be edited.",
@@ -914,6 +919,10 @@ const FAQS = [
   {
     q: "Can I filter my tables and download what I see?",
     a: "Yes. Registrations, orders, payments, invoices, receipts, quotations, voters, team members, messages and more can be filtered by date range, and the Excel or CSV download follows the filter.",
+  },
+  {
+    q: "Can I install it as an app on my phone?",
+    a: "Yes, on both iPhone and Android, with nothing to download from a store. On Android, tap Install when the page offers it (or use the browser menu). On an iPhone or iPad, open the site in Safari, tap Share, then Add to Home Screen. NTSOne then opens full screen from your home screen like any other app. You can install it on a computer too, using the install icon in Chrome or Edge.",
   },
   {
     q: "Can I use it on a phone?",

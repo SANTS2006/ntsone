@@ -51,6 +51,31 @@ describe.skipIf(!built)("serving the built web app (production mode)", async () 
     }
   });
 
+  it("serves what is needed to install the app: the worker is never cached for long, the manifest is valid, and every icon exists", async () => {
+    const sw = await app.inject({ method: "GET", url: "/sw.js" });
+    expect(sw.statusCode).toBe(200);
+    expect(sw.headers["content-type"]).toMatch(/javascript/);
+    expect(sw.headers["cache-control"]).toBe("no-cache");
+    expect(sw.body).toContain("/api/");
+
+    const manifestRes = await app.inject({ method: "GET", url: "/manifest.webmanifest" });
+    expect(manifestRes.statusCode).toBe(200);
+    expect(manifestRes.headers["content-type"]).toMatch(/json/);
+    const manifest = manifestRes.json();
+    expect(manifest).toMatchObject({ name: "NTSOne", short_name: "NTSOne", display: "standalone", scope: "/", id: "/" });
+    expect(manifest.start_url.startsWith("/")).toBe(true);
+    const purposes = manifest.icons.map((i: { sizes: string; purpose?: string }) => `${i.sizes}:${i.purpose ?? "any"}`);
+    expect(purposes).toEqual(expect.arrayContaining(["192x192:any", "512x512:any", "512x512:maskable"]));
+    for (const icon of [...manifest.icons, ...manifest.shortcuts.flatMap((s: { icons: unknown[] }) => s.icons)] as { src: string }[]) {
+      const res = await app.inject({ method: "GET", url: icon.src });
+      expect(res.statusCode, icon.src).toBe(200);
+    }
+
+    for (const url of ["/offline.html", "/offline.js", "/apple-touch-icon.png"]) {
+      expect((await app.inject({ method: "GET", url })).statusCode, url).toBe(200);
+    }
+  });
+
   it("keeps API 404s as JSON", async () => {
     const res = await app.inject({ method: "GET", url: "/api/nothing-here" });
     expect(res.statusCode).toBe(404);

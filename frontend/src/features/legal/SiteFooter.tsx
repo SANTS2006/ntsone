@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { InstallAppButton } from "@/components/InstallApp";
 import {
   COMPANY_NAME,
   LEGAL_LINKS,
@@ -8,6 +9,7 @@ import {
   SUPPORT_EMAIL,
   SUPPORT_PHONE,
   SUPPORT_PHONE_LINK,
+  TAGLINE,
 } from "@/lib/contact";
 
 const linkClass = "text-muted-foreground transition-colors hover:text-primary";
@@ -22,9 +24,11 @@ export function SiteFooter() {
             <BrandLogo className="h-9" />
             <span className="gradient-text text-lg">NTSOne</span>
           </Link>
+          <p className="gradient-text w-fit text-base font-bold tracking-tight">{TAGLINE}</p>
           <p className="max-w-sm text-sm text-muted-foreground">
             The all-in-one platform for registrations, voting, orders, payments, bookkeeping and wish lists.
           </p>
+          <InstallAppButton className="w-fit" />
         </div>
 
         <nav className="flex flex-col gap-2 text-sm" aria-label="Product">
@@ -88,6 +92,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border/70 px-4 py-5 text-center text-xs text-muted-foreground">
         &copy; {new Date().getFullYear()} {COMPANY_NAME}. {PRODUCT_NAME}. All rights reserved.
+        <span className="mt-1 block font-medium">{TAGLINE}</span>
       </div>
     </footer>
   );
@@ -125,6 +130,7 @@ export function PublicFormFooter({ agreementText }: { agreementText?: string }) 
       <p>
         &copy; {new Date().getFullYear()} {COMPANY_NAME}
       </p>
+      <p className="font-medium">{TAGLINE}</p>
     </footer>
   );
 }

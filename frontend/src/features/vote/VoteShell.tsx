@@ -66,7 +66,7 @@ export function VoteShell({ poll, children }: { poll?: VotePoll; children: React
       <main id="main-content" tabIndex={-1} className="mx-auto w-[90%] max-w-[1600px] min-w-0 flex-1 py-6 focus:outline-none sm:py-10">
         {children}
       </main>
-      <footer className="py-6 text-center text-xs text-muted-foreground">Secure voting by NTSOne</footer>
+      <footer className="py-6 text-center text-xs text-muted-foreground">Secure voting by NTSOne. One platform. Endless possibilities.</footer>
     </div>
   );
 }
