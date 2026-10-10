@@ -10,12 +10,10 @@ interface ThemeContextValue {
 const ThemeContext = React.createContext<ThemeContextValue | null>(null);
 
 const STORAGE_KEY = "ntsone-theme";
-// The key used before the system was renamed, so people keep the light or dark choice they made.
-const OLD_STORAGE_KEY = "program-registration-theme";
 
 function getInitialTheme(): Theme {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(OLD_STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "light" || stored === "dark") return stored;
   } catch {
     /* localStorage unavailable */

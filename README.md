@@ -74,7 +74,7 @@ uploads, email, audit, dashboard) and `frontend/src/features/*` for their UI cou
 
 In production a single Node service serves both the API (`/api/*`) and the built React app, so the
 refresh-token cookie and `/api` calls share one origin. `render.yaml` is a Render Blueprint that creates a
-`program-registration` project with a `production` environment containing one **free** web service:
+`ntsone` project with a `production` environment containing one **free** web service:
 
 - **Build:** `npm ci --include=dev && npm run build && npm run db:migrate` (dev dependencies are needed for
   Vite/tsup/tsx; migrations run here because pre-deploy commands aren't guaranteed on the free plan).

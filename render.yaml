@@ -45,7 +45,7 @@ projects:
               - key: CLOUDINARY_API_SECRET
                 sync: false
               - key: CLOUDINARY_UPLOAD_FOLDER
-                value: program-registration
+                value: ntsone
               - key: BREVO_API_KEY
                 sync: false
               # OAuth client ID for "Sign in with Google" on the voting pages (optional).

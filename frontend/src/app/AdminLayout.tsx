@@ -46,7 +46,7 @@ function BrandMark() {
 
 function NavList({ role, onNavigate }: { role?: string; onNavigate?: () => void }) {
   return (
-    <nav className="flex flex-1 flex-col gap-1">
+    <nav aria-label="Main" className="-mr-2 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-2 pr-2 [scrollbar-color:hsl(var(--border))_transparent] [scrollbar-width:thin]">
       {navItems
         .filter((item) => (!item.adminOnly || role === "admin") && (!item.platformOnly || role === "super_admin"))
         .map((item) => (
@@ -76,7 +76,7 @@ function ProfileFooter({ onLogout }: { onLogout: () => void }) {
   const { user } = useAuth();
   if (!user) return null;
   return (
-    <div className="mt-auto flex flex-col gap-3 border-t border-border/70 pt-4">
+    <div className="mt-2 flex shrink-0 flex-col gap-3 border-t border-border/70 pt-4">
       <div className="flex items-center gap-2.5 px-1">
         <Avatar name={user.name} src={user.avatarUrl} />
         <div className="min-w-0">
@@ -132,7 +132,7 @@ export function AdminLayout() {
       </header>
 
       {/* Desktop sidebar: always visible, permanent, no toggle */}
-      <aside className="fixed inset-y-0 left-0 top-16 z-30 hidden w-64 flex-col border-r border-border/70 bg-card/90 px-4 py-5 backdrop-blur-md md:flex">
+      <aside className="fixed inset-y-0 left-0 top-16 z-30 hidden w-64 flex-col overflow-hidden border-r border-border/70 bg-card/90 px-4 py-5 backdrop-blur-md md:flex">
         <NavList role={user?.role} />
         <ProfileFooter onLogout={() => logout()} />
       </aside>
@@ -149,11 +149,11 @@ export function AdminLayout() {
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border/70 bg-card px-4 py-4 shadow-2xl transition-transform duration-200 md:hidden",
+          "fixed left-0 top-0 z-50 flex h-[100dvh] w-64 flex-col overflow-hidden border-r border-border/70 bg-card px-4 py-4 shadow-2xl transition-transform duration-200 md:hidden",
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center justify-between pb-4">
+        <div className="flex shrink-0 items-center justify-between pb-4">
           <BrandMark />
           <Button variant="ghost" size="icon" aria-label="Close navigation" onClick={() => setMobileSidebarOpen(false)}>
             <X className="h-5 w-5" />
