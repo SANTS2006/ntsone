@@ -1,0 +1,1 @@
+ALTER TABLE "programs" ADD COLUMN "allow_submission_copy" boolean DEFAULT true NOT NULL;

@@ -1,0 +1,110 @@
+# NTSOne: Render Blueprint: one free web service, grouped under a Render project, that
+# serves both the API (/api/*) and the built React app, so the auth cookie and
+# /api calls stay on a single origin.
+projects:
+  - name: program-registration
+    environments:
+      - name: production
+        services:
+          - type: web
+            name: program-registration
+            runtime: node
+            plan: free
+            # Same AWS region as the Neon database (us-east-2) to keep query latency low.
+            region: ohio
+            # NODE_ENV=production would make npm skip devDependencies, but the build
+            # needs them (vite, typescript, tsup) and so does the migration runner (tsx).
+            # Migrations run at the end of the build rather than as a pre-deploy step,
+            # which isn't guaranteed on the free plan; they're idempotent.
+            buildCommand: npm ci --include=dev && npm run build && npm run db:migrate
+            startCommand: npm start
+            healthCheckPath: /health
+            autoDeploy: true
+            envVars:
+              - key: NODE_ENV
+                value: production
+              - key: NODE_VERSION
+                value: "22"
+              - key: API_PORT
+                value: "10000"
+              # Both set to your public address, e.g. https://ntsone.yourdomain.com
+              - key: APP_URL
+                sync: false
+              - key: API_URL
+                sync: false
+              - key: DATABASE_URL
+                sync: false
+              - key: JWT_SECRET
+                generateValue: true
+              - key: JWT_REFRESH_SECRET
+                generateValue: true
+              - key: CLOUDINARY_CLOUD_NAME
+                sync: false
+              - key: CLOUDINARY_API_KEY
+                sync: false
+              - key: CLOUDINARY_API_SECRET
+                sync: false
+              - key: CLOUDINARY_UPLOAD_FOLDER
+                value: program-registration
+              - key: BREVO_API_KEY
+                sync: false
+              # OAuth client ID for "Sign in with Google" on the voting pages (optional).
+              - key: GOOGLE_CLIENT_ID
+                sync: false
+              - key: EMAIL_FROM_NAME
+                value: NTSOne
+              # Must be a sender address verified in your Brevo account.
+              - key: EMAIL_FROM_ADDRESS
+                sync: false
+              # Max database connections per instance; keep below the Neon plan limit divided by instances.
+              # ---- Payments with Monime (https://docs.monime.io). Leave these empty to keep payments switched off. ----
+              # From the Monime dashboard: a personal access token for the space, and the space id (starts with spc-).
+              - key: MONIME_ACCESS_TOKEN
+                sync: false
+              - key: MONIME_SPACE_ID
+                sync: false
+              # Set when you create the webhook in Monime (at least 32 characters). Webhook address: <API_URL>/api/webhooks/monime
+              - key: MONIME_WEBHOOK_SECRET
+                sync: false
+              # Turn on ("true") once a real webhook from Monime has been seen to verify, so unsigned ones are refused.
+              - key: MONIME_WEBHOOK_STRICT
+                value: "false"
+              # What the platform keeps from each payment (percent, plus a fixed amount in Leones), and how long money is held before it can be withdrawn.
+              - key: PAYMENTS_FEE_PERCENT
+                value: "5"
+              - key: PAYMENTS_FEE_FIXED
+                value: "0"
+              - key: PAYMENTS_HOLD_MINUTES
+                value: "5"
+              - key: PAYMENTS_MAX_AMOUNT
+                value: "10000000"
+              - key: PAYOUT_MIN_AMOUNT
+                value: "1"
+              - key: PAYOUT_DAILY_LIMIT
+                value: "5000000"
+              - key: PAYOUT_REVIEW_ABOVE
+                value: "1000000"
+              - key: PAYOUT_NEW_ACCOUNT_MINUTES
+                value: "3"
+              # ---- Backup and recovery. Use an S3-compatible bucket (Cloudflare R2, Backblaze B2, Amazon S3...). ----
+              - key: BACKUP_STORAGE
+                value: s3
+              - key: BACKUP_S3_ENDPOINT
+                sync: false
+              - key: BACKUP_S3_BUCKET
+                sync: false
+              - key: BACKUP_S3_ACCESS_KEY_ID
+                sync: false
+              - key: BACKUP_S3_SECRET_ACCESS_KEY
+                sync: false
+              # At least 32 random characters. Keep a separate safe copy: without it the backups cannot be read.
+              - key: BACKUP_ENCRYPTION_KEY
+                sync: false
+              - key: BACKUP_RETENTION_DAYS
+                value: "30"
+              - key: BACKUP_KEEP_LATEST
+                value: "7"
+              - key: BACKUP_SCHEDULE_HOUR_UTC
+                value: "2"
+              - key: DB_POOL_MAX
+                value: "10"

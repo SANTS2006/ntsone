@@ -1,0 +1,353 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 99%;
+    --foreground: 217 33% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 12%;
+    --primary: 217 91% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 60% 96%;
+    --secondary-foreground: 217 50% 25%;
+    --muted: 213 30% 95%;
+    --muted-foreground: 215 16% 45%;
+    --accent: 199 89% 94%;
+    --accent-foreground: 205 60% 25%;
+    --destructive: 350 78% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 70% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --border: 213 25% 89%;
+    --input: 213 25% 89%;
+    --ring: 217 91% 53%;
+    --radius: 0.875rem;
+  }
+
+  .dark {
+    --background: 220 40% 6%;
+    --foreground: 210 30% 96%;
+    --card: 220 33% 9%;
+    --card-foreground: 210 30% 96%;
+    --primary: 213 94% 68%;
+    --primary-foreground: 220 40% 8%;
+    --secondary: 217 28% 15%;
+    --secondary-foreground: 210 30% 92%;
+    --muted: 217 24% 14%;
+    --muted-foreground: 215 15% 65%;
+    --accent: 205 40% 18%;
+    --accent-foreground: 199 70% 85%;
+    --destructive: 350 80% 62%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 65% 48%;
+    --success-foreground: 220 40% 8%;
+    --warning: 38 92% 58%;
+    --warning-foreground: 220 40% 8%;
+    --border: 217 24% 18%;
+    --input: 217 24% 18%;
+    --ring: 213 94% 68%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* No page ever scrolls sideways: anything wider than the screen is clipped, and long words wrap.
+     The clip is on the app root, NOT on html or body: with overflow set on both, a menu or dialog that locks page
+     scrolling (body overflow: hidden) turns the body into its own scroll container, so the sticky header scrolls
+     away and floating menus land in the wrong place. */
+  html,
+  body {
+    max-width: 100%;
+  }
+
+  #root {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  li,
+  dd,
+  label,
+  td,
+  th {
+    overflow-wrap: break-word;
+  }
+
+  html {
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Form controls don't inherit the page font by default. */
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  body {
+    @apply text-foreground antialiased min-h-screen;
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.10), transparent 45%),
+      radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.10), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.05), transparent 55%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.18), transparent 45%),
+      radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.14), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.08), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: rgba(37, 99, 235, 0.25);
+  }
+
+  a,
+  a:hover,
+  a:focus {
+    text-decoration: none;
+  }
+
+  /* Custom scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #60a5fa transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-image: linear-gradient(180deg, #60a5fa, #0ea5e9);
+    border-radius: 9999px;
+    border: 2px solid hsl(var(--background));
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-image: linear-gradient(180deg, #3b82f6, #0284c7);
+    background-clip: padding-box;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    border: 2px solid hsl(var(--background));
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-brand bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.6), rgba(14, 165, 233, 0.6), rgba(59, 130, 246, 0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .page-enter {
+    @apply animate-fade-in-up;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Landing page motion: scroll reveals, 3D scenes, and floating accents. */
+@layer components {
+  .reveal {
+    opacity: 0;
+    transition:
+      opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .reveal-up {
+    transform: translate3d(0, 40px, 0);
+  }
+
+  .reveal-left {
+    transform: translate3d(-56px, 0, 0);
+  }
+
+  .reveal-right {
+    transform: translate3d(56px, 0, 0);
+  }
+
+  .reveal-zoom {
+    transform: scale(0.88);
+  }
+
+  .reveal-tilt {
+    transform: perspective(1200px) rotateX(28deg) translate3d(0, 60px, 0);
+    transform-origin: 50% 100%;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .stage-scene {
+    transform: rotateX(8deg) rotateY(-14deg);
+  }
+
+  .depth {
+    transform: translateZ(var(--depth, 0px));
+    transform-style: preserve-3d;
+  }
+
+  .float {
+    animation: float-y 7s ease-in-out infinite;
+    animation-delay: var(--float-delay, 0s);
+  }
+
+  .carousel-ring {
+    transform-style: preserve-3d;
+    animation: spin-y 48s linear infinite;
+  }
+
+  .carousel-wrap:hover .carousel-ring {
+    animation-play-state: paused;
+  }
+
+  .carousel-item {
+    transform: rotateY(var(--angle)) translateZ(var(--radius));
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Landing sections below the fold skip layout and paint until they are scrolled near. */
+  .offscreen-lazy {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+
+  @media (max-width: 1023px) {
+    .stage-scene {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .float,
+    .carousel-ring {
+      animation: none;
+    }
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+@keyframes spin-y {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-360deg);
+  }
+}
+
+/* The public website spans 90% of the window, whatever its size. */
+@layer components {
+  .site-container {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Phones zoom the page when a field smaller than 16px is tapped; keep fields at 16px on small screens. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Browsers paint a saved (autofilled) field pale blue with their own text colour, which is unreadable in dark mode.
+   Keep the field looking like every other field: our background and our text colour. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: hsl(var(--foreground));
+  caret-color: hsl(var(--foreground));
+  -webkit-box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+  box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+input:autofill,
+textarea:autofill,
+select:autofill {
+  -webkit-text-fill-color: hsl(var(--foreground));
+  caret-color: hsl(var(--foreground));
+  box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+}

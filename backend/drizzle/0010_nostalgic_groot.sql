@@ -1,0 +1,2 @@
+ALTER TABLE "programs" ADD COLUMN "notify_on_registration" boolean DEFAULT true NOT NULL;--> statement-breakpoint
+ALTER TABLE "programs" ADD COLUMN "notify_on_verification" boolean DEFAULT true NOT NULL;

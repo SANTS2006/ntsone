@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npx tsc --noEmit -p backend
+      - run: npx tsc -b --noEmit
+        working-directory: frontend
+      # Unit tests never touch a database or the network.
+      - run: npm run test:unit
+        working-directory: backend
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high

@@ -1,0 +1,33 @@
+# NTSOne
+
+> A web platform by NTS Digital Solutions for running program registrations: build registration forms, share them by link or QR code, review applicants, issue ID cards and tickets, and verify them at the door by QR code or barcode. It also runs voting polls (free or paid), order pages with item prices, mobile money payments through Monime (Orange Money and Africell Money) with refunds and a payment fund, invoices, receipts, quotations, business cards, a bookkeeping module with loans, credit, profit and loss reports and voice notes, and private wish lists where people plan what to buy and record the price paid and date when they get it. Platform administrators have an audit log of every action, grouped by account.
+
+## Main features
+
+- Registrations: custom forms with 23 question types, rules, imports and exports, ID cards, tickets, QR verification
+- Voting polls: verified voters, one vote per person, live results, optional paid votes
+- Orders and businesses: order forms with items and prices, order tracking, invoices, receipts, quotations, business cards
+- Payments: Monime checkout, refunds, payment fund and withdrawals, a 5% platform fee agreed to by the admin
+- Bookkeeping: cash book, credit, loans, profit and loss, cash flow, voice notes and read-aloud totals
+- Wish List: lists of things to buy, added one by one or many at once, marked gotten with the price paid and date, with a budget, savings, summaries and an activity record. A list is private to its owner and can be shared with people who have no account through a private link and QR code, with view-only or edit access
+- Dashboards, analytics, date filters and exports on every table
+- Works on phones and desktops
+
+## Main pages
+
+- [Home](/): what the platform does, features, designs, and FAQ
+- [Create an account](/register): start a free workspace for your organization
+- [Sign in](/login)
+- [Contact](/contact): questions, demos, and support (hello@ntsdigitalsolutions.com)
+- [Report a concern](/report): report misuse, suspicious programs, or security issues
+
+## Policies
+
+- [Terms of service](/terms)
+- [Privacy policy](/privacy)
+- [Cookie policy](/cookies)
+- [Acceptable use policy](/acceptable-use)
+
+## Public program pages
+
+Each published program has a page at /programs/{slug} and a registration form at /programs/{slug}/register. The full list is in [the sitemap](/sitemap.xml).
