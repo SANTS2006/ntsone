@@ -22,9 +22,10 @@ import {
 import { HeroDashboard, RegistrationToast, ShareCardMock } from "./visuals";
 import { DesignCarousel, DocumentStack3D, HeroIdCard, HeroTicket } from "./lazyShowcase";
 import { ModuleCube, ModuleList } from "./moduleCube";
-import { AuditScene, BookkeepingPoints, BookkeepingScene, PaymentsPoints, PaymentsScene } from "./paymentsShowcase";
+import { BookkeepingPoints, BookkeepingScene, PaymentsPoints, PaymentsScene } from "./paymentsShowcase";
 import { WishJourney, WishlistPoints, WishlistScene } from "./wishlistShowcase";
 import { usePageMeta } from "@/lib/seo";
+import { TAGLINE } from "@/lib/contact";
 
 /** Soft blurred color fields drifting behind a section. */
 function Orbs({ className }: { className?: string }) {
@@ -75,7 +76,7 @@ function Hero() {
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-gradient-brand-soft px-3 py-1 text-xs font-semibold text-primary">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-              Registration management for every program
+              {TAGLINE}
             </span>
           </Reveal>
           <Reveal delay={120}>
@@ -176,9 +177,9 @@ function FinalCta() {
             style={{ "--float-delay": "-3s" } as React.CSSProperties}
           />
           <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-5">
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to open registration?</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to run it all from one place?</h2>
             <p className="text-lg text-white/85">
-              Create your workspace, build your first form, and share it with applicants today.
+              Create your free NTSOne account and manage registrations, voting, orders, payments, bookkeeping and wish lists from one secure workspace, on any phone or computer.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {user ? (
@@ -377,21 +378,6 @@ export function LandingPage() {
             description="Invite colleagues and control, program by program, who can manage and who can only view."
           />
           <Roles />
-        </Section>
-
-        <Section id="audit" className="overflow-hidden">
-          <SectionHeading
-            eyebrow="Audit log"
-            title={
-              <>
-                Every action, <span className="gradient-text">recorded by account</span>
-              </>
-            }
-            description="Platform administrators can see who did what, when, from where and whether it worked, from sign-ins and edits to payments and withdrawals. Entries can't be changed or removed."
-          />
-          <Reveal variant="zoom">
-            <AuditScene />
-          </Reveal>
         </Section>
 
         <Section id="security" className="bg-card/40">

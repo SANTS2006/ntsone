@@ -53,12 +53,29 @@ const TERMS: LegalSection[] = [
     id: "service",
     title: "The Service",
     body: (
-      <p>
-        The Service lets organizations (&quot;Account Holders&quot;) create programs, build registration forms, collect
-        and manage registrations, issue ID cards and tickets, and export data. People who fill in an Account
-        Holder&apos;s registration form (&quot;Registrants&quot;) use the Service to submit their information to that
-        Account Holder.
-      </p>
+      <>
+        <p>
+          {PRODUCT_NAME} is an all-in-one platform that lets organizations and individuals run their activities from one
+          place. Depending on the tools you use, the Service lets you:
+        </p>
+        <ul>
+          <li>create programs, build registration forms, collect and manage registrations, and issue and verify ID cards and tickets;</li>
+          <li>run voting polls, free or paid, with secret ballots and live results;</li>
+          <li>publish order pages, take orders and manage them;</li>
+          <li>
+            collect payments by mobile money, hold them in a payment fund, issue refunds, and withdraw the money (see
+            &quot;Payments, refunds and withdrawals&quot; below);
+          </li>
+          <li>create invoices, receipts and quotations, and keep business books;</li>
+          <li>keep private wish lists and share them with people you choose;</li>
+          <li>export your data.</li>
+        </ul>
+        <p>
+          Organizations and individuals who open an account are &quot;Account Holders&quot;. People who use an Account
+          Holder&apos;s registration form, order page, poll or payment page (&quot;Registrants&quot;, which in these Terms
+          also includes customers, voters and payers) use the Service to deal with that Account Holder.
+        </p>
+      </>
     ),
   },
   {
@@ -94,7 +111,7 @@ const TERMS: LegalSection[] = [
     body: (
       <>
         <p>
-          Account Holders keep ownership of the programs, forms, designs, and registration data they create or collect
+          Account Holders keep ownership of the programs, polls, order pages, forms, designs, business records, wish lists, and registration data they create or collect
           (&quot;Your Content&quot;). You give us a limited permission to host, store, process, display, and transmit
           Your Content only as needed to provide and improve the Service and as described in our Privacy Policy.
         </p>
@@ -114,14 +131,15 @@ const TERMS: LegalSection[] = [
   },
   {
     id: "registrants",
-    title: "For registrants",
+    title: "For registrants, customers, voters and payers",
     body: (
       <p>
-        When you submit a registration form, you are sharing your information with the organization that runs that
-        program, not with {COMPANY_NAME} for its own purposes. That organization decides what it collects and how it uses
-        your information. Questions about your registration, its status, or your data should go to the organization
-        first. You must only submit information that is true and that you have the right to share, including any
-        documents or photos you upload.
+        When you submit a registration form, place an order, vote or make a payment, you are dealing with the
+        organization that runs that page, not with {COMPANY_NAME} for its own purposes. That organization decides what it
+        collects, what it sells and how it uses your information. Questions about your registration, order, payment or
+        data should go to the organization first. You must only submit information that is true and that you have the
+        right to share, including any documents or photos you upload, and you must only pay with a mobile money account
+        that you are entitled to use.
       </p>
     ),
   },
@@ -147,17 +165,116 @@ const TERMS: LegalSection[] = [
           charged unless you choose a paid plan.
         </p>
         <p>
-          <strong>Payments.</strong> If you turn on payments for a program, order form or poll, the Service keeps a fee
+          <strong>Payments.</strong> If you turn on payments for a program, order page or poll, the Service keeps a fee
           of 5% of each payment received (the &quot;Platform Fee&quot;). An administrator of your organization must agree
-          to the Platform Fee before payments can be turned on, and must agree again if the fee increases. Payments are
-          processed by Monime, whose own terms and charges apply separately. Money received, less the Platform Fee, is
-          credited to your organization&apos;s payment fund and can be withdrawn to a mobile money number or bank account
-          you add, subject to checks, limits and waiting periods described in the Service.
+          to the Platform Fee before payments can be turned on, and must agree again if the fee increases. Monime&apos;s own
+          terms and charges apply separately. The full rules for payments, the payment fund, refunds and withdrawals are
+          in the section &quot;Payments, refunds and withdrawals&quot; below.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "payments",
+    title: "Payments, refunds and withdrawals",
+    body: (
+      <>
+        <p>
+          This section applies to every payment made through the Service, whether it is a registration fee, a charge for
+          an ID card or ticket, an order, or a paid vote. It forms part of these Terms.
         </p>
         <p>
-          <strong>Refunds.</strong> An organization administrator can refund a completed payment to the payer&apos;s mobile
-          money number. The Platform Fee is returned in proportion to the amount refunded. You are responsible for
-          checking the number you send a refund to; a refund sent to the wrong number may not be recoverable.
+          <strong>Who you are paying.</strong> When you pay through the Service you are paying the Account Holder (the
+          organization or business that set up the page), not {COMPANY_NAME}. The Account Holder is the seller. It is
+          responsible for what it sells, its prices, delivering what you paid for, and its own refund and complaints
+          practices. {COMPANY_NAME} provides the technology that collects, confirms and records the payment.
+        </p>
+        <p>
+          <strong>Payment providers.</strong> Payments are processed by Monime and made by mobile money through the
+          mobile network operators it supports, for example Orange Money, Africell Money and QMoney. You pay on the
+          provider&apos;s own secure page. We never see or store your mobile money PIN, password or card details. The
+          terms, charges, limits and availability of the provider and the network operator apply separately and are
+          outside our control. Amounts are shown in Sierra Leonean Leones (NLe) unless stated otherwise.
+        </p>
+        <p>
+          <strong>When a payment counts.</strong> A payment is treated as complete only after we have confirmed it
+          directly with the payment provider and the full amount, currency and reference match. Until then it is shown
+          as pending. Keep your payment confirmation page and payment number. If money has left your account but the
+          payment still shows as pending or failed, wait a few minutes for it to be confirmed automatically, then contact
+          the Account Holder and, if you still need help, us at <Email />, quoting your payment number.
+        </p>
+        <p>
+          <strong>Platform Fee.</strong> The Account Holder agrees to the Platform Fee before payments can be turned on,
+          and must agree again if it increases. The fee is deducted from the payments the Account Holder receives and is
+          kept by us. It is not added to the price you pay. The provider&apos;s own charges, if any, are separate.
+        </p>
+        <p>
+          <strong>Payment fund.</strong> Confirmed payments, less the Platform Fee, are credited to the Account
+          Holder&apos;s payment fund. The money can be withdrawn after a short holding period that gives time to notice
+          problems such as mistaken or fraudulent payments. We may extend a holding period, or hold, limit or reverse an
+          amount, if we reasonably suspect fraud, a mistake or a breach of these Terms, if a provider or network operator
+          reverses or disputes a payment, or where the law requires.
+        </p>
+        <p>
+          <strong>Withdrawals.</strong> Only an organization administrator can withdraw money, to a mobile money number or
+          bank account the organization has added, and must confirm with their password. A newly added withdrawal account
+          waits a short time before it can be used. Withdrawals are subject to minimum amounts and daily limits, and
+          larger withdrawals need review and approval by us before they are sent. We may delay, refuse or reverse a
+          withdrawal for security, fraud-prevention, compliance or legal reasons. The Account Holder is responsible for
+          entering the correct account; money sent to a wrong account may not be recoverable. Provider and bank charges
+          may apply.
+        </p>
+        <p>
+          <strong>Refunds.</strong> An organization administrator can refund a completed payment, in full or in part, to
+          the payer&apos;s mobile money number, starting a few minutes after the payment and until a limited period
+          (currently 180 days) has passed. The refund leaves the Account Holder&apos;s payment fund, the Platform Fee is
+          returned in proportion to the amount refunded, and larger refunds need review and approval by us. We do not
+          decide disputes between a payer and an Account Holder, but we may help, and may hold or reverse funds as
+          described above. Refunds depend on the provider and network operator and may take time to arrive. Check the
+          number before you send a refund: a refund sent to the wrong number may not be recoverable.
+        </p>
+        <p>
+          <strong>Paid votes.</strong> Where a poll charges for votes, the poll&apos;s organizer sets the price per vote.
+          A payment can be used once, to cast the votes it paid for. Votes that have been cast are final, are not
+          refundable and cannot be moved to another payment. Paying does not guarantee any result. The organizer sees who
+          paid and how many votes they bought, but never which candidate they chose.
+        </p>
+        <p>
+          <strong>Failed, duplicate and mistaken payments.</strong> If a payment fails, no money should be taken. If you
+          paid twice for the same thing, or paid the wrong amount, contact the Account Holder, who can refund the extra
+          amount from their payments page.
+        </p>
+        <p>
+          <strong>Account Holder responsibilities.</strong> Account Holders must:
+        </p>
+        <ul>
+          <li>show clear prices and descriptions, and deliver what they charge for;</li>
+          <li>handle refund requests and complaints fairly and promptly, and make their own refund policy clear to payers;</li>
+          <li>keep the details of their withdrawal accounts correct, and protect the password used to confirm withdrawals;</li>
+          <li>
+            follow the laws that apply to their business, including consumer, tax, invoicing and anti-money-laundering
+            rules, and pay any taxes due on the money they receive (the Platform Fee does not include taxes, and we do
+            not collect or pay taxes on your behalf);
+          </li>
+          <li>not use payments for anything prohibited by our <Link to="/acceptable-use">Acceptable Use Policy</Link>.</li>
+        </ul>
+        <p>
+          <strong>Prohibited payments.</strong> You may not use the Service to collect money for illegal goods or
+          services, to launder money, to commit fraud, to take payments you do not intend to honour, or to split or
+          disguise payments to avoid limits or checks. We may suspend payments, hold funds, and report suspected misuse
+          to the relevant authorities.
+        </p>
+        <p>
+          <strong>Records.</strong> We keep records of payments, refunds, withdrawals and fees (amounts, status, times, and
+          the people and accounts involved) for accounting, security, dispute-resolution and legal purposes, as explained
+          in our <Link to="/privacy">Privacy Policy</Link>.
+        </p>
+        <p>
+          <strong>Our responsibility.</strong> We work to process and record payments accurately and securely, but we rely
+          on payment providers and mobile networks, which can be delayed, unavailable or make errors. Subject to the
+          &quot;Limitation of liability&quot; section, we are not responsible for losses caused by provider or network
+          outages or errors, by payments a user sends to a wrong number or account, or by disputes between a payer and an
+          Account Holder. Nothing in these Terms limits any right you have under the law.
         </p>
       </>
     ),
@@ -278,8 +395,8 @@ export function TermsPage() {
       title="Terms of Service"
       intro={
         <p>
-          Please read these Terms carefully. They explain your rights and responsibilities when you use the {PRODUCT_NAME}
-          , whether you run programs as an organization or register for one.
+          Please read these Terms carefully. They explain your rights and responsibilities when you use {PRODUCT_NAME},
+          whether you run programs, take orders or payments as an organization, or register, vote, order or pay.
         </p>
       }
       sections={TERMS}
@@ -310,6 +427,13 @@ const PRIVACY: LegalSection[] = [
             the organization running that program decides what is collected and how it is used. We process it on that
             organization&apos;s behalf to provide the Service.
           </li>
+          <li>
+            <strong>Payment information:</strong> for a payment made to an organization, that organization decides what it
+            is selling and why it needs the payer&apos;s details. We process the payment on its behalf, and we are
+            responsible for the payment records we keep for fraud prevention, the Platform Fee, refunds, withdrawals and
+            our legal obligations. Our payment provider, Monime, and the mobile network operators handle the payment
+            itself under their own privacy policies.
+          </li>
         </ul>
       </>
     ),
@@ -331,9 +455,9 @@ const PRIVACY: LegalSection[] = [
           <strong>Uploaded files:</strong> photos, documents, logos, and designs uploaded through the Service.
         </li>
         <li>
-          <strong>Payment records:</strong> the amount, items, status and time of payments, the payer&apos;s name, email and
-          phone number, and the mobile money provider used. Card or PIN details are never seen or stored by us; payments
-          are made on Monime&apos;s own page. Refund and withdrawal records are kept too.
+          <strong>Payment records:</strong> details of payments, refunds and withdrawals, explained in full in the
+          section &quot;Payments and your information&quot; below. Card details, mobile money PINs and passwords are never
+          seen or stored by us.
         </li>
         <li>
           <strong>Business records and voice notes:</strong> entries, loans and reports that business owners write in the
@@ -349,11 +473,75 @@ const PRIVACY: LegalSection[] = [
         </li>
         <li>
           <strong>Technical information:</strong> IP address, browser and device type, sign-in times, and records of
-          important account and system actions (an audit log that can only be read by the platform team), kept for
-          security, abuse prevention, dispute resolution, and troubleshooting. Passwords, form answers, and who a voter
-          voted for are never written to it.
+          important account and system actions, kept for security, abuse prevention, dispute resolution, and
+          troubleshooting. Passwords, form answers, and who a voter voted for are never written to these records.
         </li>
       </ul>
+    ),
+  },
+  {
+    id: "payments",
+    title: "Payments and your information",
+    body: (
+      <>
+        <p>When you pay through the Service, or an organization takes payments through it, we handle the following:</p>
+        <ul>
+          <li>
+            <strong>Payer details:</strong> the name, email address and phone number given when paying (for paid votes, the
+            voter account used) and the mobile money provider used.
+          </li>
+          <li>
+            <strong>Payment details:</strong> the amount and currency, what was bought (for example a registration, ID
+            card, ticket, ordered items or votes), reference and payment numbers, the provider&apos;s transaction
+            identifiers, the status, any failure reason, and the times involved.
+          </li>
+          <li>
+            <strong>Refunds:</strong> the amount, the reason given, who requested and approved it, and the number it was
+            sent to.
+          </li>
+          <li>
+            <strong>Withdrawals:</strong> the withdrawal accounts an organization adds (the account name and the mobile
+            money number or bank account, shown in masked form), who requested and approved each withdrawal, and its
+            status.
+          </li>
+          <li>
+            <strong>Fees and balances:</strong> the Platform Fee taken from each payment and the running record of each
+            organization&apos;s payment fund.
+          </li>
+        </ul>
+        <p>
+          <strong>What we never see.</strong> Payments are made on Monime&apos;s own secure page. We never see or store
+          card numbers, mobile money PINs or passwords.
+        </p>
+        <p>
+          <strong>Why we use it.</strong> To process and confirm payments with the provider, credit the right
+          organization, send confirmations and receipts, handle refunds and withdrawals, apply and report fees, detect and
+          prevent fraud, money laundering and abuse, resolve disputes, give support, and keep the financial and accounting
+          records the law requires.
+        </p>
+        <p>
+          <strong>Who sees it.</strong> The organization you paid sees your name, contact details, what you paid for, the
+          amount and the status of your payment. For paid votes, the organizer sees that you paid and how many votes you
+          bought, but never which candidate you chose. Monime and the mobile network operators process your payment under
+          their own privacy policies, and banks or operators may also receive the details needed to complete a withdrawal.
+          We may share information with the authorities where the law requires it or to prevent fraud.
+        </p>
+        <p>
+          <strong>How long we keep it.</strong> Payment, refund, withdrawal and fee records are financial records. We keep
+          them for as long as needed for accounting, tax, security and dispute purposes and as the law requires, which can
+          be longer than the life of an account. When we no longer need them, we delete or anonymize them.
+        </p>
+        <p>
+          <strong>How we protect it.</strong> A payment is only counted after we confirm it directly with the provider.
+          Payment links are private and signed. Withdrawals need the administrator&apos;s password, new withdrawal accounts
+          wait before first use, and large withdrawals and refunds are reviewed.
+        </p>
+        <p>
+          <strong>Your choices.</strong> For questions about a payment, contact the organization you paid first. You can
+          also contact us at <Email /> with your payment number. We may not be able to delete payment records we are
+          required to keep, but we will explain what we can do.
+        </p>
+      </>
     ),
   },
   {
@@ -362,7 +550,8 @@ const PRIVACY: LegalSection[] = [
     body: (
       <ul>
         <li>To provide the Service: accounts, forms, registrations, ID cards, tickets, analytics, and exports.</li>
-        <li>To send service emails such as verification codes, invitations, password resets, and registration confirmations.</li>
+        <li>To send service emails such as verification codes, invitations, password resets, and registration and payment confirmations.</li>
+        <li>To process and confirm payments, credit payment funds, and handle refunds and withdrawals.</li>
         <li>To keep the Service and its users secure, and to detect and prevent fraud and abuse.</li>
         <li>To respond to questions, reports, and requests.</li>
         <li>To maintain and improve the Service, and to meet our legal obligations.</li>
@@ -392,7 +581,8 @@ const PRIVACY: LegalSection[] = [
             With service providers that help us run the Service, for example hosting, database, file storage, and email
             delivery providers, under agreements that protect the information.
           </li>
-          <li>With platform administrators at {COMPANY_NAME}, where needed to operate, support, and secure the Service.</li>
+          <li>With our authorized staff, only where needed to operate, support, and secure the Service, and under duties of confidentiality.</li>
+          <li>With our payment provider (Monime) and the mobile network operators, to process payments, refunds and withdrawals.</li>
           <li>When required by law, or to protect the rights, safety, and security of our users, the public, or us.</li>
           <li>As part of a merger, acquisition, or sale of assets, with the same protections continuing to apply.</li>
         </ul>
@@ -417,7 +607,8 @@ const PRIVACY: LegalSection[] = [
         We keep account information for as long as the account is active. Registration information is kept for as long as
         the organization keeps it in the Service; organizations can delete programs and their data. After an account is
         closed, we delete or anonymize its data within a reasonable period, except where we must keep some records for
-        legal, security, or dispute-resolution reasons.
+        legal, security, or dispute-resolution reasons. Payment, refund, withdrawal and fee records are kept as described
+        in &quot;Payments and your information&quot;.
       </p>
     ),
   },
@@ -427,7 +618,8 @@ const PRIVACY: LegalSection[] = [
     body: (
       <p>
         We use encryption in transit (HTTPS), hashed passwords, short-lived sign-in sessions, email verification, role-based
-        access, and separated workspaces for each organization. No system is completely secure, so please use a strong
+        access, and separated workspaces for each organization. Payments are confirmed directly with our payment
+        provider, and withdrawals need extra confirmation and checks. No system is completely secure, so please use a strong
         password and tell us straight away about any concern at <Email />.
       </p>
     ),
@@ -538,7 +730,8 @@ const COOKIES: LegalSection[] = [
     body: (
       <p>
         Images and files uploaded to the Service are delivered by our file storage provider. When you share a program
-        using a social media button, that site may set its own cookies under its own policy once you visit it.
+        using a social media button, that site may set its own cookies under its own policy once you visit it. When you
+        pay, you are sent to our payment provider&apos;s own page (Monime), which may use its own cookies under its own policy.
       </p>
     ),
   },
@@ -587,6 +780,9 @@ const ACCEPTABLE_USE: LegalSection[] = [
         <li>Creating fake programs, or impersonating a person, organization, or government body.</li>
         <li>Collecting personal information deceptively, such as phishing or asking for passwords or payment card details.</li>
         <li>Fraud, scams, or programs that charge people for something they will not receive.</li>
+        <li>Collecting payments for goods or services that are illegal, that you do not intend to provide, or that you cannot deliver.</li>
+        <li>Money laundering, financing crime, or splitting or disguising payments to avoid limits and checks.</li>
+        <li>Withdrawing or refunding money to accounts you do not control, or keeping payments you know were made by mistake or by fraud.</li>
         <li>Uploading content that is illegal, sexually exploitative, hateful, violent, or harassing.</li>
         <li>Uploading material you do not have the right to use, or that infringes someone else&apos;s rights.</li>
         <li>Sending spam, or using forms or invitations to send unwanted messages.</li>
@@ -605,6 +801,7 @@ const ACCEPTABLE_USE: LegalSection[] = [
         <li>Only ask for information you need, and use the consent statement where it is required.</li>
         <li>Keep registrant data confidential and give team members only the access they need.</li>
         <li>Respond to registrants who ask about their data or their registration.</li>
+        <li>Show clear prices, deliver what you charge for, and handle refund requests and complaints fairly and promptly.</li>
       </ul>
     ),
   },
@@ -624,7 +821,8 @@ const ACCEPTABLE_USE: LegalSection[] = [
     title: "Enforcement",
     body: (
       <p>
-        We may investigate suspected violations and may remove content, unpublish programs, or suspend or close accounts.
+        We may investigate suspected violations and may remove content, unpublish programs, hold or reverse payments and
+        withdrawals, or suspend or close accounts.
         Where we believe the law has been broken, we may report it to the relevant authorities.
       </p>
     ),

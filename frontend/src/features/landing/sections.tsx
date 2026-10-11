@@ -49,7 +49,6 @@ import {
   SlidersHorizontal,
   Zap,
   Wallet,
-  ScrollText,
   BookOpen,
   Mic,
   TrendingUp,
@@ -260,11 +259,6 @@ const FEATURES: { icon: LucideIcon; title: string; description: string }[] = [
     icon: PieChart,
     title: "Payment analytics",
     description: "For every program and order form: money collected each day, how people paid, best-selling items, and how many who registered went on to pay.",
-  },
-  {
-    icon: ScrollText,
-    title: "Audit log for the platform",
-    description: "Every action across every account is recorded and grouped by account, including visitors on live pages, with failed and refused attempts highlighted.",
   },
   {
     icon: BookOpen,
@@ -804,9 +798,9 @@ const SECURITY: { icon: LucideIcon; title: string; description: string }[] = [
     description: "Duplicate submissions are blocked at the database, emails are queued and retried, and sign-in attempts and uploads are limited.",
   },
   {
-    icon: ScrollText,
-    title: "Tamper-proof audit trail",
-    description: "Every change, sign-in, payment and withdrawal is recorded with who, when and from where. Passwords and answers are never stored in it, and entries can't be edited.",
+    icon: Lock,
+    title: "Private workspaces",
+    description: "Every organization works in its own private space. Other organizations on the platform can never see your programs, registrations, orders or team.",
   },
   {
     icon: Wallet,
@@ -862,7 +856,7 @@ export const EXPERIENCE: { icon: LucideIcon; label: string }[] = [
 const FAQS = [
   {
     q: "Who can see the registrations we collect?",
-    a: "Only the people in your account you've given access to, plus the platform administrators who run the service. Every account is a private workspace, and other organizations on the platform can't see your programs, registrations, or team.",
+    a: "Only the people in your account you've given access to. Every account is a private workspace, and other organizations on the platform can't see your programs, registrations, or team.",
   },
   {
     q: "Can applicants register from their phones?",
@@ -938,7 +932,7 @@ const FAQS = [
   },
   {
     q: "Can other people see my wish list?",
-    a: "Only the people you choose. Each wish list belongs to the person who made it. Your account administrator and the platform team cannot open it. You can invite someone with a private link or QR code and decide if they can only view it or also edit it. You can change their access, give them a new link, or remove them at any time. Items you remove are hidden but kept, and every change is written to a record on the list that cannot be edited.",
+    a: "Only the people you choose. Each wish list belongs to the person who made it, and nobody else can open it unless it is shared. You can invite someone with a private link or QR code and decide if they can only view it or also edit it. You can change their access, give them a new link, or remove them at any time. Items you remove are hidden but kept, and every change is written to a record on the list that cannot be edited.",
   },
   {
     q: "Do the people I share a wish list with need an account?",
@@ -955,10 +949,6 @@ const FAQS = [
   {
     q: "Can a payment be refunded?",
     a: "Yes. An organization admin can refund a payment to the person's mobile money from the payments page. They confirm with their password and give a reason, big refunds are approved by our team, and the platform's fee goes back in proportion. Paid votes that were already used can't be refunded.",
-  },
-  {
-    q: "Who can see what happens in the system?",
-    a: "Platform administrators have an audit log that records every action, grouped by account: who did it, what, when, from where and whether it worked, including visitors on the live registration and order pages. Passwords, form answers and who someone voted for are never stored in it, and entries can't be changed or removed. Nobody else can open it.",
   },
   {
     q: "Can I import registrations I already have?",

@@ -1,6 +1,6 @@
 # NTSOne
 
-> NTSOne is a web platform by NTS Digital Solutions for running registrations, voting polls, orders and payments: build registration forms, share them by link or QR code, review applicants, issue ID cards and tickets, and verify them at the door by QR code or barcode. It also runs voting polls (free or paid), order pages with item prices, mobile money payments through Monime (Orange Money and Africell Money) with refunds and a payment fund, invoices, receipts, quotations, business cards, a bookkeeping module with loans, credit, profit and loss reports and voice notes, and private wish lists where people plan what to buy and record the price paid and date when they get it. Platform administrators have an audit log of every action, grouped by account.
+> NTSOne is a web platform by NTS Digital Solutions for running registrations, voting polls, orders and payments: build registration forms, share them by link or QR code, review applicants, issue ID cards and tickets, and verify them at the door by QR code or barcode. It also runs voting polls (free or paid), order pages with item prices, mobile money payments through Monime (Orange Money and Africell Money) with refunds and a payment fund, invoices, receipts, quotations, business cards, a bookkeeping module with loans, credit, profit and loss reports and voice notes, and private wish lists where people plan what to buy and record the price paid and date when they get it.
 
 ## Main features
 

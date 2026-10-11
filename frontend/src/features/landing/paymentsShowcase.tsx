@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BadgeCheck, Building2, CheckCircle2, Coins, Globe2, Landmark, Lock, Mic, ScrollText, ShieldAlert, Smartphone, TrendingUp, Wallet } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Coins, Landmark, Lock, Mic, ScrollText, Smartphone, TrendingUp, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Reveal, Stage } from "./motion";
 
@@ -136,64 +136,6 @@ export function PaymentsPoints() {
         </Reveal>
       ))}
     </ul>
-  );
-}
-
-const ACCOUNTS = [
-  { name: "NTS Digital Solutions", count: "1,284", active: true },
-  { name: "Youth Service Unit", count: "642" },
-  { name: "Freetown Traders", count: "310" },
-  { name: "No account (visitors)", count: "97", visitor: true },
-];
-
-const EVENTS = [
-  { who: "Aminata K.", what: "Published the registration form", result: "Done", tone: "text-emerald-600 bg-emerald-500/15" },
-  { who: "Visitor", what: "Submitted an order", result: "Done", tone: "text-emerald-600 bg-emerald-500/15" },
-  { who: "Visitor", what: "A payment was received", result: "Done", tone: "text-emerald-600 bg-emerald-500/15" },
-  { who: "Visitor", what: "Tried to sign in", result: "Refused", tone: "text-amber-600 bg-amber-500/15" },
-  { who: "Ibrahim S.", what: "Requested a withdrawal", result: "Done", tone: "text-emerald-600 bg-emerald-500/15" },
-];
-
-/** The audit log as it looks for the platform team: accounts on the left, every event on the right. */
-export function AuditScene() {
-  return (
-    <Stage className="relative mx-auto w-full max-w-3xl">
-      <div className="depth" style={{ "--depth": "0px" } as React.CSSProperties}>
-        <div className="grid overflow-hidden rounded-3xl border border-border/70 bg-card shadow-2xl shadow-blue-900/20 md:grid-cols-[13rem_1fr]">
-          <div className="hidden flex-col gap-1 border-r border-border/70 bg-muted/40 p-3 md:flex">
-            <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Accounts</p>
-            {ACCOUNTS.map((a) => (
-              <span key={a.name} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs", a.active ? "bg-gradient-brand-soft font-semibold text-primary" : "text-muted-foreground")}>
-                {a.visitor ? <Globe2 className="h-3.5 w-3.5 shrink-0" /> : <Building2 className="h-3.5 w-3.5 shrink-0" />}
-                <span className="min-w-0 flex-1 truncate">{a.name}</span>
-                <span className="tabular-nums">{a.count}</span>
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2 border-b border-border/70 px-4 py-3 text-sm font-semibold">
-              <ScrollText className="h-4 w-4 text-primary" /> Audit log
-              <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Can't be changed or removed</span>
-            </div>
-            <ul className="divide-y divide-border/70">
-              {EVENTS.map((e, i) => (
-                <li key={i} className="flex items-center gap-3 px-4 py-3 text-xs">
-                  <span className="w-20 shrink-0 font-medium">{e.who}</span>
-                  <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.what}</span>
-                  <span className={cn("shrink-0 rounded-full px-2 py-0.5 font-semibold", e.tone)}>{e.result}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-      <Layer depth={90} delay={1} className="-right-3 -top-6 hidden sm:block">
-        <div className="flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-card px-3 py-2 text-xs shadow-xl">
-          <ShieldAlert className="h-4 w-4 text-amber-600" />
-          <span className="font-semibold">1 refused attempt</span>
-        </div>
-      </Layer>
-    </Stage>
   );
 }
 

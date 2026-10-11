@@ -10,7 +10,7 @@ export const COMPANY_WEBSITE = "https://ntsdigitalsolutions.com";
 export const COUNTRY = "Sierra Leone";
 
 /** Shown as "Last updated" on the legal pages; change it whenever their text changes. */
-export const LEGAL_LAST_UPDATED = "26 September 2026";
+export const LEGAL_LAST_UPDATED = "11 October 2026";
 
 export const LEGAL_LINKS = [
   { to: "/terms", label: "Terms of Service" },
