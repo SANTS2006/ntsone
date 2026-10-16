@@ -19,10 +19,12 @@ export function errorHandler(
   }
 
   if (error instanceof ZodError) {
+    // Say what is wrong in the rule's own words (for example "Use at least 10 characters") instead of a bare "Invalid request".
+    const first = error.issues.find((issue) => issue.code !== "invalid_type");
     return reply.status(400).send({
       success: false,
       requestId: request.id,
-      error: { code: "VALIDATION_ERROR", message: "Invalid request", details: error.flatten() },
+      error: { code: "VALIDATION_ERROR", message: first?.message ?? "Invalid request", details: error.flatten() },
     });
   }
 

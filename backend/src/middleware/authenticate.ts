@@ -6,6 +6,9 @@ import { AppError } from "../lib/errors.js";
 import { verifyAccessToken } from "../lib/jwt.js";
 import type { AuthenticatedUser } from "../modules/users/types.js";
 
+// Someone still on a temporary password may only look at their own profile and choose a new password.
+const PASSWORD_CHANGE_PATHS = new Set(["/api/auth/me", "/api/auth/me/change-password"]);
+
 declare module "fastify" {
   interface FastifyRequest {
     user?: AuthenticatedUser;
@@ -50,5 +53,7 @@ export async function authenticate(request: FastifyRequest, _reply: FastifyReply
     status: user.status,
     tenantId: user.tenantId,
     emailVerified: !!user.emailVerifiedAt,
+    mustChangePassword: user.mustChangePassword,
   };
+  if (user.mustChangePassword && !PASSWORD_CHANGE_PATHS.has(request.url.split("?")[0] ?? "")) throw AppError.passwordChangeRequired();
 }

@@ -10,8 +10,7 @@ import { ApiError } from "@/lib/api";
 import { resetPassword } from "./api";
 import { AuthCardShell } from "./AuthCardShell";
 import { usePageMeta } from "@/lib/seo";
-
-const MIN_LENGTH = 8;
+import { PASSWORD_HINT, passwordProblem as findPasswordProblem } from "@/lib/passwordRules";
 
 export function ResetPasswordPage() {
   usePageMeta({ title: "Reset password" });
@@ -23,6 +22,7 @@ export function ResetPasswordPage() {
   const [submitting, setSubmitting] = React.useState(false);
   const [done, setDone] = React.useState(false);
   const [linkInvalid, setLinkInvalid] = React.useState(!token);
+  const [touched, setTouched] = React.useState({ password: false, confirm: false });
 
   if (linkInvalid) {
     return (
@@ -52,16 +52,7 @@ export function ResetPasswordPage() {
     );
   }
 
-  const [touched, setTouched] = React.useState({ password: false, confirm: false });
-  const passwordProblem = !password
-    ? "Please enter a new password"
-    : password.length < MIN_LENGTH
-      ? `Use at least ${MIN_LENGTH} characters`
-      : !/[A-Za-z]/.test(password)
-        ? "Include at least one letter"
-        : !/\d/.test(password)
-          ? "Include at least one number"
-          : "";
+  const passwordProblem = findPasswordProblem(password);
   const confirmProblem = !confirm ? "Please confirm your new password" : confirm !== password ? "Passwords don't match" : "";
   const tooShort = touched.password && !!passwordProblem;
   const mismatch = touched.confirm && !!confirmProblem;
@@ -113,7 +104,7 @@ export function ResetPasswordPage() {
             </button>
           </div>
           <p id="password-hint" role={tooShort ? "alert" : undefined} className={tooShort ? "px-2 text-sm text-destructive" : "px-2 text-xs text-muted-foreground"}>
-            {tooShort ? passwordProblem : `At least ${MIN_LENGTH} characters, with a letter and a number.`}
+            {tooShort ? passwordProblem : PASSWORD_HINT}
           </p>
         </div>
         <div className="flex flex-col gap-1.5">

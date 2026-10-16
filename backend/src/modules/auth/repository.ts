@@ -91,8 +91,24 @@ export async function markPasswordResetTokenUsed(id: string) {
   await db.update(passwordResetTokens).set({ usedAt: new Date() }).where(eq(passwordResetTokens.id, id));
 }
 
+/** Sets a password the person chose themselves. This also ends any temporary-password state they were in. */
 export async function updateUserPassword(userId: string, passwordHash: string) {
-  await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, userId));
+  await db.update(users).set({ passwordHash, mustChangePassword: false, tempPasswordExpiresAt: null, updatedAt: new Date() }).where(eq(users.id, userId));
+}
+
+/** Gives an invited person a new temporary password (when they are first invited, or sent a new invitation). */
+export async function setTemporaryPassword(userId: string, passwordHash: string, expiresAt: Date) {
+  await db.update(users).set({ passwordHash, mustChangePassword: true, tempPasswordExpiresAt: expiresAt, updatedAt: new Date() }).where(eq(users.id, userId));
+}
+
+/** The person accepted their invitation: their own password is set, and they have proved they own the email address. */
+export async function completeInvitation(userId: string, passwordHash: string) {
+  const [row] = await db
+    .update(users)
+    .set({ passwordHash, mustChangePassword: false, tempPasswordExpiresAt: null, emailVerifiedAt: new Date(), updatedAt: new Date() })
+    .where(eq(users.id, userId))
+    .returning();
+  return row!;
 }
 
 export async function updateUserProfile(userId: string, values: { name?: string; avatarUrl?: string }) {
@@ -193,6 +209,8 @@ export async function createTenantAndAdmin(params: {
   passwordHash: string;
   /** False for people invited by someone else, who haven't agreed to the terms yet. */
   termsAccepted?: boolean;
+  /** Set for an invited person whose password is temporary: when it stops working. */
+  temporaryPasswordExpiresAt?: Date;
 }) {
   return db.transaction(async (tx) => {
     const [tenant] = await tx
@@ -209,6 +227,8 @@ export async function createTenantAndAdmin(params: {
         role: "admin",
         tenantId: tenant!.id,
         termsAcceptedAt: params.termsAccepted === false ? null : new Date(),
+        mustChangePassword: params.temporaryPasswordExpiresAt !== undefined,
+        tempPasswordExpiresAt: params.temporaryPasswordExpiresAt ?? null,
       })
       .returning();
 

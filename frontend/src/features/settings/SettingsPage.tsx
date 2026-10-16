@@ -17,6 +17,7 @@ import { ApiError } from "@/lib/api";
 import { confirmEmailChange, requestEmailChange } from "../auth/api";
 import { changePassword, getOrganization, updateOrganization, updateProfile, uploadAvatar } from "./api";
 import { usePageMeta } from "@/lib/seo";
+import { passwordProblem } from "@/lib/passwordRules";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -195,7 +196,10 @@ function OrganizationSection() {
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(10, "At least 10 characters").regex(/[A-Za-z]/, "Include a letter").regex(/d/, "Include a number"),
+    newPassword: z.string().superRefine((value, ctx) => {
+      const problem = passwordProblem(value);
+      if (problem) ctx.addIssue({ code: "custom", message: problem });
+    }),
     confirmPassword: z.string().min(1, "Please confirm your new password"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

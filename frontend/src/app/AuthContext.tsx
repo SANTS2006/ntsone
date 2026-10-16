@@ -22,6 +22,8 @@ interface AuthContextValue {
   retryAuth: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
+  /** Accepts an invitation: the temporary password from the email is swapped for one the person chooses, and they are signed in. */
+  acceptInvitation: (email: string, temporaryPassword: string, newPassword: string) => Promise<void>;
   /** Signs out; protected pages then send the visitor to `redirectTo` (the website by default). */
   logout: (options?: { redirectTo?: string }) => Promise<void>;
   /** Where a protected page should go after a deliberate sign-out, instead of the sign-in page. */
@@ -94,6 +96,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [queryClient],
   );
 
+  const acceptInvitation = React.useCallback(
+    async (email: string, temporaryPassword: string, newPassword: string) => {
+      const data = await apiFetch<{ accessToken: string; user: AuthUser }>("/auth/accept-invitation", {
+        method: "POST",
+        body: { email, temporaryPassword, newPassword },
+        skipAuthRetry: true,
+      });
+      queryClient.clear();
+      setAccessToken(data.accessToken);
+      setLogoutRedirect(null);
+      setUser(data.user);
+    },
+    [queryClient],
+  );
+
   const logout = React.useCallback(
     async ({ redirectTo = "/" }: { redirectTo?: string } = {}) => {
       // The screen says what is happening, and the person is only taken away once the session is really closed.
@@ -116,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, authError, retryAuth: () => void checkSession(), login, register, logout, logoutRedirect, updateLocalUser }}>
+    <AuthContext.Provider value={{ user, isLoading, authError, retryAuth: () => void checkSession(), login, register, acceptInvitation, logout, logoutRedirect, updateLocalUser }}>
       {children}
     </AuthContext.Provider>
   );

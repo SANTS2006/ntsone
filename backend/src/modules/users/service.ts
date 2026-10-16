@@ -3,6 +3,7 @@ import { AppError } from "../../lib/errors.js";
 import type { PaginationInput } from "../../lib/pagination.js";
 import { buildPaginatedResult } from "../../lib/pagination.js";
 import { hashPassword } from "../../lib/password.js";
+import { defaultTemporaryPassword, TEMPORARY_PASSWORD_DAYS, temporaryPasswordExpiry } from "../../lib/temporaryPassword.js";
 import { queueEmail } from "../email/outbox.js";
 import { sendEmail } from "../email/service.js";
 import { invitationEmail, teamAddedEmail } from "../email/templates.js";
@@ -40,7 +41,9 @@ export async function createUser(tenantId: string, input: CreateUserInput, invit
     return teamMember(tenantId, existing.id);
   }
 
-  const passwordHash = await hashPassword(input.password);
+  // No password is typed by the inviter: the person gets the organization's default temporary password and must replace it.
+  const temporaryPassword = defaultTemporaryPassword(organizationName);
+  const passwordHash = await hashPassword(temporaryPassword);
   const spaceName = `${input.name.trim().split(/\s+/)[0]}'s space`;
   const { user } = await authRepo.createTenantAndAdmin({
     organizationName: spaceName,
@@ -49,6 +52,7 @@ export async function createUser(tenantId: string, input: CreateUserInput, invit
     email,
     passwordHash,
     termsAccepted: false,
+    temporaryPasswordExpiresAt: temporaryPasswordExpiry(),
   });
   await usersRepo.ensureTeamLink(tenantId, user.id, linkRoleOf(input.role));
 
@@ -58,11 +62,40 @@ export async function createUser(tenantId: string, input: CreateUserInput, invit
     inviterName: inviter.name,
     organizationName,
     role: input.role,
-    temporaryPassword: input.password,
+    temporaryPassword,
+    acceptUrl: acceptInvitationUrl(user.email),
     loginUrl: `${env.APP_URL}/login`,
+    validDays: TEMPORARY_PASSWORD_DAYS,
   });
   await sendEmail({ to: user.email, toName: user.name, subject: message.subject, html: message.html });
 
+  return teamMember(tenantId, user.id);
+}
+
+const acceptInvitationUrl = (email: string) => `${env.APP_URL}/accept-invitation?email=${encodeURIComponent(email)}`;
+
+/** Sends a new temporary password and a fresh seven days to someone who has not accepted their invitation yet. */
+export async function resendInvitation(tenantId: string, id: string, inviter: { name: string }) {
+  const member = await usersRepo.findTeamMember(id, tenantId);
+  if (!member) throw AppError.notFound("User not found");
+  const user = member.user;
+  if (!user.mustChangePassword) throw AppError.conflict("This person has already accepted their invitation");
+  const organizationName = (await usersRepo.findTenantName(tenantId)) ?? "your organization";
+  const temporaryPassword = defaultTemporaryPassword(organizationName);
+  await authRepo.setTemporaryPassword(user.id, await hashPassword(temporaryPassword), temporaryPasswordExpiry());
+  await authRepo.revokeAllRefreshTokensForUser(user.id);
+  const message = invitationEmail({
+    name: user.name,
+    email: user.email,
+    inviterName: inviter.name,
+    organizationName,
+    role: member.role,
+    temporaryPassword,
+    acceptUrl: acceptInvitationUrl(user.email),
+    loginUrl: `${env.APP_URL}/login`,
+    validDays: TEMPORARY_PASSWORD_DAYS,
+  });
+  await sendEmail({ to: user.email, toName: user.name, subject: message.subject, html: message.html });
   return teamMember(tenantId, user.id);
 }
 

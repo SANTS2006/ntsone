@@ -35,6 +35,13 @@ export const resetPasswordSchema = z.object({
   password: strongPassword,
 });
 
+/** Accepting an invitation: the email, the temporary password from the invitation email, and the password they choose. */
+export const acceptInvitationSchema = z.object({
+  email: z.string().trim().email(),
+  temporaryPassword: z.string().min(1, "Enter the temporary password from your email").max(128),
+  newPassword: strongPassword,
+});
+
 export const updateProfileSchema = z.object({
   name: z.string().min(2).max(200).optional(),
   avatarUrl: ownImageUrl.optional(),
@@ -54,4 +61,5 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

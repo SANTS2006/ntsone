@@ -6,6 +6,7 @@ import { recordAudit } from "../audit/recorder.js";
 import { createUploadSignature } from "../uploads/service.js";
 import * as authService from "./service.js";
 import {
+  acceptInvitationSchema,
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
@@ -49,6 +50,17 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
     ipAddress: request.ip,
   });
   return sendSuccess(reply, { accessToken: result.accessToken, user: result.user }, "Logged in successfully");
+}
+
+export async function acceptInvitationHandler(request: FastifyRequest, reply: FastifyReply) {
+  const input = acceptInvitationSchema.parse(request.body);
+  const result = await authService.acceptInvitation(input, {
+    userAgent: request.headers["user-agent"],
+    ipAddress: request.ip,
+  });
+  setRefreshCookie(reply, result.refreshToken, result.refreshTokenExpiresAt);
+  await recordAudit({ actorUserId: result.user.id, action: "user.accept_invitation", entityType: "user", entityId: result.user.id, ipAddress: request.ip });
+  return sendSuccess(reply, { accessToken: result.accessToken, user: result.user }, "Welcome! Your password is set");
 }
 
 export async function registerHandler(request: FastifyRequest, reply: FastifyReply) {

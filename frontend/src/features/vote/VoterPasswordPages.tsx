@@ -11,11 +11,11 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError } from "@/lib/api";
 import { usePageMeta } from "@/lib/seo";
+import { PASSWORD_HINT, passwordProblem } from "@/lib/passwordRules";
 import { forgotVoterPassword, resetVoterPassword } from "./api";
 import { PollLogo, useVotePoll, VoteShell } from "./VoteShell";
 import { VoteMessage } from "./VoteMessage";
 
-const MIN_LENGTH = 8;
 
 function safeNext(slug: string, value: string | null) {
   return value?.startsWith(`/vote/${slug}`) ? value : `/vote/${slug}`;
@@ -144,16 +144,16 @@ export function VoterResetPasswordPage() {
   const [busy, setBusy] = React.useState(false);
   const [done, setDone] = React.useState(false);
   const [problem, setProblem] = React.useState<string | null>(null);
+  // Every hook is declared before the early returns below: a different number of hooks between two draws crashes the page.
+  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
+  const [triedSubmit, setTriedSubmit] = React.useState(false);
 
   if (early) return <>{early}</>;
   if (!poll) return null;
-
-  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
-  const [triedSubmit, setTriedSubmit] = React.useState(false);
   const errs = {
     email: !email.trim() ? "Please enter your email address" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? "Enter a valid email address, like name@example.com" : "",
     code: code.length < 6 ? "Please enter the 6-character code from your email" : "",
-    password: !password ? "Please enter a new password" : password.length < MIN_LENGTH ? `Use at least ${MIN_LENGTH} characters` : "",
+    password: passwordProblem(password),
     confirm: !confirm ? "Please confirm your new password" : confirm !== password ? "Passwords don't match" : "",
   };
   const shown = (key: keyof typeof errs) => ((touched[key] || triedSubmit) && errs[key]) || "";
@@ -259,7 +259,7 @@ export function VoterResetPasswordPage() {
                 aria-invalid={tooShort ? true : undefined}
               />
               <p role={tooShort ? "alert" : undefined} className={tooShort ? "text-sm text-destructive" : "text-xs text-muted-foreground"}>
-                {tooShort ? shown("password") : `At least ${MIN_LENGTH} characters.`}
+                {tooShort ? shown("password") : PASSWORD_HINT}
               </p>
             </div>
             <div className="flex flex-col gap-1.5">

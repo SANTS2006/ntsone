@@ -13,6 +13,7 @@ import {
   listUsersHandler,
   removeMembershipHandler,
   removeTeamMemberHandler,
+  resendInvitationHandler,
   updateUserHandler,
 } from "./controller.js";
 import { pollAccessRoutes } from "./pollAccess.js";
@@ -43,6 +44,7 @@ export async function userRoutes(app: FastifyInstance) {
     return sendTableExport(reply, query.format, "Users", [sheet]);
   });
   app.post("/", createUserHandler);
+  app.post("/:userId/resend-invitation", { config: { rateLimit: { max: 6, timeWindow: "10 minutes" } } }, resendInvitationHandler);
   app.get("/:userId", getUserHandler);
   app.patch("/:userId", updateUserHandler);
   app.delete("/:userId", removeTeamMemberHandler);

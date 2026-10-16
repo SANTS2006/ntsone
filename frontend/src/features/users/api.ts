@@ -9,6 +9,8 @@ export interface AdminUser {
   status: UserStatus;
   /** Has an account space of their own and is on your team by invitation. */
   ownSpace?: boolean;
+  /** Invited, but has not chosen their own password yet. */
+  mustChangePassword?: boolean;
   createdAt: string;
   lastLoginAt: string | null;
 }
@@ -30,8 +32,12 @@ export function listUsers(params: { page?: number; pageSize?: number; search?: s
   return apiFetch<PaginatedResult<AdminUser>>(`/users?${query.toString()}`);
 }
 
-export function createUser(input: { name: string; email: string; password: string; role: UserRole }) {
+export function createUser(input: { name: string; email: string; role: UserRole }) {
   return apiFetch<AdminUser>("/users", { method: "POST", body: input });
+}
+
+export function resendInvitation(userId: string) {
+  return apiFetch<AdminUser>(`/users/${userId}/resend-invitation`, { method: "POST" });
 }
 
 export function updateUser(userId: string, input: Partial<{ name: string; role: UserRole; status: UserStatus }>) {

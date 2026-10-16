@@ -1,4 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
 import { AppError } from "../../lib/errors.js";
 import { sendSuccess } from "../../lib/response.js";
 import { recordAudit } from "../audit/recorder.js";
@@ -23,6 +24,14 @@ export async function createUserHandler(request: FastifyRequest, reply: FastifyR
     ipAddress: request.ip,
   });
   return sendSuccess(reply, user, "User created", 201);
+}
+
+export async function resendInvitationHandler(request: FastifyRequest, reply: FastifyReply) {
+  if (!request.user?.tenantId) throw AppError.unauthorized();
+  const { userId } = z.object({ userId: z.string().uuid() }).parse(request.params);
+  const user = await usersService.resendInvitation(request.user.tenantId, userId, { name: request.user.name });
+  await recordAudit({ actorUserId: request.user.id, action: "user.resend_invitation", entityType: "user", entityId: userId, ipAddress: request.ip });
+  return sendSuccess(reply, user, "A new invitation was sent");
 }
 
 export async function listUsersHandler(request: FastifyRequest, reply: FastifyReply) {

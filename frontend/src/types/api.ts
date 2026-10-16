@@ -11,6 +11,8 @@ export interface AuthUser {
   status: UserStatus;
   tenantId: string | null;
   emailVerified: boolean;
+  /** Still on the temporary password from an invitation; must choose their own before using the account. */
+  mustChangePassword?: boolean;
 }
 
 export type ProgramStatus = "draft" | "published" | "closed" | "archived";

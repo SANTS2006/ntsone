@@ -1,4 +1,3 @@
-import { strongPassword } from "../../lib/passwordPolicy.js";
 import { z } from "zod";
 import { dateRangeQuery } from "../../lib/dateRange.js";
 import { paginationSchema } from "../../lib/pagination.js";
@@ -11,7 +10,6 @@ export const programRoleValues = ["admin", "viewer"] as const;
 export const createUserSchema = z.object({
   name: z.string().min(2).max(200),
   email: z.string().email(),
-  password: strongPassword,
   role: z.enum(inviteRoleValues),
 });
 

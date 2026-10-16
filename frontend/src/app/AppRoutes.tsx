@@ -21,6 +21,7 @@ const LoginPage = lazyPage(() => import("@/features/auth/LoginPage"), "LoginPage
 const RegisterPage = lazyPage(() => import("@/features/auth/RegisterPage"), "RegisterPage");
 const VerifyEmailPage = lazyPage(() => import("@/features/auth/VerifyEmailPage"), "VerifyEmailPage");
 const ForgotPasswordPage = lazyPage(() => import("@/features/auth/ForgotPasswordPage"), "ForgotPasswordPage");
+const AcceptInvitationPage = lazyPage(() => import("@/features/auth/AcceptInvitationPage"), "AcceptInvitationPage");
 const ResetPasswordPage = lazyPage(() => import("@/features/auth/ResetPasswordPage"), "ResetPasswordPage");
 const LegalLayout = lazyPage(() => import("@/features/legal/LegalLayout"), "LegalLayout");
 const AcceptableUsePage = lazyPage(() => import("@/features/legal/policies"), "AcceptableUsePage");
@@ -120,6 +121,7 @@ export function AppRoutes() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
 
           <Route element={<LegalLayout />}>
             <Route path="/terms" element={<TermsPage />} />

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff, Plus, Rocket, UserMinus } from "lucide-react";
+import { MailPlus, Plus, Rocket, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ApiError } from "@/lib/api";
-import { useCreateUser, useRemoveTeamMember, useUpdateUser, useUsersList } from "./hooks";
+import { useCreateUser, useRemoveTeamMember, useResendInvitation, useUpdateUser, useUsersList } from "./hooks";
 import { ManageAccessDialog } from "./AccessDialog";
 import type { UserRole } from "@/types/api";
 import { usePageMeta } from "@/lib/seo";
@@ -23,14 +23,12 @@ import { usePageMeta } from "@/lib/seo";
 const createUserSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().min(10, "At least 10 characters").regex(/[A-Za-z]/, "Include a letter").regex(/d/, "Include a number"),
   role: z.enum(["program_admin", "viewer"]),
 });
 type CreateUserForm = z.infer<typeof createUserSchema>;
 
 function CreateUserDialog() {
   const [open, setOpen] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
   const createUser = useCreateUser();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateUserForm>({
     resolver: zodResolver(createUserSchema),
@@ -60,7 +58,7 @@ function CreateUserDialog() {
         <DialogHeader>
           <DialogTitle>Invite teammate</DialogTitle>
           <p className="text-sm text-muted-foreground">
-            They&apos;ll receive an email with their role, this temporary password, and a link to sign in. They get a space of their own too, where they can create their own programs, polls and businesses, and they stay on your team under this role. If they already have an account, they are just added to your team.
+            They&apos;ll receive an email with their role, a temporary password we set for them (the first letters of your organization&apos;s name, then @ and the year), and a link to accept the invitation. They are asked to choose their own password straight away. They get a space of their own too, where they can create their own programs, polls and businesses, and they stay on your team under this role. If they already have an account, they are just added to your team.
           </p>
         </DialogHeader>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -75,27 +73,6 @@ function CreateUserDialog() {
             {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="invitePassword">Temporary password</Label>
-            <div className="relative">
-              <Input
-                id="invitePassword"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                className="pr-10"
-                {...register("password")}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-          </div>
-          <div className="flex flex-col gap-1.5">
             <Label>Role</Label>
             <select
               className="h-10 rounded-md border border-input bg-background px-3 text-sm"
@@ -107,7 +84,7 @@ function CreateUserDialog() {
           </div>
           <DialogFooter>
             <Button type="submit" loading={createUser.isPending}>
-              {createUser.isPending ? "Creating..." : "Create user"}
+              {createUser.isPending ? "Sending..." : "Send invitation"}
             </Button>
           </DialogFooter>
         </form>
@@ -140,6 +117,30 @@ function RoleSelect({ userId, name, role }: { userId: string; name: string; role
         <SelectItem value="program_admin">Program admin</SelectItem>
       </SelectContent>
     </Select>
+  );
+}
+
+/** Sends a new temporary password and a fresh seven days to someone who has not accepted their invitation yet. */
+function ResendInvitationButton({ userId, name }: { userId: string; name: string }) {
+  const resend = useResendInvitation();
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={`Resend the invitation to ${name}`}
+      title="Resend the invitation"
+      disabled={resend.isPending}
+      onClick={async () => {
+        try {
+          await resend.mutateAsync(userId);
+          toast.success(`A new invitation was emailed to ${name}`);
+        } catch (err) {
+          toast.error(err instanceof ApiError ? err.message : "Couldn't send the invitation");
+        }
+      }}
+    >
+      <MailPlus className="h-4 w-4" />
+    </Button>
   );
 }
 
@@ -239,6 +240,11 @@ export function UsersPage() {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Badge variant={user.status === "active" ? "success" : "secondary"}>{user.status}</Badge>
+                    {user.mustChangePassword && (
+                      <Badge variant="warning" title="Has not accepted the invitation and chosen a password yet">
+                        Invited
+                      </Badge>
+                    )}
                     {user.ownSpace && (
                       <Badge variant="outline" className="gap-1" title="Has a space of their own, with their own programs, polls and businesses">
                         <Rocket className="h-3 w-3" aria-hidden="true" />
@@ -249,6 +255,7 @@ export function UsersPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
+                    {user.mustChangePassword && <ResendInvitationButton userId={user.id} name={user.name} />}
                     {user.role !== "admin" && <ManageAccessDialog userId={user.id} userName={user.name} />}
                     {user.ownSpace && <RemoveFromTeamButton userId={user.id} name={user.name} />}
                   </div>

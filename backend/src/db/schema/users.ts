@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, index, integer, unique, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, index, integer, unique, uniqueIndex, boolean } from "drizzle-orm/pg-core";
 import { emailVerificationPurposeEnum, userRoleEnum, userStatusEnum } from "./enums";
 import { tenants } from "./tenants";
 
@@ -21,6 +21,10 @@ export const users = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    // An invited person starts with a temporary password and must choose their own before doing anything else.
+    mustChangePassword: boolean("must_change_password").notNull().default(false),
+    // When that temporary password stops working (the person can be sent a new one).
+    tempPasswordExpiresAt: timestamp("temp_password_expires_at", { withTimezone: true }),
   },
   (table) => [index("users_role_idx").on(table.role), index("users_tenant_id_idx").on(table.tenantId)],
 );

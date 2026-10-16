@@ -107,6 +107,8 @@ const ROUTES: Record<string, Entry> = {
   "POST /api/public/wish/:token/items/:itemId/restore": ["wishlist.shared_restore_item", "Restored an item on a shared wish list", "wish_item"],
   "DELETE /api/public/wish/:token/items/:itemId": ["wishlist.shared_remove_item", "Removed an item on a shared wish list", "wish_item"],
   "GET /api/public/wish/:token/export": ["wishlist.shared_export", "Downloaded a shared wish list", "wishlist"],
+  "POST /api/auth/accept-invitation": ["user.accept_invitation", "Accepted an invitation and chose a password", "user"],
+  "POST /api/users/:userId/resend-invitation": ["user.resend_invitation", "Sent a new invitation", "user"],
   "POST /api/public/contact": ["public.contact", "Sent a message through the contact form"],
   "POST /api/public/reports": ["public.report", "Sent a report"],
   "POST /api/support/feedback": ["support.feedback", "Sent feedback"],

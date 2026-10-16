@@ -17,6 +17,7 @@ import type { AuthenticatedUser } from "../users/types.js";
 import * as authRepo from "./repository.js";
 import * as usersRepo from "../users/repository.js";
 import type {
+  AcceptInvitationInput,
   ChangePasswordInput,
   ForgotPasswordInput,
   LoginInput,
@@ -39,6 +40,7 @@ function toAuthenticatedUser(user: Awaited<ReturnType<typeof authRepo.findUserBy
     status: user.status,
     tenantId: user.tenantId,
     emailVerified: !!user.emailVerifiedAt,
+    mustChangePassword: user.mustChangePassword,
   };
 }
 
@@ -134,6 +136,7 @@ export async function login(input: LoginInput, context: { userAgent?: string; ip
   clearLoginFailures(input.email);
 
   if (user.status !== "active") throw AppError.forbidden("This account has been suspended");
+  assertInvitationNotExpired(user);
 
   // Invited people (team members, and anyone given access to a program, poll, or business) receive
   // their temporary password solely in the invitation email, so signing in with it proves they
@@ -156,6 +159,41 @@ export async function login(input: LoginInput, context: { userAgent?: string; ip
   await authRepo.touchLastLogin(user.id);
 
   return { accessToken, refreshToken, refreshTokenExpiresAt, user: toAuthenticatedUser(signedInUser) };
+}
+
+/** A temporary password stops working after a few days; the person can use "Forgot password" or ask to be invited again. */
+function assertInvitationNotExpired(user: { mustChangePassword: boolean; tempPasswordExpiresAt: Date | null }) {
+  if (user.mustChangePassword && user.tempPasswordExpiresAt && user.tempPasswordExpiresAt.getTime() < Date.now()) {
+    throw AppError.forbidden("This invitation has expired. Use \"Forgot password\" to choose a password, or ask the person who invited you to send a new invitation.");
+  }
+}
+
+/**
+ * The invitation link: the invited person gives the temporary password from their email and chooses their own, and
+ * is signed in. Only an account that is still on its temporary password can be opened this way.
+ */
+export async function acceptInvitation(input: AcceptInvitationInput, context: { userAgent?: string; ipAddress?: string }): Promise<LoginResult> {
+  assertLoginAllowed(input.email);
+  const wrong = () => AppError.unauthorized("The email or the temporary password is not correct");
+  const user = await authRepo.findUserByEmail(input.email);
+  if (!user) {
+    await burnPasswordCheck(input.temporaryPassword);
+    recordLoginFailure(input.email);
+    throw wrong();
+  }
+  const ok = await verifyPassword(user.passwordHash, input.temporaryPassword);
+  if (!ok || !user.mustChangePassword) {
+    recordLoginFailure(input.email);
+    throw wrong();
+  }
+  clearLoginFailures(input.email);
+  if (user.status !== "active") throw AppError.forbidden("This account has been suspended");
+  assertInvitationNotExpired(user);
+  if (input.newPassword === input.temporaryPassword) throw AppError.validation("Choose a password that is different from the temporary one");
+
+  await authRepo.completeInvitation(user.id, await hashPassword(input.newPassword));
+  await authRepo.revokeAllRefreshTokensForUser(user.id);
+  return login({ email: input.email, password: input.newPassword }, context);
 }
 
 export async function register(

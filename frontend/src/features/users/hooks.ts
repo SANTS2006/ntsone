@@ -14,6 +14,14 @@ export function useCreateUser() {
   });
 }
 
+export function useResendInvitation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: usersApi.resendInvitation,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+  });
+}
+
 export function useUpdateUser() {
   const queryClient = useQueryClient();
   return useMutation({

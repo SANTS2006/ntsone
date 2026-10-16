@@ -283,7 +283,11 @@ export function invitationEmail(params: {
   organizationName: string;
   role: string;
   temporaryPassword: string;
+  /** The page where they accept the invitation and choose their own password. */
+  acceptUrl: string;
   loginUrl: string;
+  /** How many days the temporary password works. */
+  validDays: number;
 }): { subject: string; html: string } {
   const role = roleLabel(params.role);
   const subject = `You've been invited to join ${params.organizationName}`;
@@ -295,21 +299,21 @@ export function invitationEmail(params: {
        <strong style="color:${BRAND.heading};">${escapeHtml(params.organizationName)}</strong> as a
        <strong style="color:${BRAND.primaryDark};">${escapeHtml(role)}</strong>.`,
     ),
-    paragraph("Use the details below to sign in for the first time:"),
+    paragraph("To get started, accept the invitation and choose your own password. You will need the temporary password below:"),
     detailsTable([
       { label: "Organization", value: params.organizationName },
       { label: "Your role", value: role },
       { label: "Sign-in email", value: params.email },
       { label: "Temporary password", value: params.temporaryPassword, mono: true },
     ]),
-    paragraph(`Confirm your invitation by clicking the button below. It takes you straight to the sign-in page.`),
-    button("Confirm & sign in", params.loginUrl),
+    paragraph(`Press the button below, enter the temporary password, and choose a password of your own. The temporary password stops working in ${params.validDays} days.`),
+    button("Accept invitation", params.acceptUrl),
     `<div style="margin-top:20px;border-top:1px solid ${BRAND.border};padding-top:20px;">
        <p style="margin:0 0 8px;font-family:${FONT};font-size:13px;line-height:1.6;color:${BRAND.muted};">
-         For your security, change this temporary password from <strong>Settings</strong> right after you sign in.
+         For your security, you will be asked to replace the temporary password with your own before you can use the account. If you sign in from the <a href="${escapeHtml(params.loginUrl)}" style="color:${BRAND.primaryDark};">sign-in page</a> instead, you will be asked the same thing.
        </p>
        <p style="margin:0;font-family:${FONT};font-size:12px;line-height:1.6;color:${BRAND.faint};word-break:break-all;">
-         Button not working? Paste this link into your browser: ${escapeHtml(params.loginUrl)}
+         Button not working? Paste this link into your browser: ${escapeHtml(params.acceptUrl)}
        </p>
      </div>`,
   ].join("");

@@ -2,6 +2,7 @@ import { FullScreenLoading } from "@/components/Loading";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import type { UserRole } from "@/types/api";
+import { ChooseOwnPasswordScreen } from "@/features/auth/AcceptInvitationPage";
 
 export function ProtectedRoute({ roles }: { roles?: UserRole[] }) {
   const { user, isLoading, authError, retryAuth, logoutRedirect } = useAuth();
@@ -30,6 +31,9 @@ export function ProtectedRoute({ roles }: { roles?: UserRole[] }) {
   if (!user.emailVerified) {
     return <Navigate to="/verify-email" replace />;
   }
+
+  // Signed in with the temporary password from an invitation: nothing else works until they choose their own.
+  if (user.mustChangePassword) return <ChooseOwnPasswordScreen />;
 
   if (roles && !roles.includes(user.role)) {
     return <Navigate to="/admin" replace />;

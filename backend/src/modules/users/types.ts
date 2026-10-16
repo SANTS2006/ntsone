@@ -12,4 +12,6 @@ export interface AuthenticatedUser {
   // Null only for the platform super_admin; every other role always has one.
   tenantId: string | null;
   emailVerified: boolean;
+  /** True while the person is still on the temporary password they were invited with. */
+  mustChangePassword: boolean;
 }

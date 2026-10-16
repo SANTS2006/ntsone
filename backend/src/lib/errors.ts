@@ -8,6 +8,7 @@ export type ErrorCode =
   | "RATE_LIMITED"
   | "PAYMENT_REQUIRED"
   | "PAYMENT_UNAVAILABLE"
+  | "PASSWORD_CHANGE_REQUIRED"
   | "INTERNAL_ERROR";
 
 export class AppError extends Error {
@@ -33,6 +34,11 @@ export class AppError extends Error {
 
   static forbidden(message = "You do not have access to this resource") {
     return new AppError("FORBIDDEN", message, 403);
+  }
+
+  /** An invited person who has not yet replaced their temporary password. */
+  static passwordChangeRequired() {
+    return new AppError("PASSWORD_CHANGE_REQUIRED", "Choose your own password before you continue", 403);
   }
 
   static emailNotVerified() {
