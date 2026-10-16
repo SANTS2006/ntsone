@@ -27,6 +27,7 @@ export function chargePlanFor(
   program: { kind: string; idCardEnabled: boolean; ticketEnabled: boolean; paymentConfig: unknown },
   form: { orderItems: unknown },
   selection: OrderSelection | undefined,
+  options: { documentsInPerson?: boolean } = {},
 ): ChargePlan | null {
   const config = resolvePaymentConfig(program.paymentConfig);
   // Payments are on only for an admin who has agreed to the platform's fee; otherwise nothing can be charged.
@@ -45,7 +46,8 @@ export function chargePlanFor(
   }
 
   if (!config.enabled) return null;
-  const lines = programLineItems(program, config);
+  // Someone who will buy their ID card or ticket at the program pays only the rest (the registration fee, if any) online.
+  const lines = programLineItems(program, config, { withoutDocuments: options.documentsInPerson });
   if (lines.length === 0) return null;
   const totalMinor = sumLines(lines);
   assertChargeable(totalMinor);

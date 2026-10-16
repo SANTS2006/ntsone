@@ -55,6 +55,8 @@ export interface PaymentConfig {
   registrationFeeMinor: number;
   idCardPriceMinor: number;
   ticketPriceMinor: number;
+  /** Registrants may register now and buy their ID card or ticket in person instead of paying online. */
+  allowPayInPerson?: boolean;
 }
 
 /** One thing an order form sells. Prices are in cents. */
@@ -278,6 +280,8 @@ export interface Registration {
   paymentStatus?: PaymentStatus;
   amountDueMinor?: number;
   paidAt?: string | null;
+  /** The registrant chose to buy their ID card and ticket in person; they stay locked until you confirm. */
+  documentsInPerson?: boolean;
   /** Admin changes to this registrant's ID card. */
   documentOverrides?: { role?: string; photoUrl?: string };
 }

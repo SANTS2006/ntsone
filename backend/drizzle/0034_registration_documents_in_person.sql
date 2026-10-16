@@ -1,0 +1,1 @@
+ALTER TABLE "registrations" ADD COLUMN "documents_in_person" boolean DEFAULT false NOT NULL;

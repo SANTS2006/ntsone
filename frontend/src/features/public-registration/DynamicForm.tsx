@@ -40,11 +40,13 @@ interface DynamicFormProps {
     files: UploadedFileInfo[],
     consentAccepted: boolean,
     items?: { itemId: string; quantity: number }[],
+    /** The registrant will buy their ID card or ticket in person at the program instead of paying for it online. */
+    documentsInPerson?: boolean,
   ) => Promise<void>;
   /** An order form's goods: the customer picks quantities and sees the total. */
   orderItems?: OrderItem[];
   /** What a registration costs (fee, ID card, ticket), shown before the registrant submits and pays. */
-  payment?: { enabled: boolean; currency?: string; lines: { id: string; name: string; amountMinor: number }[] };
+  payment?: { enabled: boolean; allowPayInPerson?: boolean; currency?: string; lines: { id: string; name: string; amountMinor: number }[] };
   onUploadFile?: (file: File, fieldKey: string) => Promise<UploadedFileInfo>;
   submitting?: boolean;
   errors?: string[];
@@ -119,6 +121,43 @@ function ChargeSummary({ lines, total, heading = "To pay" }: { lines: { id: stri
       </div>
       <p className="text-xs text-muted-foreground">You&apos;ll pay on the next page with Orange Money, Africell Money or QMoney. Your registration is held until the payment is confirmed.</p>
     </section>
+  );
+}
+
+const DOCUMENT_LINE_IDS = new Set(["id_card", "ticket"]);
+
+/** Lets a registrant pay for their ID card or ticket now, or just register and buy them in person at the program. */
+function DocumentPaymentChoice({
+  lines,
+  value,
+  onChange,
+}: {
+  lines: { id: string; name: string; amountMinor: number }[];
+  value: "online" | "in_person";
+  onChange: (next: "online" | "in_person") => void;
+}) {
+  const names = lines.map((l) => l.name).join(" and ");
+  const amount = formatMinor(lines.reduce((sum, l) => sum + l.amountMinor, 0));
+  const options = [
+    { id: "online" as const, title: `Pay for my ${names} now`, text: `${amount} online with mobile money. Your ${names} is ready as soon as the payment is confirmed.` },
+    { id: "in_person" as const, title: `I will buy my ${names} in person`, text: `Just register now. You pay ${amount} for your ${names} at the program, and it is given to you there.` },
+  ];
+  return (
+    <fieldset className="flex flex-col gap-2 rounded-xl border border-primary/25 p-4">
+      <legend className="px-1 text-sm font-semibold">How would you like to get your {names}?</legend>
+      {options.map((option) => (
+        <label
+          key={option.id}
+          className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition-colors ${value === option.id ? "border-primary bg-primary/5" : "border-border/70 hover:bg-muted/40"}`}
+        >
+          <input type="radio" name="document-payment" className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]" checked={value === option.id} onChange={() => onChange(option.id)} />
+          <span className="flex flex-col gap-0.5">
+            <span className="font-medium">{option.title}</span>
+            <span className="text-xs text-muted-foreground">{option.text}</span>
+          </span>
+        </label>
+      ))}
+    </fieldset>
   );
 }
 
@@ -435,10 +474,14 @@ export function DynamicForm({
   const [itemsMissing, setItemsMissing] = React.useState(false);
   const chosenCount = Object.values(selection).reduce((a, b) => a + b, 0);
   // What will be charged: an order's items, or the registration's fee, ID card and ticket.
+  const documentLines = catalogue.length > 0 || !payment?.enabled ? [] : payment.lines.filter((l) => DOCUMENT_LINE_IDS.has(l.id) && l.amountMinor > 0);
+  const canChooseInPerson = Boolean(payment?.allowPayInPerson) && documentLines.length > 0;
+  const [documentChoice, setDocumentChoice] = React.useState<"online" | "in_person">("online");
+  const documentsInPerson = canChooseInPerson && documentChoice === "in_person";
   const chargeLines =
     catalogue.length > 0
       ? catalogue.filter((i) => (selection[i.id] ?? 0) > 0).map((i) => ({ id: i.id, name: `${selection[i.id]} x ${i.name}`, amountMinor: i.priceMinor * (selection[i.id] ?? 0) }))
-      : (payment?.enabled ? payment.lines : []);
+      : (payment?.enabled ? payment.lines.filter((l) => !(documentsInPerson && DOCUMENT_LINE_IDS.has(l.id))) : []);
   const chargeTotal = catalogue.length > 0 ? selectionTotal(catalogue, selection) : chargeLines.reduce((sum, l) => sum + l.amountMinor, 0);
   const willPay = Boolean(payment?.enabled) && chargeTotal > 0;
 
@@ -655,7 +698,7 @@ export function DynamicForm({
         return mode !== undefined && followUpAsksFile(mode);
       })
       .map(([, file]) => file);
-    await onSubmit(responses, files, !consentNeeded || consentChecked, catalogue.length > 0 ? selectionList(catalogue, selection) : undefined);
+    await onSubmit(responses, files, !consentNeeded || consentChecked, catalogue.length > 0 ? selectionList(catalogue, selection) : undefined, documentsInPerson || undefined);
   };
 
   const renderField = (field: FormField) => {
@@ -991,6 +1034,11 @@ export function DynamicForm({
           </div>
         )}
         {chargeLines.length > 0 && <ChargeSummary lines={chargeLines} total={chargeTotal} heading={catalogue.length > 0 ? "Your order" : "To pay"} />}
+        {documentsInPerson && (
+          <p className="rounded-xl border border-border/70 bg-muted/40 p-3 text-sm">
+            You chose to buy your {documentLines.map((l) => l.name).join(" and ")} in person. You will pay {formatMinor(documentLines.reduce((sum, l) => sum + l.amountMinor, 0))} at the program.
+          </p>
+        )}
         {groups.map((group) => {
           const rows = group.fields
             .filter((f) => isVisible(f, responses))
@@ -1070,6 +1118,7 @@ export function DynamicForm({
         <div className="flex flex-col gap-5">{currentStep.fields.map(renderField)}</div>
       )}
 
+      {canChooseInPerson && (isSingle || isLastStep) && <DocumentPaymentChoice lines={documentLines} value={documentChoice} onChange={setDocumentChoice} />}
       {willPay && (isSingle || isLastStep) && <ChargeSummary lines={chargeLines} total={chargeTotal} />}
 
       {consentNeeded && (isSingle || isLastStep) && (

@@ -17,6 +17,8 @@ export const paymentConfigSchema = z.object({
   registrationFeeMinor: price.default(0),
   idCardPriceMinor: price.default(0),
   ticketPriceMinor: price.default(0),
+  // Registrants may register now and buy their ID card or ticket in person at the program instead of paying for it online.
+  allowPayInPerson: z.boolean().default(true),
   // Set by the server when the admin agrees to the platform's fee; never taken from what the browser sends.
   feeAccepted: z.object({ percent: z.number(), at: z.string(), by: z.string() }).optional(),
 });
@@ -27,7 +29,7 @@ export const paymentConfigInputSchema = paymentConfigSchema.omit({ feeAccepted: 
 
 export function resolvePaymentConfig(raw: unknown): PaymentConfig {
   const parsed = paymentConfigSchema.safeParse(raw ?? {});
-  return parsed.success ? parsed.data : { enabled: false, registrationFeeMinor: 0, idCardPriceMinor: 0, ticketPriceMinor: 0 };
+  return parsed.success ? parsed.data : { enabled: false, registrationFeeMinor: 0, idCardPriceMinor: 0, ticketPriceMinor: 0, allowPayInPerson: true };
 }
 
 /** One thing an order form sells. */
@@ -69,15 +71,27 @@ export interface LineItem {
 export const sumLines = (lines: LineItem[]) => lines.reduce((sum, l) => sum + l.totalMinor, 0);
 
 /** The registration fee, ID card and ticket a registrant pays for, from the program's own settings. */
-export function programLineItems(program: { idCardEnabled: boolean; ticketEnabled: boolean }, config: PaymentConfig): LineItem[] {
+export function programLineItems(
+  program: { idCardEnabled: boolean; ticketEnabled: boolean },
+  config: PaymentConfig,
+  options: { withoutDocuments?: boolean } = {},
+): LineItem[] {
   const lines: LineItem[] = [];
   const add = (id: string, name: string, unitMinor: number) => {
     if (unitMinor > 0) lines.push({ id, name, unitMinor, quantity: 1, totalMinor: unitMinor });
   };
   add("registration", "Registration fee", config.registrationFeeMinor);
-  if (program.idCardEnabled) add("id_card", "ID card", config.idCardPriceMinor);
-  if (program.ticketEnabled) add("ticket", "Ticket", config.ticketPriceMinor);
+  if (!options.withoutDocuments) {
+    if (program.idCardEnabled) add("id_card", "ID card", config.idCardPriceMinor);
+    if (program.ticketEnabled) add("ticket", "Ticket", config.ticketPriceMinor);
+  }
   return lines;
+}
+
+/** True when the program sells an ID card or ticket that a registrant could choose to buy in person instead. */
+export function offersPayInPerson(program: { idCardEnabled: boolean; ticketEnabled: boolean }, config: PaymentConfig) {
+  if (!config.enabled || !config.allowPayInPerson) return false;
+  return (program.idCardEnabled && config.idCardPriceMinor > 0) || (program.ticketEnabled && config.ticketPriceMinor > 0);
 }
 
 /**

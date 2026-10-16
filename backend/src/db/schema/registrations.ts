@@ -40,6 +40,8 @@ export const registrations = pgTable(
     uniqueEmailGuard: boolean("unique_email_guard").notNull().default(false),
     // none (nothing to pay), pending (awaiting payment), paid, failed, review (paid amount didn't match) or waived.
     paymentStatus: text("payment_status").notNull().default("none"),
+    // The registrant chose to buy their ID card or ticket in person at the program; both stay locked until an admin marks them paid.
+    documentsInPerson: boolean("documents_in_person").notNull().default(false),
     amountDueMinor: bigint("amount_due_minor", { mode: "number" }).notNull().default(0),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),

@@ -4,12 +4,13 @@ import { toast } from "sonner";
 import { Banknote } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ApiError } from "@/lib/api";
 import { formatMinor } from "@/lib/money";
 import type { Registration } from "@/types/api";
 import type { RegistrationDetail } from "../registrations/api";
-import { waivePayment } from "./api";
+import { confirmPaidInPerson, waivePayment } from "./api";
 import { PaymentBadge } from "./PaymentBadge";
 import { RefundButton } from "./RefundButton";
 import { RefundDialog } from "./RefundDialog";
@@ -64,10 +65,26 @@ export function RegistrationPaymentCard({ programId, detail, canEdit }: { progra
   const queryClient = useQueryClient();
   const { registration, payments = [] } = detail;
   const [confirming, setConfirming] = React.useState(false);
+  const [confirmingInPerson, setConfirmingInPerson] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [refunding, setRefunding] = React.useState<(typeof payments)[number] | null>(null);
-  if (!registration.paymentStatus || registration.paymentStatus === "none") return null;
+  const inPerson = Boolean(registration.documentsInPerson);
+  if ((!registration.paymentStatus || registration.paymentStatus === "none") && !inPerson) return null;
   const unpaid = registration.paymentStatus === "pending" || registration.paymentStatus === "review";
+
+  const confirmInPerson = async () => {
+    setBusy(true);
+    try {
+      await confirmPaidInPerson(programId, registration.id);
+      await queryClient.invalidateQueries({ queryKey: ["registrations", programId] });
+      toast.success("Marked as paid in person. Their ID card and ticket are now available.");
+      setConfirmingInPerson(false);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Could not save this");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const waive = async () => {
     setBusy(true);
@@ -91,14 +108,27 @@ export function RegistrationPaymentCard({ programId, detail, canEdit }: { progra
             <Banknote className="h-4 w-4 text-primary" />
             Payment
           </span>
-          <PaymentBadge status={registration.paymentStatus} />
+          {registration.paymentStatus && registration.paymentStatus !== "none" ? <PaymentBadge status={registration.paymentStatus} /> : <Badge variant="warning">Pays in person</Badge>}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Amount</span>
-          <span className="font-semibold">{formatMinor(registration.amountDueMinor ?? 0)}</span>
-        </div>
+        {registration.paymentStatus && registration.paymentStatus !== "none" && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Amount</span>
+            <span className="font-semibold">{formatMinor(registration.amountDueMinor ?? 0)}</span>
+          </div>
+        )}
+        {inPerson && (
+          <div className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3">
+            <p className="text-sm font-medium">Will buy their ID card and ticket in person</p>
+            <p className="text-xs text-muted-foreground">They registered without paying for these online. Their ID card and ticket stay locked until you confirm they paid you at the program.</p>
+            {canEdit && (
+              <Button size="sm" className="w-fit" onClick={() => setConfirmingInPerson(true)}>
+                Confirm paid in person
+              </Button>
+            )}
+          </div>
+        )}
         {registration.paidAt && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">Paid</span>
@@ -137,6 +167,15 @@ export function RegistrationPaymentCard({ programId, detail, canEdit }: { progra
         )}
       </CardContent>
       <RefundDialog programId={programId} payment={refunding ? { ...refunding, registrationNumber: registration.registrationNumber } : null} onClose={() => setRefunding(null)} />
+      <ConfirmDialog
+        open={confirmingInPerson}
+        onOpenChange={setConfirmingInPerson}
+        title="Confirm they paid in person?"
+        description="Their ID card and ticket become available to them straight away. This is recorded in the audit log."
+        confirmLabel="Confirm paid"
+        busy={busy}
+        onConfirm={confirmInPerson}
+      />
       <ConfirmDialog
         open={confirming}
         onOpenChange={setConfirming}

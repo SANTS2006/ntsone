@@ -60,11 +60,11 @@ export function PublicRegistrationPage({ variant = "registration" }: { variant?:
 
   const draftKey = data ? `draft:${isOrder ? "order" : "program"}:${slug}:${data.form.id}` : undefined;
 
-  const handleSubmit = async (responses: Record<string, unknown>, files: UploadedFileInfo[], consentAccepted: boolean, items?: { itemId: string; quantity: number }[]) => {
+  const handleSubmit = async (responses: Record<string, unknown>, files: UploadedFileInfo[], consentAccepted: boolean, items?: { itemId: string; quantity: number }[], documentsInPerson?: boolean) => {
     setSubmitting(true);
     setErrors([]);
     try {
-      const result = await submitRegistration(slug!, responses, files, consentAccepted, submissionKey.current, items);
+      const result = await submitRegistration(slug!, responses, files, consentAccepted, submissionKey.current, items, documentsInPerson);
       clearSavedDraft(draftKey);
       // Something to pay: on to Monime's payment page (or, if it could not be opened, to the payment page here, which can try again).
       if (result.payment) {

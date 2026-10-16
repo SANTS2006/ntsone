@@ -15,6 +15,7 @@ import * as registrationsRepo from "./repository.js";
 import { programStatusChoices, type ListRegistrationsQuery, type SubmitRegistrationInput, type UpdateStatusInput } from "./schemas.js";
 import { counterBucket, formatRegistrationNumber, resolveNumberingConfig } from "./numbering.js";
 import { chargePlanFor } from "../payments/charge.js";
+import { offersPayInPerson, resolvePaymentConfig } from "../payments/pricing.js";
 import { refundableAt } from "../payments/refunds.js";
 import { assertPaymentAllowed } from "../payments/fraud.js";
 import { assertPaymentsAvailable, startPayment, type PaymentStart } from "../payments/service.js";
@@ -67,7 +68,11 @@ export async function submitRegistration(
   }
 
   // What has to be paid, worked out here from the program's own prices. Checked before anything is saved.
-  const plan = chargePlanFor(program, published.form, input.items);
+  const documentsInPerson = input.documentsInPerson === true;
+  if (documentsInPerson && !offersPayInPerson(program, resolvePaymentConfig(program.paymentConfig))) {
+    throw AppError.validation("Paying for the ID card or ticket in person is not available for this program. Please refresh the page and try again.");
+  }
+  const plan = chargePlanFor(program, published.form, input.items, { documentsInPerson });
   if (plan?.charge) {
     assertPaymentsAvailable();
     await assertPaymentAllowed({ ip: context.ip, email: contact.email, phone: contact.phone });
@@ -83,6 +88,7 @@ export async function submitRegistration(
     files,
     undefined,
     plan?.charge ? { status: "pending", amountDueMinor: plan.totalMinor } : undefined,
+    documentsInPerson,
   );
   const registrationNumber = registration.registrationNumber;
 
@@ -127,8 +133,10 @@ export async function submitRegistration(
     showRegistrationNumber:
       published.form.showRegistrationNumber &&
       ((published.form.registrationNumberConditions ?? []) as Parameters<typeof evaluateRule>[0][]).every((rule) => evaluateRule(rule, input.responses)),
-    idCardAvailable: program.idCardEnabled && showsOnConfirmation(program.idCardConfig),
-    ticketAvailable: program.ticketEnabled && showsOnConfirmation(program.ticketConfig),
+    // Not offered for download when the registrant chose to buy them in person.
+    idCardAvailable: program.idCardEnabled && showsOnConfirmation(program.idCardConfig) && !documentsInPerson,
+    ticketAvailable: program.ticketEnabled && showsOnConfirmation(program.ticketConfig) && !documentsInPerson,
+    documentsInPerson,
     payment,
   };
 }
@@ -144,6 +152,7 @@ export async function createRegistrationWithNumber(
   files: { fieldKey: string; url: string; publicId: string; filename: string; mimeType: string; sizeBytes: number }[],
   historyNote?: string,
   payment?: { status: string; amountDueMinor: number },
+  documentsInPerson = false,
 ): Promise<registrationsRepo.RegistrationRow> {
   const numbering = resolveNumberingConfig(program.registrationNumberConfig);
   const year = new Date().getFullYear();
@@ -166,6 +175,7 @@ export async function createRegistrationWithNumber(
         enforceUniqueEmail: program.oneRegistrationPerEmail,
         historyNote,
         payment,
+        documentsInPerson,
       });
     } catch (err) {
       if (!isUniqueViolation(err)) throw err;

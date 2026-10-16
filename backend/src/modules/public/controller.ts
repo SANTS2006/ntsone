@@ -10,7 +10,7 @@ import { sendSuccess } from "../../lib/response.js";
 import * as formsService from "../forms/service.js";
 import { isMonimeConfigured } from "../payments/monime.js";
 import { feeIsAccepted } from "../payments/fees.js";
-import { programLineItems, resolvePaymentConfig } from "../payments/pricing.js";
+import { offersPayInPerson, programLineItems, resolvePaymentConfig } from "../payments/pricing.js";
 import * as programsRepo from "../programs/repository.js";
 import * as registrationsService from "../registrations/service.js";
 import { submitRegistrationSchema } from "../registrations/schemas.js";
@@ -46,6 +46,8 @@ function publicPaymentInfo(program: programsRepo.ProgramRow) {
   return {
     enabled,
     currency: "SLE",
+    // Registrants may register now and buy their ID card or ticket in person instead of paying for it online.
+    allowPayInPerson: enabled && program.kind !== "order_form" && offersPayInPerson(program, config),
     lines: enabled && program.kind !== "order_form" ? programLineItems(program, config).map((l) => ({ id: l.id, name: l.name, amountMinor: l.totalMinor })) : [],
   };
 }
@@ -123,6 +125,7 @@ export async function submitPublicRegistrationHandler(request: FastifyRequest, r
         kind: program?.kind,
         amountDueMinor: result.registration.amountDueMinor || undefined,
         paymentStarted: result.payment ? true : undefined,
+        documentsInPerson: result.documentsInPerson || undefined,
         applicantEmail: result.registration.applicantEmail ?? undefined,
       },
     });
@@ -135,6 +138,7 @@ export async function submitPublicRegistrationHandler(request: FastifyRequest, r
       showRegistrationNumber: result.showRegistrationNumber,
       idCardAvailable: result.idCardAvailable,
       ticketAvailable: result.ticketAvailable,
+      documentsInPerson: result.documentsInPerson || undefined,
       // Lets the registrant view and download what they submitted from the success page.
       receiptToken: offerCopy ? signSubmissionToken(result.registration.id) : undefined,
       // When the registration or order has to be paid for: where to pay, and the private link to follow up.

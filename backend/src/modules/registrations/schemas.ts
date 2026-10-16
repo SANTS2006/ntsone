@@ -48,6 +48,8 @@ export const submitRegistrationSchema = z.object({
   consentAccepted: z.boolean().optional(),
   // For an order form that sells items: what was chosen (the prices always come from the server's own list).
   items: orderSelectionSchema.optional(),
+  // The registrant will buy the ID card or ticket in person at the program instead of paying for it online.
+  documentsInPerson: z.boolean().optional(),
 });
 
 export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;

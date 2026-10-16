@@ -66,6 +66,10 @@ export function listProgramPayments(programId: string, params: { page?: number; 
   return apiFetch<ProgramPaymentsPage>(`/programs/${programId}/payments?${query.toString()}`);
 }
 
+export function confirmPaidInPerson(programId: string, registrationId: string) {
+  return apiFetch<null>(`/programs/${programId}/registrations/${registrationId}/paid-in-person`, { method: "POST" });
+}
+
 export function waivePayment(programId: string, registrationId: string, note?: string) {
   return apiFetch<null>(`/programs/${programId}/registrations/${registrationId}/waive-payment`, { method: "POST", body: { note } });
 }
@@ -138,6 +142,8 @@ export interface PaymentView {
   showRegistrationNumber: boolean;
   idCardAvailable: boolean;
   ticketAvailable: boolean;
+  /** The registrant chose to buy their ID card and ticket in person. */
+  documentsInPerson?: boolean;
   receiptToken?: string;
 }
 

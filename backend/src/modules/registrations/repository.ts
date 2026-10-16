@@ -40,6 +40,8 @@ interface CreateRegistrationInput {
   historyNote?: string;
   /** Set when the registration has to be paid for: it starts as "pending" with the amount due. */
   payment?: { status: string; amountDueMinor: number };
+  /** The registrant will buy their ID card or ticket in person. */
+  documentsInPerson?: boolean;
 }
 
 export async function createRegistration(input: CreateRegistrationInput): Promise<RegistrationRow> {
@@ -55,6 +57,7 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
         applicantPhone: input.applicantPhone,
         responses: input.responses,
         uniqueEmailGuard: Boolean(input.enforceUniqueEmail && input.applicantEmail),
+        ...(input.documentsInPerson ? { documentsInPerson: true } : {}),
         ...(input.payment ? { paymentStatus: input.payment.status, amountDueMinor: input.payment.amountDueMinor } : {}),
       })
       .returning();

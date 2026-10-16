@@ -51,6 +51,7 @@ const ROUTES: Record<string, Entry> = {
   "PATCH /api/programs/:programId/registrations/:registrationId/status": ["registration.status", "Changed the status of a registration or order", "registration"],
   "PATCH /api/programs/:programId/registrations/:registrationId": ["registration.edit", "Edited a registration's answers", "registration"],
   "PATCH /api/programs/:programId/registrations/:registrationId/document-overrides": ["registration.document_overrides", "Changed a registrant's ID card details", "registration"],
+  "POST /api/programs/:programId/registrations/:registrationId/paid-in-person": ["registration.paid_in_person", "Marked an ID card and ticket as paid in person", "registration"],
   "POST /api/programs/:programId/registrations/:registrationId/waive-payment": ["registration.waive_payment", "Waived a payment", "registration"],
   "POST /api/programs/:programId/registrations/import": ["registration.import", "Imported registrations from a file", "program"],
   "POST /api/programs/:programId/registrations/import/preview": ["registration.import_preview", "Previewed a file import", "program"],

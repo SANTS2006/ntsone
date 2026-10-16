@@ -23,6 +23,7 @@ import {
   reviewPayoutHandler,
   updatePaymentConfigHandler,
   waivePaymentHandler,
+  confirmPaidInPersonHandler,
 } from "./controller.js";
 
 /** What a payer sees: the state of their payment, and trying again. Reached by a private link, no account. */
@@ -57,6 +58,7 @@ export async function programPaymentRoutes(app: FastifyInstance) {
   app.get("/:programId/payments/:paymentId/refunds", { preHandler: requireProgramAccess("viewer") }, listPaymentRefundsHandler);
   app.get("/:programId/payment-terms", { preHandler: requireProgramAccess("viewer") }, paymentTermsHandler);
   app.put("/:programId/payment-config", { preHandler: requireProgramAccess("admin") }, updatePaymentConfigHandler);
+  app.post("/:programId/registrations/:registrationId/paid-in-person", { preHandler: requireProgramAccess("admin") }, confirmPaidInPersonHandler);
   app.post("/:programId/registrations/:registrationId/waive-payment", { preHandler: requireProgramAccess("admin") }, waivePaymentHandler);
 }
 

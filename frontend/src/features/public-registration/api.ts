@@ -17,6 +17,8 @@ export interface SubmitRegistrationResult {
   showRegistrationNumber: boolean;
   idCardAvailable: boolean;
   ticketAvailable: boolean;
+  /** The registrant chose to buy their ID card and ticket in person at the program. */
+  documentsInPerson?: boolean;
   /** Private link token for viewing and downloading the submitted answers. */
   receiptToken?: string;
   /** When the registration or order has to be paid for. */
@@ -30,12 +32,13 @@ export function submitRegistration(
   consentAccepted: boolean,
   idempotencyKey?: string,
   items?: { itemId: string; quantity: number }[],
+  documentsInPerson?: boolean,
 ) {
   return apiFetch<SubmitRegistrationResult>(`/public/programs/${slug}/registrations`, {
     method: "POST",
     // The same key on a retry makes the server return the first result instead of registering twice.
     headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
-    body: { responses, files, consentAccepted, items },
+    body: { responses, files, consentAccepted, items, documentsInPerson: documentsInPerson || undefined },
   });
 }
 

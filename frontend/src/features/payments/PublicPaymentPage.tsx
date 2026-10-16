@@ -68,6 +68,7 @@ export function PublicPaymentPage() {
         showRegistrationNumber: v.showRegistrationNumber,
         idCardAvailable: v.idCardAvailable,
         ticketAvailable: v.ticketAvailable,
+        documentsInPerson: v.documentsInPerson,
         receiptToken: v.receiptToken,
       };
       navigate(v.kind === "order_form" ? `/order/${v.programSlug}/confirmation` : `/programs/${v.programSlug}/confirmation`, { state, replace: true });

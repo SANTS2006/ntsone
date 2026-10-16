@@ -54,6 +54,27 @@ describe("what a registration or order costs", () => {
     expect(plan.totalMinor).toBe(5_000);
   });
 
+  it("leaves the ID card and ticket out of the online charge when the registrant will buy them in person", () => {
+    const withTicket = { ...program, paymentConfig: { ...program.paymentConfig, ticketPriceMinor: 3_000 } };
+    expect(chargePlanFor(withTicket, { orderItems: [] }, undefined)!.totalMinor).toBe(10_000);
+    const plan = chargePlanFor(withTicket, { orderItems: [] }, undefined, { documentsInPerson: true })!;
+    expect(plan.lines.map((l) => l.id)).toEqual(["registration"]);
+    expect(plan.totalMinor).toBe(5_000);
+    // With no registration fee, nothing is left to pay online at all.
+    const noFee = { ...withTicket, paymentConfig: { ...withTicket.paymentConfig, registrationFeeMinor: 0 } };
+    expect(chargePlanFor(noFee, { orderItems: [] }, undefined, { documentsInPerson: true })).toBeNull();
+  });
+
+  it("offers paying in person only when there is a priced ID card or ticket and the admin allows it", () => {
+    const on = pricing.resolvePaymentConfig(program.paymentConfig);
+    expect(on.allowPayInPerson).toBe(true);
+    expect(pricing.offersPayInPerson(program, on)).toBe(true);
+    expect(pricing.offersPayInPerson(program, { ...on, allowPayInPerson: false })).toBe(false);
+    expect(pricing.offersPayInPerson(program, { ...on, enabled: false })).toBe(false);
+    expect(pricing.offersPayInPerson({ ...program, idCardEnabled: false }, on)).toBe(false); // the ticket is free
+    expect(pricing.offersPayInPerson(program, { ...on, idCardPriceMinor: 0 })).toBe(false);
+  });
+
   it("does nothing when payments are off", () => {
     expect(chargePlanFor({ ...program, paymentConfig: { enabled: false } }, { orderItems: [] }, undefined)).toBeNull();
   });
@@ -227,6 +248,11 @@ describe("documents held until paid", () => {
     expect(() => assertDocumentsUnlocked({ paymentStatus: "pending" })).toThrow(/payment/i);
     expect(() => assertDocumentsUnlocked({ paymentStatus: "review" })).toThrow();
     for (const status of ["none", "paid", "waived"]) expect(() => assertDocumentsUnlocked({ paymentStatus: status })).not.toThrow();
+  });
+  it("keeps them locked for someone who chose to buy in person, even after paying the registration fee, until an admin confirms", () => {
+    expect(() => assertDocumentsUnlocked({ paymentStatus: "none", documentsInPerson: true })).toThrow(/in person/i);
+    expect(() => assertDocumentsUnlocked({ paymentStatus: "paid", documentsInPerson: true })).toThrow(/in person/i);
+    expect(() => assertDocumentsUnlocked({ paymentStatus: "paid", documentsInPerson: false })).not.toThrow();
   });
 });
 

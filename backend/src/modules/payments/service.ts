@@ -317,8 +317,10 @@ export async function paymentStatusForToken(token: string, options: { refresh?: 
     registrationStatus: registration.status,
     confirmationMessage: ctx.confirmationMessage,
     showRegistrationNumber: ctx.showRegistrationNumber,
-    idCardAvailable: ctx.idCardEnabled && (ctx.idCardConfig as { showOnConfirmation?: boolean } | null)?.showOnConfirmation !== false,
-    ticketAvailable: ctx.ticketEnabled && (ctx.ticketConfig as { showOnConfirmation?: boolean } | null)?.showOnConfirmation !== false,
+    // Not offered for download when the registrant chose to buy them in person.
+    idCardAvailable: ctx.idCardEnabled && (ctx.idCardConfig as { showOnConfirmation?: boolean } | null)?.showOnConfirmation !== false && !registration.documentsInPerson,
+    ticketAvailable: ctx.ticketEnabled && (ctx.ticketConfig as { showOnConfirmation?: boolean } | null)?.showOnConfirmation !== false && !registration.documentsInPerson,
+    documentsInPerson: registration.documentsInPerson,
     // Lets them view and keep a copy of what they submitted, once it is paid (orders always get one).
     receiptToken: ctx.programKind === "order_form" || ctx.allowSubmissionCopy ? signSubmissionToken(registration.id) : undefined,
   };
@@ -667,13 +669,22 @@ export async function listProgramPayments(programId: string, query: { status?: s
   return { ...buildPaginatedResult(items.map((i) => ({ ...i, refundableAt: refundableAt(i.paidAt) })), t?.count ?? 0, query), summary: { paidMinor: Number(t?.paid ?? 0), pendingMinor: Number(t?.pending ?? 0) } };
 }
 
+/** An admin confirms the registrant paid for their ID card and ticket in person: they are unlocked from now on. */
+export async function confirmDocumentsPaidInPerson(programId: string, registrationId: string, actorId: string) {
+  const [registration] = await db.select().from(registrations).where(and(eq(registrations.id, registrationId), eq(registrations.programId, programId))).limit(1);
+  if (!registration) throw AppError.notFound("Registration not found");
+  if (!registration.documentsInPerson) throw AppError.conflict("This person has not chosen to pay in person.");
+  await db.update(registrations).set({ documentsInPerson: false, updatedAt: new Date() }).where(eq(registrations.id, registrationId));
+  await recordAudit({ actorUserId: actorId, action: "payment.paid_in_person", entityType: "registration", entityId: registrationId, metadata: { programId } });
+}
+
 /** An admin lets a registration through without payment (for example it was paid in cash). */
 export async function waiveRegistrationPayment(programId: string, registrationId: string, actorId: string, note?: string) {
   const [registration] = await db.select().from(registrations).where(and(eq(registrations.id, registrationId), eq(registrations.programId, programId))).limit(1);
   if (!registration) throw AppError.notFound("Registration not found");
   if (registration.paymentStatus === "paid") throw AppError.conflict("This has already been paid.");
   await db.transaction(async (tx) => {
-    await tx.update(registrations).set({ paymentStatus: "waived" }).where(eq(registrations.id, registrationId));
+    await tx.update(registrations).set({ paymentStatus: "waived", documentsInPerson: false }).where(eq(registrations.id, registrationId));
     await tx
       .update(payments)
       .set({ status: "cancelled", failureReason: "Waived by an administrator", updatedAt: new Date() })

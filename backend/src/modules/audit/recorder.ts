@@ -182,6 +182,7 @@ const KNOWN_LABELS: Record<string, string> = {
   "registrations.export": "Exported registrations",
   "program.payment_config": "Changed the program's payment settings",
   "payment.waived": "Waived a payment",
+  "payment.paid_in_person": "Marked an ID card and ticket as paid in person",
   "payment.recheck": "Re-checked a payment with Monime",
   "payment.completed": "A payment was received",
   "payment.started": "A payment was started",

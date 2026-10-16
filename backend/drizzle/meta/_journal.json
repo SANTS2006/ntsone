@@ -239,6 +239,13 @@
       "when": 1792159842447,
       "tag": "0033_invited_temporary_password",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792160314985,
+      "tag": "0034_registration_documents_in_person",
+      "breakpoints": true
     }
   ]
 }

@@ -94,6 +94,13 @@ export async function programPaymentAnalyticsHandler(request: FastifyRequest, re
   return sendSuccess(reply, await getProgramPaymentAnalytics(programId));
 }
 
+export async function confirmPaidInPersonHandler(request: FastifyRequest, reply: FastifyReply) {
+  if (!request.user) throw AppError.unauthorized();
+  const { programId, registrationId } = request.params as { programId: string; registrationId: string };
+  await paymentsService.confirmDocumentsPaidInPerson(programId, registrationId, request.user.id);
+  return sendSuccess(reply, null, "Marked as paid in person");
+}
+
 export async function waivePaymentHandler(request: FastifyRequest, reply: FastifyReply) {
   if (!request.user) throw AppError.unauthorized();
   const { programId, registrationId } = request.params as { programId: string; registrationId: string };

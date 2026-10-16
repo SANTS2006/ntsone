@@ -120,6 +120,12 @@ export function ConfirmationPage({ variant = "registration" }: { variant?: "regi
             <p className="gradient-text text-lg font-semibold tracking-wide">{result.registrationNumber}</p>
           </div>
         )}
+        {result.documentsInPerson && !isOrder && (
+          <div className="max-w-md rounded-xl border border-border/70 bg-muted/40 p-4 text-sm">
+            <p className="font-medium">You are registered. Pay for your ID card or ticket at the program.</p>
+            <p className="mt-1 text-muted-foreground">You chose to buy them in person. Bring your registration number, and the organizers will give them to you once you have paid.</p>
+          </div>
+        )}
         {slug && (result.idCardAvailable || result.ticketAvailable) && (
           <div className="flex w-full flex-col items-center gap-6 py-2">
             {result.idCardAvailable && (

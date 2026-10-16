@@ -40,6 +40,7 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
   const [fee, setFee] = React.useState(minorToInput(saved.registrationFeeMinor));
   const [idCard, setIdCard] = React.useState(minorToInput(saved.idCardPriceMinor));
   const [ticket, setTicket] = React.useState(minorToInput(saved.ticketPriceMinor));
+  const [allowInPerson, setAllowInPerson] = React.useState(saved.allowPayInPerson !== false);
   const [saving, setSaving] = React.useState(false);
   const [agreed, setAgreed] = React.useState(false);
   const { data: terms } = useQuery({ queryKey: ["payment-terms", program.id], queryFn: () => getPaymentTerms(program.id) });
@@ -50,8 +51,9 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
     setFee(minorToInput(saved.registrationFeeMinor));
     setIdCard(minorToInput(saved.idCardPriceMinor));
     setTicket(minorToInput(saved.ticketPriceMinor));
+    setAllowInPerson(saved.allowPayInPerson !== false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [program.id, saved.enabled, saved.registrationFeeMinor, saved.idCardPriceMinor, saved.ticketPriceMinor]);
+  }, [program.id, saved.enabled, saved.registrationFeeMinor, saved.idCardPriceMinor, saved.ticketPriceMinor, saved.allowPayInPerson]);
 
   const next = {
     registrationFeeMinor: parseLeones(fee),
@@ -62,6 +64,7 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
   const total = (next.registrationFeeMinor ?? 0) + (program.idCardEnabled ? (next.idCardPriceMinor ?? 0) : 0) + (program.ticketEnabled ? (next.ticketPriceMinor ?? 0) : 0);
   const dirty =
     enabled !== saved.enabled ||
+    allowInPerson !== (saved.allowPayInPerson !== false) ||
     next.registrationFeeMinor !== saved.registrationFeeMinor ||
     next.idCardPriceMinor !== saved.idCardPriceMinor ||
     next.ticketPriceMinor !== saved.ticketPriceMinor;
@@ -75,6 +78,7 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
         registrationFeeMinor: next.registrationFeeMinor ?? 0,
         idCardPriceMinor: next.idCardPriceMinor ?? 0,
         ticketPriceMinor: next.ticketPriceMinor ?? 0,
+        allowPayInPerson: allowInPerson,
         acceptFee: mustAgree && agreed ? true : undefined,
       });
       await queryClient.invalidateQueries({ queryKey: ["payment-terms", program.id] });
@@ -129,6 +133,19 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
               value={ticket}
               onChange={setTicket}
             />
+          </div>
+        )}
+        {enabled && !isOrder && (program.idCardEnabled || program.ticketEnabled) && (
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border/70 p-3">
+            <div>
+              <Label htmlFor={`inperson-${program.id}`} className="font-medium">
+                Let registrants buy their ID card or ticket in person
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                They can register now and pay for the ID card or ticket at the program instead. Those stay locked until you confirm the payment on their registration.
+              </p>
+            </div>
+            <Switch id={`inperson-${program.id}`} checked={allowInPerson} onCheckedChange={setAllowInPerson} />
           </div>
         )}
         {enabled && !isOrder && (
