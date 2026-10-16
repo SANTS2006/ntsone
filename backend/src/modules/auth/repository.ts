@@ -19,11 +19,11 @@ export async function findTenantById(id: string) {
   return tenant ?? null;
 }
 
-/** Ends the "name your organization" step: the organization is named and the terms are agreed to. */
+/** Ends the "name your organization" step (the email address has to be confirmed by then): the organization is named and the terms are agreed to. */
 export async function finishOrganizationSetup(userId: string) {
   const [row] = await db
     .update(users)
-    .set({ organizationSetupPending: false, termsAcceptedAt: new Date(), emailVerifiedAt: new Date(), updatedAt: new Date() })
+    .set({ organizationSetupPending: false, termsAcceptedAt: new Date(), updatedAt: new Date() })
     .where(eq(users.id, userId))
     .returning();
   return row!;
@@ -240,7 +240,7 @@ export async function createTenantAndAdmin(params: {
         tenantId: tenant!.id,
         termsAcceptedAt: params.termsAccepted === false ? null : new Date(),
         mustChangePassword: params.temporaryPasswordExpiresAt !== undefined,
-        ...(params.google ? { termsAcceptedAt: null, emailVerifiedAt: new Date(), organizationSetupPending: true } : {}),
+        ...(params.google ? { termsAcceptedAt: null, organizationSetupPending: true } : {}),
         tempPasswordExpiresAt: params.temporaryPasswordExpiresAt ?? null,
       })
       .returning();

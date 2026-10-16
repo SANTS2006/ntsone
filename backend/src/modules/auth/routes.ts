@@ -7,6 +7,7 @@ import {
   createOwnSpaceHandler,
   forgotPasswordHandler,
   googleHandler,
+  googleNonceHandler,
   completeSetupHandler,
   providersHandler,
   acceptInvitationHandler,
@@ -29,6 +30,7 @@ const strictAuthRateLimit = { rateLimit: { max: 10, timeWindow: "1 minute" } };
 export async function authRoutes(app: FastifyInstance) {
   app.post("/login", { config: strictAuthRateLimit }, loginHandler);
   app.get("/providers", providersHandler);
+  app.get("/google/nonce", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } }, googleNonceHandler);
   app.post("/google", { config: strictAuthRateLimit }, googleHandler);
   app.post("/register", { config: strictAuthRateLimit }, registerHandler);
   app.post("/accept-invitation", { config: strictAuthRateLimit }, acceptInvitationHandler);

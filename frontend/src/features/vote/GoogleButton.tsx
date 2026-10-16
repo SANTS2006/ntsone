@@ -1,7 +1,7 @@
 import * as React from "react";
 
 interface GoogleId {
-  initialize: (options: { client_id: string; callback: (response: { credential: string }) => void; ux_mode?: "popup" }) => void;
+  initialize: (options: { client_id: string; callback: (response: { credential: string }) => void; ux_mode?: "popup"; nonce?: string }) => void;
   renderButton: (
     element: HTMLElement,
     options: { theme?: string; size?: string; text?: string; shape?: string; width?: number; logo_alignment?: string },
@@ -36,9 +36,12 @@ export function GoogleButton({
   clientId,
   mode,
   onCredential,
+  nonce,
 }: {
   clientId: string;
   mode: "signin" | "signup";
+  /** A single-use value Google puts inside the signed token, so the server can refuse replays. */
+  nonce?: string;
   onCredential: (credential: string) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -51,7 +54,7 @@ export function GoogleButton({
     loadGoogleScript()
       .then(() => {
         if (cancelled || !ref.current || !window.google) return;
-        window.google.accounts.id.initialize({ client_id: clientId, callback: (r) => callback.current(r.credential), ux_mode: "popup" });
+        window.google.accounts.id.initialize({ client_id: clientId, callback: (r) => callback.current(r.credential), ux_mode: "popup", nonce });
         window.google.accounts.id.renderButton(ref.current, {
           theme: "outline",
           size: "large",
@@ -65,7 +68,7 @@ export function GoogleButton({
     return () => {
       cancelled = true;
     };
-  }, [clientId, mode]);
+  }, [clientId, mode, nonce]);
 
   if (failed) return <p className="text-center text-xs text-muted-foreground">Google sign-in isn&apos;t available right now.</p>;
   return <div ref={ref} className="flex min-h-[44px] w-full justify-center" />;

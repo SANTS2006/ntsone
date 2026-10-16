@@ -258,7 +258,7 @@ async function openSession(user: NonNullable<Awaited<ReturnType<typeof authRepo.
  * asked to name their organization (and agree to the terms) before they can use anything.
  */
 export async function googleSignIn(credential: string, context: { userAgent?: string; ipAddress?: string }): Promise<LoginResult & { created: boolean }> {
-  const profile = await verifyGoogleCredential(credential);
+  const profile = await verifyGoogleCredential(credential, { requireNonce: true });
   let user = await authRepo.findUserByEmail(profile.email);
   let created = false;
   if (!user) {
@@ -274,8 +274,12 @@ export async function googleSignIn(credential: string, context: { userAgent?: st
     });
     user = made;
     created = true;
+    // Google's word is not enough for a new account: the address is confirmed with the same emailed code as everywhere else.
+    await issueVerificationCode(user, user.email, "signup", { enforceCooldown: false });
   } else {
     if (user.status !== "active") throw AppError.forbidden("This account has been suspended");
+    // Platform administrators always sign in with their password.
+    if (user.role === "super_admin") throw AppError.forbidden("Platform administrator accounts must sign in with their email and password");
     assertInvitationNotExpired(user);
     // Google has proven the person owns this address. If the address was never confirmed, whoever registered it by
     // password may not be the owner, so that password stops working.
@@ -294,6 +298,7 @@ export async function completeOrganizationSetup(userId: string, input: { organiz
   const user = await authRepo.findUserById(userId);
   if (!user || !user.tenantId) throw AppError.unauthorized();
   if (!user.organizationSetupPending) throw AppError.conflict("Your organization is already set up.");
+  if (!user.emailVerifiedAt) throw AppError.emailNotVerified();
   await authRepo.updateTenantName(user.tenantId, input.organizationName);
   return toAuthenticatedUser(await authRepo.finishOrganizationSetup(userId));
 }

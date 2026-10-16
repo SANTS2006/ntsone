@@ -1,4 +1,4 @@
-import { createPublicKey } from "node:crypto";
+import { createHmac, createPublicKey, randomBytes, timingSafeEqual } from "node:crypto";
 import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
 import { AppError } from "../../lib/errors.js";
@@ -31,6 +31,33 @@ async function googleKeys(): Promise<Map<string, string>> {
   return pems;
 }
 
+// A nonce ties a Google ID token to one sign-in attempt on this site: it is handed out just before the Google window opens,
+// Google puts it inside the signed token, and it can be used once. A token that is stolen or replayed later is refused.
+const NONCE_TTL_MS = 10 * 60_000;
+const usedNonces = new Map<string, number>();
+const nonceSignature = (body: string) => createHmac("sha256", `google-nonce:${env.JWT_SECRET}`).update(body).digest("hex");
+
+export function issueGoogleNonce(): string {
+  const body = `${randomBytes(16).toString("hex")}.${Date.now().toString(36)}`;
+  return `${body}.${nonceSignature(body)}`;
+}
+
+function consumeGoogleNonce(nonce: unknown) {
+  const fail = () => AppError.unauthorized("This Google sign-in has expired or was already used. Please try again.");
+  if (typeof nonce !== "string") throw fail();
+  const [raw, time, signature] = nonce.split(".");
+  if (!raw || !time || !signature) throw fail();
+  const expected = Buffer.from(nonceSignature(`${raw}.${time}`));
+  const given = Buffer.from(signature);
+  if (expected.length !== given.length || !timingSafeEqual(expected, given)) throw fail();
+  const issuedAt = parseInt(time, 36);
+  if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > NONCE_TTL_MS || issuedAt > Date.now() + 60_000) throw fail();
+  const now = Date.now();
+  if (usedNonces.size > 2000) for (const [key, at] of usedNonces) if (now - at > NONCE_TTL_MS) usedNonces.delete(key);
+  if (usedNonces.has(nonce)) throw fail();
+  usedNonces.set(nonce, now);
+}
+
 export interface GoogleProfile {
   googleId: string;
   email: string;
@@ -38,7 +65,7 @@ export interface GoogleProfile {
 }
 
 /** Checks a "Sign in with Google" ID token and returns the person's verified Google profile. */
-export async function verifyGoogleCredential(credential: string): Promise<GoogleProfile> {
+export async function verifyGoogleCredential(credential: string, options: { requireNonce?: boolean } = {}): Promise<GoogleProfile> {
   if (!env.GOOGLE_CLIENT_ID) throw AppError.validation("Google sign-in isn't set up yet");
   const decoded = jwt.decode(credential, { complete: true });
   const kid = decoded && typeof decoded === "object" ? decoded.header.kid : undefined;
@@ -58,6 +85,7 @@ export async function verifyGoogleCredential(credential: string): Promise<Google
   } catch {
     throw AppError.unauthorized("Google sign-in has expired. Please try again.");
   }
+  if (options.requireNonce) consumeGoogleNonce(payload.nonce);
   if (!payload.sub || typeof payload.email !== "string" || payload.email_verified !== true) {
     throw AppError.unauthorized("Your Google account's email address isn't verified");
   }

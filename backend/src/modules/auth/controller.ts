@@ -5,6 +5,7 @@ import { sendSuccess } from "../../lib/response.js";
 import { recordAudit } from "../audit/recorder.js";
 import { createUploadSignature } from "../uploads/service.js";
 import * as authService from "./service.js";
+import { issueGoogleNonce } from "../voters/google.js";
 import {
   acceptInvitationSchema,
   changePasswordSchema,
@@ -79,6 +80,11 @@ export async function completeSetupHandler(request: FastifyRequest, reply: Fasti
   const user = await authService.completeOrganizationSetup(request.user.id, input);
   await recordAudit({ actorUserId: user.id, action: "user.complete_setup", entityType: "user", entityId: user.id, ipAddress: request.ip });
   return sendSuccess(reply, user, "Your organization is set up");
+}
+
+/** A fresh single-use value the Google sign-in must carry, so a captured Google token cannot be replayed. */
+export async function googleNonceHandler(_request: FastifyRequest, reply: FastifyReply) {
+  return sendSuccess(reply, { nonce: issueGoogleNonce() });
 }
 
 /** What the sign-in pages need to know about how people can sign in. */

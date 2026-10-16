@@ -23,6 +23,11 @@ vi.mock("../../src/modules/email/service.js", async (original) => ({ ...(await o
 const verifyGoogleCredential = vi.hoisted(() => vi.fn(async (credential: string) => JSON.parse(credential) as { googleId: string; email: string; name: string }));
 vi.mock("../../src/modules/voters/google.js", () => ({ verifyGoogleCredential }));
 
+const lastCodeFor = (spy: { mock: { calls: unknown[][] } }, email: string) => {
+  const line = spy.mock.calls.map((c) => String(c[0])).reverse().find((l) => l.includes(`signup for ${email}`));
+  return /: ([A-Z0-9]{6})$/.exec(line ?? "")?.[1] ?? "";
+};
+
 const auth = await import("../../src/modules/auth/service.js");
 const { authenticate } = await import("../../src/middleware/authenticate.js");
 const { completeSetupSchema } = await import("../../src/modules/auth/schemas.js");
@@ -74,10 +79,23 @@ describe("saying exactly what is wrong when signing in", () => {
 });
 
 describe("Continue with Google", () => {
-  it("registers someone new, and holds them at 'name your organization' until they do", async () => {
+  it("registers someone new, makes them confirm the email with the emailed code, then name their organization", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
     const session = await auth.googleSignIn(google("grace@example.test"), {});
     expect(session.created).toBe(true);
-    expect(session.user).toMatchObject({ email: "grace@example.test", name: "Grace Hopper", role: "admin", emailVerified: true, organizationSetupPending: true });
+    // Google's word is not enough: the address is not confirmed yet.
+    expect(session.user).toMatchObject({ email: "grace@example.test", name: "Grace Hopper", role: "admin", emailVerified: false, organizationSetupPending: true });
+    const code = lastCodeFor(log, "grace@example.test");
+    expect(code).toMatch(/^[A-Z0-9]{6}$/);
+    log.mockRestore();
+
+    // Naming the organization has to wait for the confirmation.
+    await expect(auth.completeOrganizationSetup(session.user.id, { organizationName: "Hopper Labs" })).rejects.toMatchObject({ code: "EMAIL_NOT_VERIFIED" });
+    // The confirmation step itself is reachable meanwhile.
+    await expect(authenticate(request(session.accessToken, "/api/auth/verify-email"), {} as never)).resolves.toBeUndefined();
+    await expect(authenticate(request(session.accessToken, "/api/auth/verify-email/resend"), {} as never)).resolves.toBeUndefined();
+    await expect(auth.verifyEmail(session.user.id, "ZZZZZZ")).rejects.toThrow(/Incorrect code/);
+    expect((await auth.verifyEmail(session.user.id, code)).emailVerified).toBe(true);
 
     // Until the organization is set up, only their own profile and the setup step are open.
     await expect(authenticate(request(session.accessToken, "/api/programs"), {} as never)).rejects.toMatchObject({ code: "SETUP_REQUIRED", statusCode: 403 });
@@ -96,6 +114,11 @@ describe("Continue with Google", () => {
     expect(row!.terms_accepted_at).not.toBeNull();
     await expect(authenticate(request(session.accessToken, "/api/programs"), {} as never)).resolves.toBeUndefined();
     await expect(auth.completeOrganizationSetup(session.user.id, { organizationName: "Again" })).rejects.toThrow(/already set up/);
+  });
+
+  it("never opens a platform administrator's account, even with a valid Google sign-in", async () => {
+    await q("insert into users (name, email, password_hash, role, email_verified_at) values ('Root', 'root@example.test', 'x', 'super_admin', now())");
+    await expect(auth.googleSignIn(google("root@example.test"), {})).rejects.toThrow(/Platform administrator/);
   });
 
   it("signs an existing person straight in, without creating anything", async () => {

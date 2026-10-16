@@ -10,7 +10,8 @@ import type { AuthenticatedUser } from "../modules/users/types.js";
 const PASSWORD_CHANGE_PATHS = new Set(["/api/auth/me", "/api/auth/me/change-password"]);
 
 // Someone who signed up with Google and has not named their organization yet may only do that.
-const SETUP_PATHS = new Set(["/api/auth/me", "/api/auth/me/complete-setup"]);
+// (and, first, confirming their email address with the emailed code).
+const SETUP_PATHS = new Set(["/api/auth/me", "/api/auth/me/complete-setup", "/api/auth/verify-email", "/api/auth/verify-email/resend"]);
 
 declare module "fastify" {
   interface FastifyRequest {
