@@ -6,6 +6,9 @@ import {
   confirmEmailChangeHandler,
   createOwnSpaceHandler,
   forgotPasswordHandler,
+  googleHandler,
+  completeSetupHandler,
+  providersHandler,
   acceptInvitationHandler,
   loginHandler,
   logoutHandler,
@@ -25,6 +28,8 @@ const strictAuthRateLimit = { rateLimit: { max: 10, timeWindow: "1 minute" } };
 
 export async function authRoutes(app: FastifyInstance) {
   app.post("/login", { config: strictAuthRateLimit }, loginHandler);
+  app.get("/providers", providersHandler);
+  app.post("/google", { config: strictAuthRateLimit }, googleHandler);
   app.post("/register", { config: strictAuthRateLimit }, registerHandler);
   app.post("/accept-invitation", { config: strictAuthRateLimit }, acceptInvitationHandler);
   app.post("/refresh", refreshHandler);
@@ -32,6 +37,7 @@ export async function authRoutes(app: FastifyInstance) {
   app.post("/forgot-password", { config: strictAuthRateLimit }, forgotPasswordHandler);
   app.post("/reset-password", { config: strictAuthRateLimit }, resetPasswordHandler);
   app.get("/me", { preHandler: authenticate }, meHandler);
+  app.post("/me/complete-setup", { preHandler: authenticate, config: strictAuthRateLimit }, completeSetupHandler);
   app.get("/me/organization", { preHandler: authenticate }, getOrganizationHandler);
   app.patch("/me/organization", { preHandler: authenticate }, updateOrganizationHandler);
   app.patch("/me", { preHandler: authenticate }, updateProfileHandler);

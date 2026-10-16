@@ -14,4 +14,6 @@ export interface AuthenticatedUser {
   emailVerified: boolean;
   /** True while the person is still on the temporary password they were invited with. */
   mustChangePassword: boolean;
+  /** True after signing up with Google, until the person has named their organization. */
+  organizationSetupPending: boolean;
 }

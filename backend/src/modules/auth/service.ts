@@ -15,6 +15,7 @@ import {
 } from "../email/templates.js";
 import type { AuthenticatedUser } from "../users/types.js";
 import * as authRepo from "./repository.js";
+import { verifyGoogleCredential } from "../voters/google.js";
 import * as usersRepo from "../users/repository.js";
 import type {
   AcceptInvitationInput,
@@ -41,6 +42,7 @@ function toAuthenticatedUser(user: Awaited<ReturnType<typeof authRepo.findUserBy
     tenantId: user.tenantId,
     emailVerified: !!user.emailVerifiedAt,
     mustChangePassword: user.mustChangePassword,
+    organizationSetupPending: user.organizationSetupPending,
   };
 }
 
@@ -122,16 +124,16 @@ export async function login(input: LoginInput, context: { userAgent?: string; ip
   assertLoginAllowed(input.email);
   const user = await authRepo.findUserByEmail(input.email);
   if (!user) {
-    // Same work and same answer as a wrong password, so this can't be used to find registered emails.
+    // Takes as long as a real check, so the answer's speed does not give anything away.
     await burnPasswordCheck(input.password);
     recordLoginFailure(input.email);
-    throw AppError.unauthorized("Invalid email or password");
+    throw AppError.accountNotFound();
   }
 
   const passwordOk = await verifyPassword(user.passwordHash, input.password);
   if (!passwordOk) {
     recordLoginFailure(input.email);
-    throw AppError.unauthorized("Invalid email or password");
+    throw AppError.wrongPassword();
   }
   clearLoginFailures(input.email);
 
@@ -174,22 +176,25 @@ function assertInvitationNotExpired(user: { mustChangePassword: boolean; tempPas
  */
 export async function acceptInvitation(input: AcceptInvitationInput, context: { userAgent?: string; ipAddress?: string }): Promise<LoginResult> {
   assertLoginAllowed(input.email);
-  const wrong = () => AppError.unauthorized("The email or the temporary password is not correct");
+  const wrong = () => AppError.wrongPassword("The temporary password is not correct. Copy it exactly from your invitation email.", "temporaryPassword");
   const user = await authRepo.findUserByEmail(input.email);
   if (!user) {
     await burnPasswordCheck(input.temporaryPassword);
     recordLoginFailure(input.email);
-    throw wrong();
+    throw AppError.accountNotFound("We couldn't find an invitation for this email address. Use the address the invitation was sent to.");
   }
   const ok = await verifyPassword(user.passwordHash, input.temporaryPassword);
-  if (!ok || !user.mustChangePassword) {
+  if (!user.mustChangePassword) {
+    throw AppError.conflict("This account has already been set up. Sign in with the password you chose.", { field: "email" });
+  }
+  if (!ok) {
     recordLoginFailure(input.email);
     throw wrong();
   }
   clearLoginFailures(input.email);
   if (user.status !== "active") throw AppError.forbidden("This account has been suspended");
   assertInvitationNotExpired(user);
-  if (input.newPassword === input.temporaryPassword) throw AppError.validation("Choose a password that is different from the temporary one");
+  if (input.newPassword === input.temporaryPassword) throw AppError.validation("Choose a password that is different from the temporary one", { field: "newPassword" });
 
   await authRepo.completeInvitation(user.id, await hashPassword(input.newPassword));
   await authRepo.revokeAllRefreshTokensForUser(user.id);
@@ -201,7 +206,7 @@ export async function register(
   context: { userAgent?: string; ipAddress?: string },
 ): Promise<LoginResult> {
   const existing = await authRepo.findUserByEmail(input.email);
-  if (existing) throw AppError.conflict("An account with this email already exists");
+  if (existing) throw AppError.conflict("An account with this email address already exists. Sign in instead, or use a different email.", { field: "email" });
 
   const passwordHash = await hashPassword(input.password);
   const slug = await generateUniqueTenantSlug(input.organizationName);
@@ -230,6 +235,67 @@ export async function register(
   await authRepo.touchLastLogin(user.id);
 
   return { accessToken, refreshToken, refreshTokenExpiresAt, user: toAuthenticatedUser(user) };
+}
+
+/** Opens a session for a user: the tokens the browser keeps. */
+async function openSession(user: NonNullable<Awaited<ReturnType<typeof authRepo.findUserByEmail>>>, context: { userAgent?: string; ipAddress?: string }): Promise<LoginResult> {
+  const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role, tenantId: user.tenantId });
+  const refreshToken = generateOpaqueToken();
+  const refreshTokenExpiresAt = addDuration(new Date(), env.JWT_REFRESH_TTL);
+  await authRepo.storeRefreshToken({
+    userId: user.id,
+    tokenHash: hashToken(refreshToken),
+    expiresAt: refreshTokenExpiresAt,
+    userAgent: context.userAgent,
+    ipAddress: context.ipAddress,
+  });
+  await authRepo.touchLastLogin(user.id);
+  return { accessToken, refreshToken, refreshTokenExpiresAt, user: toAuthenticatedUser(user) };
+}
+
+/**
+ * "Continue with Google": signs in whoever owns the Google account. Someone with no account here is registered and then
+ * asked to name their organization (and agree to the terms) before they can use anything.
+ */
+export async function googleSignIn(credential: string, context: { userAgent?: string; ipAddress?: string }): Promise<LoginResult & { created: boolean }> {
+  const profile = await verifyGoogleCredential(credential);
+  let user = await authRepo.findUserByEmail(profile.email);
+  let created = false;
+  if (!user) {
+    const placeholder = `${profile.name}'s organization`;
+    const { user: made } = await authRepo.createTenantAndAdmin({
+      organizationName: placeholder,
+      slug: await generateUniqueTenantSlug(placeholder),
+      name: profile.name,
+      email: profile.email,
+      // Nobody knows this password; the person can choose one with "Forgot password" if they ever want to sign in without Google.
+      passwordHash: await hashPassword(generateOpaqueToken()),
+      google: true,
+    });
+    user = made;
+    created = true;
+  } else {
+    if (user.status !== "active") throw AppError.forbidden("This account has been suspended");
+    assertInvitationNotExpired(user);
+    // Google has proven the person owns this address. If the address was never confirmed, whoever registered it by
+    // password may not be the owner, so that password stops working.
+    if (!user.emailVerifiedAt) {
+      await authRepo.updateUserPassword(user.id, await hashPassword(generateOpaqueToken()));
+      user = await authRepo.markEmailVerified(user.id);
+    }
+    // An invited person who signs in with Google no longer needs their temporary password.
+    if (user.mustChangePassword) user = await authRepo.completeInvitation(user.id, await hashPassword(generateOpaqueToken()));
+  }
+  return { ...(await openSession(user, context)), created };
+}
+
+/** The step after signing up with Google: names the organization, agrees to the terms, and opens the system. */
+export async function completeOrganizationSetup(userId: string, input: { organizationName: string }): Promise<AuthenticatedUser> {
+  const user = await authRepo.findUserById(userId);
+  if (!user || !user.tenantId) throw AppError.unauthorized();
+  if (!user.organizationSetupPending) throw AppError.conflict("Your organization is already set up.");
+  await authRepo.updateTenantName(user.tenantId, input.organizationName);
+  return toAuthenticatedUser(await authRepo.finishOrganizationSetup(userId));
 }
 
 export async function verifyEmail(userId: string, code: string): Promise<AuthenticatedUser> {
@@ -307,8 +373,7 @@ export async function logout(refreshToken: string | undefined): Promise<void> {
 
 export async function forgotPassword(input: ForgotPasswordInput, appUrl: string): Promise<void> {
   const user = await authRepo.findUserByEmail(input.email);
-  // Always behave the same whether or not the account exists, to avoid leaking which emails are registered.
-  if (!user) return;
+  if (!user) throw AppError.accountNotFound("We couldn't find an account with this email address. Check the spelling, or create an account.");
 
   const token = generateOpaqueToken();
   const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MINUTES * 60_000);
@@ -371,7 +436,7 @@ export async function changePassword(userId: string, input: ChangePasswordInput)
   if (!user) throw AppError.unauthorized();
 
   const currentOk = await verifyPassword(user.passwordHash, input.currentPassword);
-  if (!currentOk) throw AppError.validation("Current password is incorrect");
+  if (!currentOk) throw AppError.wrongPassword("Your current password is not correct. Check it and try again.", "currentPassword");
 
   const passwordHash = await hashPassword(input.newPassword);
   await authRepo.updateUserPassword(userId, passwordHash);

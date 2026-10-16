@@ -19,6 +19,16 @@ export async function findTenantById(id: string) {
   return tenant ?? null;
 }
 
+/** Ends the "name your organization" step: the organization is named and the terms are agreed to. */
+export async function finishOrganizationSetup(userId: string) {
+  const [row] = await db
+    .update(users)
+    .set({ organizationSetupPending: false, termsAcceptedAt: new Date(), emailVerifiedAt: new Date(), updatedAt: new Date() })
+    .where(eq(users.id, userId))
+    .returning();
+  return row!;
+}
+
 export async function updateTenantName(id: string, name: string) {
   const [row] = await db.update(tenants).set({ name, updatedAt: new Date() }).where(eq(tenants.id, id)).returning();
   return row ?? null;
@@ -211,6 +221,8 @@ export async function createTenantAndAdmin(params: {
   termsAccepted?: boolean;
   /** Set for an invited person whose password is temporary: when it stops working. */
   temporaryPasswordExpiresAt?: Date;
+  /** Signed up with Google: the address is already proven, and the organization still has to be named. */
+  google?: boolean;
 }) {
   return db.transaction(async (tx) => {
     const [tenant] = await tx
@@ -228,6 +240,7 @@ export async function createTenantAndAdmin(params: {
         tenantId: tenant!.id,
         termsAcceptedAt: params.termsAccepted === false ? null : new Date(),
         mustChangePassword: params.temporaryPasswordExpiresAt !== undefined,
+        ...(params.google ? { termsAcceptedAt: null, emailVerifiedAt: new Date(), organizationSetupPending: true } : {}),
         tempPasswordExpiresAt: params.temporaryPasswordExpiresAt ?? null,
       })
       .returning();

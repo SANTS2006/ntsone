@@ -18,6 +18,19 @@ export const registerSchema = z.object({
   }),
 });
 
+/** The ID token Google gives the browser after "Continue with Google". */
+export const googleSignInSchema = z.object({
+  credential: z.string().min(20, "Google did not send a sign-in. Please try again.").max(5000),
+});
+
+/** The step after signing up with Google: name the organization and agree to the terms. */
+export const completeSetupSchema = z.object({
+  organizationName: z.string().trim().min(2, "Enter your organization's name (at least 2 characters)").max(200, "The organization's name is too long (200 characters at most)"),
+  acceptTerms: z.literal(true, {
+    errorMap: () => ({ message: "You must agree to the Terms of Service and Privacy Policy to continue" }),
+  }),
+});
+
 export const verificationCodeSchema = z.object({
   code: z.string().trim().min(6).max(12),
 });

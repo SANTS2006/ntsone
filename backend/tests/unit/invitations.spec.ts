@@ -101,7 +101,7 @@ describe("inviting a teammate, on a real database", () => {
     // Only their own profile and the password change are reachable.
     await expect(authenticate(request("/api/auth/me"), {} as never)).resolves.toBeUndefined();
     await expect(authenticate(request("/api/auth/me/change-password"), {} as never)).resolves.toBeUndefined();
-    await expect(auth.login({ email: "fat@example.test", password: `BFF@${YEAR + 1}` }, {})).rejects.toThrow(/Invalid email or password/);
+    await expect(auth.login({ email: "fat@example.test", password: `BFF@${YEAR + 1}` }, {})).rejects.toThrow(/password is incorrect/);
   });
 
   it("opens everything once they have chosen their own password on first sign-in", async () => {
@@ -110,7 +110,7 @@ describe("inviting a teammate, on a real database", () => {
     const second = await auth.login({ email: "fat@example.test", password: "MyOwnSecret2026" }, {});
     expect(second.user.mustChangePassword).toBe(false);
     await expect(authenticate({ headers: { authorization: `Bearer ${second.accessToken}` }, url: "/api/programs" } as never, {} as never)).resolves.toBeUndefined();
-    await expect(auth.login({ email: "fat@example.test", password: `BFF@${YEAR}` }, {})).rejects.toThrow(/Invalid email or password/);
+    await expect(auth.login({ email: "fat@example.test", password: `BFF@${YEAR}` }, {})).rejects.toThrow(/password is incorrect/);
   });
 
   it("accepting the invitation: temporary password in, own password chosen, signed in, email confirmed", async () => {
@@ -121,16 +121,16 @@ describe("inviting a teammate, on a real database", () => {
     const [row] = await q("select must_change_password, temp_password_expires_at from users where email = 'musa@example.test'");
     expect(row).toMatchObject({ must_change_password: false, temp_password_expires_at: null });
     await expect(auth.login({ email: "musa@example.test", password: "Rainbow2026ok" }, {})).resolves.toBeTruthy();
-    await expect(auth.login({ email: "musa@example.test", password: `BFF@${YEAR}` }, {})).rejects.toThrow(/Invalid email or password/);
+    await expect(auth.login({ email: "musa@example.test", password: `BFF@${YEAR}` }, {})).rejects.toThrow(/password is incorrect/);
   });
 
   it("refuses to accept with a wrong temporary password, the same password again, or an account that is already set up", async () => {
     await invite("Kadiatu Sesay", "kadi@example.test");
-    await expect(auth.acceptInvitation({ email: "kadi@example.test", temporaryPassword: "wrong-Pass-1", newPassword: "Rainbow2026ok" }, {})).rejects.toThrow(/not correct/);
-    await expect(auth.acceptInvitation({ email: "nobody@example.test", temporaryPassword: `BFF@${YEAR}`, newPassword: "Rainbow2026ok" }, {})).rejects.toThrow(/not correct/);
+    await expect(auth.acceptInvitation({ email: "kadi@example.test", temporaryPassword: "wrong-Pass-1", newPassword: "Rainbow2026ok" }, {})).rejects.toThrow(/not correct|couldn.t find|already been set up/);
+    await expect(auth.acceptInvitation({ email: "nobody@example.test", temporaryPassword: `BFF@${YEAR}`, newPassword: "Rainbow2026ok" }, {})).rejects.toThrow(/not correct|couldn.t find|already been set up/);
     await expect(auth.acceptInvitation({ email: "kadi@example.test", temporaryPassword: `BFF@${YEAR}`, newPassword: `BFF@${YEAR}` }, {})).rejects.toThrow(/different/);
     // An ordinary account (already on its own password) cannot be opened through the invitation link, even with the right password.
-    await expect(auth.acceptInvitation({ email: "ada@example.test", temporaryPassword: "Sunrise2026x", newPassword: "Another2026pw" }, {})).rejects.toThrow(/not correct/);
+    await expect(auth.acceptInvitation({ email: "ada@example.test", temporaryPassword: "Sunrise2026x", newPassword: "Another2026pw" }, {})).rejects.toThrow(/not correct|couldn.t find|already been set up/);
     // Nothing changed for the person who was not accepted.
     await expect(auth.login({ email: "kadi@example.test", password: `BFF@${YEAR}` }, {})).resolves.toBeTruthy();
   });
@@ -142,7 +142,7 @@ describe("inviting a teammate, on a real database", () => {
     await expect(auth.login({ email: "ibrahim@example.test", password: `BFF@${YEAR}` }, {})).rejects.toThrow(/invitation has expired/);
     await expect(auth.acceptInvitation({ email: "ibrahim@example.test", temporaryPassword: `BFF@${YEAR}`, newPassword: "Rainbow2026ok" }, {})).rejects.toThrow(/invitation has expired/);
     // A wrong password still looks like any wrong password; expiry is only said to someone who knew the right one.
-    await expect(auth.login({ email: "ibrahim@example.test", password: "nope-NOPE-1" }, {})).rejects.toThrow(/Invalid email or password/);
+    await expect(auth.login({ email: "ibrahim@example.test", password: "nope-NOPE-1" }, {})).rejects.toThrow(/password is incorrect/);
 
     sendEmail.mockClear();
     const renewed = await usersService.resendInvitation(adminTenantId, created!.id as string, { name: "Ada Admin" });

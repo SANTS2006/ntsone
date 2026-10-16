@@ -32,7 +32,7 @@ Set secrets only in the hosting dashboard. Variables marked **secret** must neve
 |---|---|
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (**secret**), `CLOUDINARY_UPLOAD_FOLDER` | File and voice-note storage |
 | `BREVO_API_KEY` (**secret**), `EMAIL_FROM_NAME`, `EMAIL_FROM_ADDRESS` | Email (sender must be verified in Brevo). With no key, emails are logged instead |
-| `GOOGLE_CLIENT_ID` | Optional "Continue with Google" for voters |
+| `GOOGLE_CLIENT_ID` | Optional "Continue with Google": on the sign-in and sign-up pages (new people name their organization afterwards) and for voters. Create a Web OAuth client in Google Cloud Console and add the site address under "Authorized JavaScript origins" |
 
 ### Payments (Monime)
 | Variable | Default | Meaning |

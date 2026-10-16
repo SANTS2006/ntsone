@@ -9,6 +9,9 @@ export type ErrorCode =
   | "PAYMENT_REQUIRED"
   | "PAYMENT_UNAVAILABLE"
   | "PASSWORD_CHANGE_REQUIRED"
+  | "SETUP_REQUIRED"
+  | "ACCOUNT_NOT_FOUND"
+  | "WRONG_PASSWORD"
   | "INTERNAL_ERROR";
 
 export class AppError extends Error {
@@ -39,6 +42,20 @@ export class AppError extends Error {
   /** An invited person who has not yet replaced their temporary password. */
   static passwordChangeRequired() {
     return new AppError("PASSWORD_CHANGE_REQUIRED", "Choose your own password before you continue", 403);
+  }
+
+  /** Someone who signed up with Google and has not yet named their organization. */
+  static setupRequired() {
+    return new AppError("SETUP_REQUIRED", "Set up your organization before you continue", 403);
+  }
+
+  /** No account has this email address. `details.field` tells a form which box to put the message under. */
+  static accountNotFound(message = "We couldn't find an account with this email address. Check the spelling, or create an account.") {
+    return new AppError("ACCOUNT_NOT_FOUND", message, 401, { field: "email" });
+  }
+
+  static wrongPassword(message = "The password is incorrect. Check it and try again, or choose \"Forgot password?\" to reset it.", field = "password") {
+    return new AppError("WRONG_PASSWORD", message, 401, { field });
   }
 
   static emailNotVerified() {

@@ -13,6 +13,8 @@ export interface AuthUser {
   emailVerified: boolean;
   /** Still on the temporary password from an invitation; must choose their own before using the account. */
   mustChangePassword?: boolean;
+  /** Signed up with Google and has not named their organization yet. */
+  organizationSetupPending?: boolean;
 }
 
 export type ProgramStatus = "draft" | "published" | "closed" | "archived";

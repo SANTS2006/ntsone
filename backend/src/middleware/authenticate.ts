@@ -9,6 +9,9 @@ import type { AuthenticatedUser } from "../modules/users/types.js";
 // Someone still on a temporary password may only look at their own profile and choose a new password.
 const PASSWORD_CHANGE_PATHS = new Set(["/api/auth/me", "/api/auth/me/change-password"]);
 
+// Someone who signed up with Google and has not named their organization yet may only do that.
+const SETUP_PATHS = new Set(["/api/auth/me", "/api/auth/me/complete-setup"]);
+
 declare module "fastify" {
   interface FastifyRequest {
     user?: AuthenticatedUser;
@@ -54,6 +57,8 @@ export async function authenticate(request: FastifyRequest, _reply: FastifyReply
     tenantId: user.tenantId,
     emailVerified: !!user.emailVerifiedAt,
     mustChangePassword: user.mustChangePassword,
+    organizationSetupPending: user.organizationSetupPending,
   };
+  if (user.organizationSetupPending && !SETUP_PATHS.has(request.url.split("?")[0] ?? "")) throw AppError.setupRequired();
   if (user.mustChangePassword && !PASSWORD_CHANGE_PATHS.has(request.url.split("?")[0] ?? "")) throw AppError.passwordChangeRequired();
 }

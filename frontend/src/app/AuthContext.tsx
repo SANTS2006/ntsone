@@ -22,6 +22,8 @@ interface AuthContextValue {
   retryAuth: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
+  /** "Continue with Google": signs in, or registers a new account. `created` is true for a new account. */
+  googleSignIn: (credential: string) => Promise<{ created: boolean }>;
   /** Accepts an invitation: the temporary password from the email is swapped for one the person chooses, and they are signed in. */
   acceptInvitation: (email: string, temporaryPassword: string, newPassword: string) => Promise<void>;
   /** Signs out; protected pages then send the visitor to `redirectTo` (the website by default). */
@@ -96,6 +98,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [queryClient],
   );
 
+  const googleSignIn = React.useCallback(
+    async (credential: string) => {
+      const data = await apiFetch<{ accessToken: string; user: AuthUser; created: boolean }>("/auth/google", {
+        method: "POST",
+        body: { credential },
+        skipAuthRetry: true,
+      });
+      queryClient.clear();
+      setAccessToken(data.accessToken);
+      setLogoutRedirect(null);
+      setUser(data.user);
+      return { created: data.created };
+    },
+    [queryClient],
+  );
+
   const acceptInvitation = React.useCallback(
     async (email: string, temporaryPassword: string, newPassword: string) => {
       const data = await apiFetch<{ accessToken: string; user: AuthUser }>("/auth/accept-invitation", {
@@ -133,7 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, authError, retryAuth: () => void checkSession(), login, register, acceptInvitation, logout, logoutRedirect, updateLocalUser }}>
+    <AuthContext.Provider value={{ user, isLoading, authError, retryAuth: () => void checkSession(), login, register, googleSignIn, acceptInvitation, logout, logoutRedirect, updateLocalUser }}>
       {children}
     </AuthContext.Provider>
   );

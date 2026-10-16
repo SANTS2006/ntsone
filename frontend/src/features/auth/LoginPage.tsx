@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ApiError } from "@/lib/api";
 import { usePageMeta } from "@/lib/seo";
+import { showServerFieldErrors } from "@/lib/serverErrors";
+import { GoogleAuth } from "./GoogleAuth";
 
 const loginSchema = z.object({
   email: z
@@ -55,6 +57,7 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema), mode: "onTouched" });
 
@@ -68,8 +71,8 @@ export function LoginPage() {
       await login(values.email, values.password);
       navigate("/admin");
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Unable to log in";
-      toast.error(message);
+      // "No account with this email" goes under the email box, "wrong password" under the password box.
+      if (!showServerFieldErrors(err, ["email", "password"], setError)) toast.error(err instanceof ApiError ? err.message : "We could not sign you in. Check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -121,6 +124,10 @@ export function LoginPage() {
               <div className="mb-8">
                 <h2 className="text-3xl font-bold tracking-tight">Sign In</h2>
                 <p className="mt-1 text-sm text-muted-foreground">Sign in to manage programs and registrations.</p>
+              </div>
+
+              <div className="mb-5">
+                <GoogleAuth mode="signin" />
               </div>
 
               <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>

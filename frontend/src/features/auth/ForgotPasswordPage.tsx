@@ -17,22 +17,28 @@ export function ForgotPasswordPage() {
   const [submitting, setSubmitting] = React.useState(false);
 
   const [touched, setTouched] = React.useState(false);
+  const [serverProblem, setServerProblem] = React.useState("");
   const address = email.trim();
-  const problem = !address ? "Please enter your email address" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? "Enter a valid email address, like name@example.com" : "";
+  const localProblem = !address ? "Please enter your email address" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? "Enter a valid email address, like name@example.com" : "";
+  const problem = localProblem || serverProblem;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (problem) {
+    if (localProblem) {
       setTouched(true);
       document.getElementById("email")?.focus();
       return;
     }
+    setServerProblem("");
     setSubmitting(true);
     try {
       await requestPasswordReset(address);
       setSentTo(address);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Could not send the reset link, please try again");
+      if (err instanceof ApiError && err.code === "ACCOUNT_NOT_FOUND") {
+        setServerProblem(err.message);
+        setTouched(true);
+      } else toast.error(err instanceof ApiError ? err.message : "We could not send the reset link. Check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -42,8 +48,7 @@ export function ForgotPasswordPage() {
     return (
       <AuthCardShell icon={MailCheck} title="Check your inbox" subtitle="Follow the link in the email to choose a new password.">
         <p className="text-sm text-muted-foreground">
-          If an account exists for <span className="font-semibold text-foreground">{sentTo}</span>, we&apos;ve sent it a
-          password reset link. The link expires in 10 minutes. Didn&apos;t get it? Check your spam folder.
+          We&apos;ve sent a password reset link to <span className="font-semibold text-foreground">{sentTo}</span>. The link expires in 10 minutes. Didn&apos;t get it? Check your spam folder.
         </p>
         <Button variant="outline" onClick={() => setSentTo(null)}>
           Use a different email
@@ -69,7 +74,10 @@ export function ForgotPasswordPage() {
             placeholder="Enter your email"
             className="h-12 rounded-full px-5"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setServerProblem("");
+            }}
             onBlur={() => setTouched(true)}
             aria-invalid={touched && problem ? true : undefined}
             aria-describedby={touched && problem ? "email-error" : undefined}

@@ -2,6 +2,7 @@ import { FullScreenLoading } from "@/components/Loading";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import type { UserRole } from "@/types/api";
+import { OrganizationSetupScreen } from "@/features/auth/OrganizationSetupScreen";
 import { ChooseOwnPasswordScreen } from "@/features/auth/AcceptInvitationPage";
 
 export function ProtectedRoute({ roles }: { roles?: UserRole[] }) {
@@ -31,6 +32,9 @@ export function ProtectedRoute({ roles }: { roles?: UserRole[] }) {
   if (!user.emailVerified) {
     return <Navigate to="/verify-email" replace />;
   }
+
+  // Signed up with Google: the organization has to be named (and the terms agreed to) before anything else.
+  if (user.organizationSetupPending) return <OrganizationSetupScreen />;
 
   // Signed in with the temporary password from an invitation: nothing else works until they choose their own.
   if (user.mustChangePassword) return <ChooseOwnPasswordScreen />;

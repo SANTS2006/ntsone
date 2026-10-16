@@ -21,6 +21,8 @@ export const users = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    // Signed up with Google and still has to name their organization (and agree to the terms) before using the system.
+    organizationSetupPending: boolean("organization_setup_pending").notNull().default(false),
     // An invited person starts with a temporary password and must choose their own before doing anything else.
     mustChangePassword: boolean("must_change_password").notNull().default(false),
     // When that temporary password stops working (the person can be sent a new one).

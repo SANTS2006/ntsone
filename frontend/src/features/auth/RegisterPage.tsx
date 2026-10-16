@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ApiError } from "@/lib/api";
 import { usePageMeta } from "@/lib/seo";
+import { showServerFieldErrors } from "@/lib/serverErrors";
+import { GoogleAuth } from "./GoogleAuth";
 
 const registerSchema = z
   .object({
@@ -85,6 +87,7 @@ export function RegisterPage() {
     register,
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<RegisterForm>({ resolver: zodResolver(registerSchema), defaultValues: { acceptTerms: false }, mode: "onTouched" });
 
@@ -109,8 +112,7 @@ export function RegisterPage() {
       });
     } catch (err) {
       justRegisteredRef.current = false;
-      const message = err instanceof ApiError ? err.message : "Unable to create your account";
-      toast.error(message);
+      if (!showServerFieldErrors(err, ["organizationName", "name", "email", "password"], setError)) toast.error(err instanceof ApiError ? err.message : "We could not create your account. Check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -164,6 +166,10 @@ export function RegisterPage() {
                 <p className="mt-1 text-sm text-muted-foreground">
                   You'll be the admin of your own workspace, with full control over your programs.
                 </p>
+              </div>
+
+              <div className="mb-4">
+                <GoogleAuth mode="signup" />
               </div>
 
               <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)} noValidate>

@@ -2,6 +2,7 @@ import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 import { isProduction } from "../config/env.js";
 import { AppError } from "../lib/errors.js";
+import { describeIssue, issuesByField } from "../lib/zodMessages.js";
 import { maskSecretsInUrl } from "../lib/logRedact.js";
 
 export function errorHandler(
@@ -20,11 +21,11 @@ export function errorHandler(
 
   if (error instanceof ZodError) {
     // Say what is wrong in the rule's own words (for example "Use at least 10 characters") instead of a bare "Invalid request".
-    const first = error.issues.find((issue) => issue.code !== "invalid_type");
+    const first = error.issues.find((issue) => issue.code !== "invalid_type") ?? error.issues[0];
     return reply.status(400).send({
       success: false,
       requestId: request.id,
-      error: { code: "VALIDATION_ERROR", message: first?.message ?? "Invalid request", details: error.flatten() },
+      error: { code: "VALIDATION_ERROR", message: first ? describeIssue(first) : "Some of the information you sent is missing or not valid", details: { ...error.flatten(), fields: issuesByField(error.issues) } },
     });
   }
 

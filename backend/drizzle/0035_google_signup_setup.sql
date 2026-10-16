@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "organization_setup_pending" boolean DEFAULT false NOT NULL;

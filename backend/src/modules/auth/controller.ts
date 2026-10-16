@@ -8,6 +8,8 @@ import * as authService from "./service.js";
 import {
   acceptInvitationSchema,
   changePasswordSchema,
+  completeSetupSchema,
+  googleSignInSchema,
   forgotPasswordSchema,
   loginSchema,
   registerSchema,
@@ -63,6 +65,27 @@ export async function acceptInvitationHandler(request: FastifyRequest, reply: Fa
   return sendSuccess(reply, { accessToken: result.accessToken, user: result.user }, "Welcome! Your password is set");
 }
 
+export async function googleHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { credential } = googleSignInSchema.parse(request.body);
+  const result = await authService.googleSignIn(credential, { userAgent: request.headers["user-agent"], ipAddress: request.ip });
+  setRefreshCookie(reply, result.refreshToken, result.refreshTokenExpiresAt);
+  await recordAudit({ actorUserId: result.user.id, action: result.created ? "user.register" : "user.google_sign_in", entityType: "user", entityId: result.user.id, ipAddress: request.ip });
+  return sendSuccess(reply, { accessToken: result.accessToken, user: result.user, created: result.created }, result.created ? "Account created" : "Logged in successfully", result.created ? 201 : 200);
+}
+
+export async function completeSetupHandler(request: FastifyRequest, reply: FastifyReply) {
+  if (!request.user) throw AppError.unauthorized();
+  const input = completeSetupSchema.parse(request.body);
+  const user = await authService.completeOrganizationSetup(request.user.id, input);
+  await recordAudit({ actorUserId: user.id, action: "user.complete_setup", entityType: "user", entityId: user.id, ipAddress: request.ip });
+  return sendSuccess(reply, user, "Your organization is set up");
+}
+
+/** What the sign-in pages need to know about how people can sign in. */
+export async function providersHandler(_request: FastifyRequest, reply: FastifyReply) {
+  return sendSuccess(reply, { googleClientId: env.GOOGLE_CLIENT_ID || null });
+}
+
 export async function registerHandler(request: FastifyRequest, reply: FastifyReply) {
   const input = registerSchema.parse(request.body);
   const result = await authService.register(input, {
@@ -105,7 +128,7 @@ export async function logoutHandler(request: FastifyRequest, reply: FastifyReply
 export async function forgotPasswordHandler(request: FastifyRequest, reply: FastifyReply) {
   const input = forgotPasswordSchema.parse(request.body);
   await authService.forgotPassword(input, env.APP_URL);
-  return sendSuccess(reply, null, "If an account exists for that email, a reset link has been sent.");
+  return sendSuccess(reply, null, "A reset link has been sent to your email address.");
 }
 
 export async function resetPasswordHandler(request: FastifyRequest, reply: FastifyReply) {
