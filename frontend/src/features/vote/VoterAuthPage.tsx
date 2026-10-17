@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError } from "@/lib/api";
 import { usePageMeta } from "@/lib/seo";
-import { googleVoter, loginVoter, registerVoter, resendVoterCode, verifyVoter, type AuthResult } from "./api";
+import { googleVoter, googleVoterNonce, loginVoter, registerVoter, resendVoterCode, verifyVoter, type AuthResult } from "./api";
 import { GoogleButton } from "./GoogleButton";
 import { PollLogo, useVotePoll, useVoterSession, VoteShell } from "./VoteShell";
 import { VoteMessage } from "./VoteMessage";
@@ -40,6 +40,17 @@ export function VoterAuthPage({ mode }: { mode: "login" | "register" }) {
   const [problem, setProblem] = React.useState<string | null>(null);
   const [touched, setTouched] = React.useState<Record<string, boolean>>({});
   const [submitted, setSubmitted] = React.useState(false);
+  // Each Google attempt carries its own single-use value from the server; a new one is fetched after every try.
+  const googleOn = Boolean(poll?.googleClientId);
+  const [nonce, setNonce] = React.useState<string | null>(null);
+  const loadNonce = React.useCallback(() => {
+    googleVoterNonce()
+      .then((r) => setNonce(r.nonce))
+      .catch(() => setNonce(null));
+  }, []);
+  React.useEffect(() => {
+    if (googleOn) loadNonce();
+  }, [googleOn, loadNonce]);
 
   // What is wrong with each field right now; shown once the person has left the field or tried to continue.
   const trimmedEmail = email.trim();
@@ -257,12 +268,15 @@ export function VoterAuthPage({ mode }: { mode: "login" | "register" }) {
                     {mode === "register" ? "or sign up with" : "or sign in with"}
                     <span className="h-px flex-1 bg-border" />
                   </div>
-                  <GoogleButton
-                    iconOnly
-                    clientId={poll.googleClientId}
-                    mode={mode === "register" ? "signup" : "signin"}
-                    onCredential={(credential) => void attempt(() => googleVoter({ pollSlug: slug, credential }))}
-                  />
+                  {nonce && (
+                    <GoogleButton
+                      iconOnly
+                      clientId={poll.googleClientId}
+                      nonce={nonce}
+                      mode={mode === "register" ? "signup" : "signin"}
+                      onCredential={(credential) => void attempt(() => googleVoter({ pollSlug: slug, credential })).finally(loadNonce)}
+                    />
+                  )}
                 </div>
               )}
               <p className="text-center text-sm text-muted-foreground">

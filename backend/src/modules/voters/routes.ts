@@ -2,7 +2,7 @@ import { strongPassword } from "../../lib/passwordPolicy.js";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { sendSuccess } from "../../lib/response.js";
-import { verifyGoogleCredential } from "./google.js";
+import { issueGoogleNonce, verifyGoogleCredential } from "./google.js";
 import * as votersService from "./service.js";
 
 const authLimit = { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } };
@@ -104,9 +104,12 @@ export async function voterRoutes(app: FastifyInstance) {
     return sendSuccess(reply, await votersService.resetPassword(resetSchema.parse(request.body)), "Your password has been changed");
   });
 
+  // A fresh single-use value the Google sign-in must carry, so a captured Google token cannot be replayed.
+  app.get("/auth/google/nonce", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } }, async (_request, reply) => sendSuccess(reply, { nonce: issueGoogleNonce() }));
+
   app.post("/auth/google", authLimit, async (request, reply) => {
     const input = googleSchema.parse(request.body);
-    const profile = await verifyGoogleCredential(input.credential);
+    const profile = await verifyGoogleCredential(input.credential, { requireNonce: true });
     return sendSuccess(reply, await votersService.googleSignIn(reply, { pollSlug: input.pollSlug, profile }));
   });
 

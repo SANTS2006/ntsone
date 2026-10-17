@@ -99,6 +99,7 @@ export const forgotVoterPassword = (input: { pollSlug: string; email: string }) 
   voterFetch<{ status: "reset_sent"; email: string }>("/auth/forgot-password", { method: "POST", body: input });
 export const resetVoterPassword = (input: { pollSlug: string; email: string; code: string; password: string }) =>
   voterFetch<{ status: "password_reset" }>("/auth/reset-password", { method: "POST", body: input });
+export const googleVoterNonce = () => voterFetch<{ nonce: string }>("/auth/google/nonce");
 export const googleVoter = (input: { pollSlug: string; credential: string }) =>
   voterFetch<AuthResult>("/auth/google", { method: "POST", body: input });
 export const logoutVoter = () => voterFetch<null>("/auth/logout", { method: "POST" });
