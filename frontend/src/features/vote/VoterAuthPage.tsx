@@ -176,20 +176,6 @@ export function VoterAuthPage({ mode }: { mode: "login" | "register" }) {
             </div>
           ) : (
             <>
-              {poll.googleClientId && (
-                <>
-                  <GoogleButton
-                    clientId={poll.googleClientId}
-                    mode={mode === "register" ? "signup" : "signin"}
-                    onCredential={(credential) => void attempt(() => googleVoter({ pollSlug: slug, credential }))}
-                  />
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="h-px flex-1 bg-border" />
-                    or with your email
-                    <span className="h-px flex-1 bg-border" />
-                  </div>
-                </>
-              )}
               <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
                 {mode === "register" && (
                   <div className="flex flex-col gap-1.5">
@@ -264,6 +250,21 @@ export function VoterAuthPage({ mode }: { mode: "login" | "register" }) {
                   {mode === "register" ? "Create account" : "Sign in"}
                 </Button>
               </form>
+              {poll.googleClientId && (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex w-full items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" />
+                    {mode === "register" ? "or sign up with" : "or sign in with"}
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                  <GoogleButton
+                    iconOnly
+                    clientId={poll.googleClientId}
+                    mode={mode === "register" ? "signup" : "signin"}
+                    onCredential={(credential) => void attempt(() => googleVoter({ pollSlug: slug, credential }))}
+                  />
+                </div>
+              )}
               <p className="text-center text-sm text-muted-foreground">
                 {mode === "register" ? "Already have a voter account? " : "New here? "}
                 <Link
