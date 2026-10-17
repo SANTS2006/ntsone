@@ -3,7 +3,8 @@ import { AppError } from "../../lib/errors.js";
 import type { PaginationInput } from "../../lib/pagination.js";
 import { buildPaginatedResult } from "../../lib/pagination.js";
 import { hashPassword } from "../../lib/password.js";
-import { defaultTemporaryPassword, TEMPORARY_PASSWORD_DAYS, temporaryPasswordExpiry } from "../../lib/temporaryPassword.js";
+import { TEMPORARY_PASSWORD_DAYS, temporaryPasswordExpiry } from "../../lib/temporaryPassword.js";
+import { generateOpaqueToken, hashToken } from "../../lib/tokens.js";
 import { queueEmail } from "../email/outbox.js";
 import { sendEmail } from "../email/service.js";
 import { invitationEmail, teamAddedEmail } from "../email/templates.js";
@@ -41,9 +42,9 @@ export async function createUser(tenantId: string, input: CreateUserInput, invit
     return teamMember(tenantId, existing.id);
   }
 
-  // No password is typed by the inviter: the person gets the organization's default temporary password and must replace it.
-  const temporaryPassword = defaultTemporaryPassword(organizationName);
-  const passwordHash = await hashPassword(temporaryPassword);
+  // The inviter types no password and none is emailed: the account starts with a password nobody knows, and the private
+  // link in the email lets the person choose their own.
+  const passwordHash = await hashPassword(generateOpaqueToken());
   const spaceName = `${input.name.trim().split(/\s+/)[0]}'s space`;
   const { user } = await authRepo.createTenantAndAdmin({
     organizationName: spaceName,
@@ -62,9 +63,7 @@ export async function createUser(tenantId: string, input: CreateUserInput, invit
     inviterName: inviter.name,
     organizationName,
     role: input.role,
-    temporaryPassword,
-    acceptUrl: acceptInvitationUrl(user.email),
-    loginUrl: `${env.APP_URL}/login`,
+    acceptUrl: await newInvitationLink(user.id),
     validDays: TEMPORARY_PASSWORD_DAYS,
   });
   await sendEmail({ to: user.email, toName: user.name, subject: message.subject, html: message.html });
@@ -72,17 +71,21 @@ export async function createUser(tenantId: string, input: CreateUserInput, invit
   return teamMember(tenantId, user.id);
 }
 
-const acceptInvitationUrl = (email: string) => `${env.APP_URL}/accept-invitation?email=${encodeURIComponent(email)}`;
+/** A private single-use link, good for a few days, that lets the invited person choose their own password. */
+async function newInvitationLink(userId: string) {
+  const token = generateOpaqueToken();
+  await authRepo.storePasswordResetToken({ userId, tokenHash: hashToken(token), expiresAt: temporaryPasswordExpiry() });
+  return `${env.APP_URL}/accept-invitation?token=${token}`;
+}
 
-/** Sends a new temporary password and a fresh seven days to someone who has not accepted their invitation yet. */
+/** Sends a new private link, good for seven more days, to someone who has not accepted their invitation yet. */
 export async function resendInvitation(tenantId: string, id: string, inviter: { name: string }) {
   const member = await usersRepo.findTeamMember(id, tenantId);
   if (!member) throw AppError.notFound("User not found");
   const user = member.user;
   if (!user.mustChangePassword) throw AppError.conflict("This person has already accepted their invitation");
   const organizationName = (await usersRepo.findTenantName(tenantId)) ?? "your organization";
-  const temporaryPassword = defaultTemporaryPassword(organizationName);
-  await authRepo.setTemporaryPassword(user.id, await hashPassword(temporaryPassword), temporaryPasswordExpiry());
+  await authRepo.setTemporaryPassword(user.id, await hashPassword(generateOpaqueToken()), temporaryPasswordExpiry());
   await authRepo.revokeAllRefreshTokensForUser(user.id);
   const message = invitationEmail({
     name: user.name,
@@ -90,9 +93,7 @@ export async function resendInvitation(tenantId: string, id: string, inviter: { 
     inviterName: inviter.name,
     organizationName,
     role: member.role,
-    temporaryPassword,
-    acceptUrl: acceptInvitationUrl(user.email),
-    loginUrl: `${env.APP_URL}/login`,
+    acceptUrl: await newInvitationLink(user.id),
     validDays: TEMPORARY_PASSWORD_DAYS,
   });
   await sendEmail({ to: user.email, toName: user.name, subject: message.subject, html: message.html });

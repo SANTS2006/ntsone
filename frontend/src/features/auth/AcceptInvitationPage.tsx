@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { LockKeyhole, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api";
@@ -12,24 +11,21 @@ import { usePageMeta } from "@/lib/seo";
 import { PASSWORD_HINT, passwordProblem } from "@/lib/passwordRules";
 import { AuthCardShell } from "./AuthCardShell";
 
-/** The temporary password and the new one, with the checks that do not need the server. Returns the first problem, or "". */
-function formProblem(temporary: string, next: string, confirm: string) {
-  if (!temporary) return "Enter the temporary password from your invitation email";
+/** The new password and its confirmation, with the checks that do not need the server. Returns the first problem, or "". */
+function formProblem(next: string, confirm: string) {
   const problem = passwordProblem(next);
   if (problem) return problem;
-  if (next === temporary) return "Choose a password that is different from the temporary one";
   if (next !== confirm) return "Passwords don't match";
   return "";
 }
 
-/** The page the "Accept invitation" button in the email opens: temporary password in, a password of their own out, signed in. */
+/** The page the "Accept invitation" button in the email opens: a private link in, a password of their own out, signed in. */
 export function AcceptInvitationPage() {
   usePageMeta({ title: "Accept invitation" });
   const [params] = useSearchParams();
+  const token = params.get("token") ?? "";
   const { acceptInvitation } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = React.useState(params.get("email") ?? "");
-  const [temporary, setTemporary] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirm, setConfirm] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
@@ -37,12 +33,12 @@ export function AcceptInvitationPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const problem = !email.trim() ? "Enter your email address" : formProblem(temporary, password, confirm);
+    const problem = !token ? "This invitation link is not complete. Open it again from your email." : formProblem(password, confirm);
     if (problem) return setError(problem);
     setError("");
     setSubmitting(true);
     try {
-      await acceptInvitation(email.trim(), temporary, password);
+      await acceptInvitation(token, password);
       toast.success("Welcome aboard! Your password is saved.");
       navigate("/admin", { replace: true });
     } catch (err) {
@@ -56,17 +52,8 @@ export function AcceptInvitationPage() {
     <AuthCardShell icon={MailCheck} title="Accept your invitation" subtitle="Choose your own password to join the team.">
       <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="invite-email">Email</Label>
-          <Input id="invite-email" type="email" autoComplete="username" className="h-12 rounded-full px-5" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="invite-temporary">Temporary password</Label>
-          <PasswordInput id="invite-temporary" autoComplete="current-password" autoFocus={!!email} className="h-12 rounded-full px-5 pr-12" value={temporary} onChange={(e) => setTemporary(e.target.value)} />
-          <p className="px-2 text-xs text-muted-foreground">It is in your invitation email.</p>
-        </div>
-        <div className="flex flex-col gap-1.5">
           <Label htmlFor="invite-new">New password</Label>
-          <PasswordInput id="invite-new" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput id="invite-new" autoComplete="new-password" autoFocus className="h-12 rounded-full px-5 pr-12" value={password} onChange={(e) => setPassword(e.target.value)} />
           <p className="px-2 text-xs text-muted-foreground">{PASSWORD_HINT}</p>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -101,7 +88,7 @@ export function ChooseOwnPasswordScreen() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const problem = formProblem(temporary, password, confirm);
+    const problem = !temporary ? "Enter your current password" : password === temporary ? "Choose a password that is different from the current one" : formProblem(password, confirm);
     if (problem) return setError(problem);
     setError("");
     setSubmitting(true);

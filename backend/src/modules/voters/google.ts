@@ -38,16 +38,17 @@ const usedNonces = new Map<string, number>();
 const nonceSignature = (body: string) => createHmac("sha256", `google-nonce:${env.JWT_SECRET}`).update(body).digest("hex");
 
 export function issueGoogleNonce(): string {
-  const body = `${randomBytes(16).toString("hex")}.${Date.now().toString(36)}`;
-  return `${body}.${nonceSignature(body)}`;
+  // Letters, numbers and dashes only, and short: Google passes it through untouched.
+  const body = `${randomBytes(12).toString("hex")}-${Date.now().toString(36)}`;
+  return `${body}-${nonceSignature(body).slice(0, 24)}`;
 }
 
 function consumeGoogleNonce(nonce: unknown) {
   const fail = () => AppError.unauthorized("This Google sign-in has expired or was already used. Please try again.");
   if (typeof nonce !== "string") throw fail();
-  const [raw, time, signature] = nonce.split(".");
+  const [raw, time, signature] = nonce.split("-");
   if (!raw || !time || !signature) throw fail();
-  const expected = Buffer.from(nonceSignature(`${raw}.${time}`));
+  const expected = Buffer.from(nonceSignature(`${raw}-${time}`).slice(0, 24));
   const given = Buffer.from(signature);
   if (expected.length !== given.length || !timingSafeEqual(expected, given)) throw fail();
   const issuedAt = parseInt(time, 36);

@@ -171,34 +171,21 @@ function assertInvitationNotExpired(user: { mustChangePassword: boolean; tempPas
 }
 
 /**
- * The invitation link: the invited person gives the temporary password from their email and chooses their own, and
- * is signed in. Only an account that is still on its temporary password can be opened this way.
+ * The invitation link: the private token from the invitation email proves who is joining, and the person chooses their
+ * own password and is signed in. Only an account that has not yet accepted can be opened this way, and the link works once.
  */
 export async function acceptInvitation(input: AcceptInvitationInput, context: { userAgent?: string; ipAddress?: string }): Promise<LoginResult> {
-  assertLoginAllowed(input.email);
-  const wrong = () => AppError.wrongPassword("The temporary password is not correct. Copy it exactly from your invitation email.", "temporaryPassword");
-  const user = await authRepo.findUserByEmail(input.email);
-  if (!user) {
-    await burnPasswordCheck(input.temporaryPassword);
-    recordLoginFailure(input.email);
-    throw AppError.accountNotFound("We couldn't find an invitation for this email address. Use the address the invitation was sent to.");
-  }
-  const ok = await verifyPassword(user.passwordHash, input.temporaryPassword);
-  if (!user.mustChangePassword) {
-    throw AppError.conflict("This account has already been set up. Sign in with the password you chose.", { field: "email" });
-  }
-  if (!ok) {
-    recordLoginFailure(input.email);
-    throw wrong();
-  }
-  clearLoginFailures(input.email);
+  const expired = () => AppError.validation("This invitation link is invalid or has expired. Ask the person who invited you to send a new one.", { field: "token" });
+  const record = await authRepo.findActivePasswordResetToken(hashToken(input.token));
+  if (!record) throw expired();
+  const user = await authRepo.findUserById(record.userId);
+  if (!user || !user.mustChangePassword) throw expired();
   if (user.status !== "active") throw AppError.forbidden("This account has been suspended");
-  assertInvitationNotExpired(user);
-  if (input.newPassword === input.temporaryPassword) throw AppError.validation("Choose a password that is different from the temporary one", { field: "newPassword" });
 
+  await authRepo.markPasswordResetTokenUsed(record.id);
   await authRepo.completeInvitation(user.id, await hashPassword(input.newPassword));
   await authRepo.revokeAllRefreshTokensForUser(user.id);
-  return login({ email: input.email, password: input.newPassword }, context);
+  return login({ email: user.email, password: input.newPassword }, context);
 }
 
 export async function register(

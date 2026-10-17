@@ -84,6 +84,8 @@ export function buildApp() {
 
   app.register(helmet, {
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Google's sign-in window reports back to this page; the default "same-origin" would cut that link.
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     // The same server also serves the web app in production, so the CSP must
     // allow what the frontend loads: Cloudinary-hosted images and direct
     // browser-to-Cloudinary uploads.

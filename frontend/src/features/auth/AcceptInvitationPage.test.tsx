@@ -10,7 +10,7 @@ vi.mock("@/app/AuthContext", () => ({ useAuth: () => ({ acceptInvitation }) }));
 import { ThemeProvider } from "@/app/ThemeContext";
 import { AcceptInvitationPage } from "./AcceptInvitationPage";
 
-const open = (url = "/accept-invitation?email=fat%40example.test") =>
+const open = (url = "/accept-invitation?token=abcdefghij1234567890") =>
   render(
     <ThemeProvider>
       <MemoryRouter initialEntries={[url]}>
@@ -19,8 +19,7 @@ const open = (url = "/accept-invitation?email=fat%40example.test") =>
     </ThemeProvider>,
   );
 
-const fill = (temporary: string, password: string, confirm = password) => {
-  fireEvent.change(screen.getByLabelText("Temporary password"), { target: { value: temporary } });
+const fill = (password: string, confirm = password) => {
   fireEvent.change(screen.getByLabelText("New password"), { target: { value: password } });
   fireEvent.change(screen.getByLabelText("Confirm new password"), { target: { value: confirm } });
   fireEvent.click(screen.getByRole("button", { name: /save password/i }));
@@ -32,29 +31,34 @@ describe("the accept invitation page", () => {
     acceptInvitation.mockReset();
   });
 
-  it("fills in the email from the link and sends the temporary and the new password", async () => {
+  it("asks only for the new password and sends it with the private token from the link", async () => {
     acceptInvitation.mockResolvedValue(undefined);
     open();
-    expect((screen.getByLabelText("Email") as HTMLInputElement).value).toBe("fat@example.test");
-    fill("BFF@2026", "MyOwnSecret2026");
-    await waitFor(() => expect(acceptInvitation).toHaveBeenCalledWith("fat@example.test", "BFF@2026", "MyOwnSecret2026"));
+    expect(screen.queryByLabelText("Temporary password")).toBeNull();
+    fill("MyOwnSecret2026");
+    await waitFor(() => expect(acceptInvitation).toHaveBeenCalledWith("abcdefghij1234567890", "MyOwnSecret2026"));
   });
 
-  it("explains a weak or unchanged password without calling the server", () => {
+  it("explains a weak or mismatched password without calling the server", () => {
     open();
-    fill("BFF@2026", "short1");
+    fill("short1");
     expect(screen.getByRole("alert").textContent).toBe("Use at least 10 characters");
-    fill("LongTemp2026x", "LongTemp2026x");
-    expect(screen.getByRole("alert").textContent).toMatch(/different from the temporary/);
-    fill("BFF@2026", "MyOwnSecret2026", "MyOwnSecret2027");
+    fill("MyOwnSecret2026", "MyOwnSecret2027");
     expect(screen.getByRole("alert").textContent).toBe("Passwords don't match");
     expect(acceptInvitation).not.toHaveBeenCalled();
   });
 
+  it("says so when the link has no token", () => {
+    open("/accept-invitation");
+    fill("MyOwnSecret2026");
+    expect(screen.getByRole("alert").textContent).toMatch(/not complete/);
+    expect(acceptInvitation).not.toHaveBeenCalled();
+  });
+
   it("shows the server's reason when the invitation cannot be accepted", async () => {
-    acceptInvitation.mockImplementation(() => Promise.reject(new ApiError("VALIDATION_ERROR", "This invitation has expired.", 400)));
+    acceptInvitation.mockImplementation(() => Promise.reject(new ApiError("VALIDATION_ERROR", "This invitation link is invalid or has expired.", 400)));
     open();
-    fill("BFF@2026", "MyOwnSecret2026");
-    expect((await screen.findByRole("alert")).textContent).toBe("This invitation has expired.");
+    fill("MyOwnSecret2026");
+    expect((await screen.findByRole("alert")).textContent).toBe("This invitation link is invalid or has expired.");
   });
 });

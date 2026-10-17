@@ -4,7 +4,7 @@ interface GoogleId {
   initialize: (options: { client_id: string; callback: (response: { credential: string }) => void; ux_mode?: "popup"; nonce?: string }) => void;
   renderButton: (
     element: HTMLElement,
-    options: { theme?: string; size?: string; text?: string; shape?: string; width?: number; logo_alignment?: string },
+    options: { type?: string; theme?: string; size?: string; text?: string; shape?: string; width?: number; logo_alignment?: string },
   ) => void;
 }
 
@@ -37,11 +37,14 @@ export function GoogleButton({
   mode,
   onCredential,
   nonce,
+  iconOnly = false,
 }: {
   clientId: string;
   mode: "signin" | "signup";
   /** A single-use value Google puts inside the signed token, so the server can refuse replays. */
   nonce?: string;
+  /** Only the Google logo, in a round button. */
+  iconOnly?: boolean;
   onCredential: (credential: string) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -56,9 +59,10 @@ export function GoogleButton({
         if (cancelled || !ref.current || !window.google) return;
         window.google.accounts.id.initialize({ client_id: clientId, callback: (r) => callback.current(r.credential), ux_mode: "popup", nonce });
         window.google.accounts.id.renderButton(ref.current, {
+          type: iconOnly ? "icon" : "standard",
           theme: "outline",
           size: "large",
-          shape: "pill",
+          shape: iconOnly ? "circle" : "pill",
           text: mode === "signup" ? "signup_with" : "continue_with",
           width: Math.min(360, ref.current.offsetWidth || 320),
           logo_alignment: "center",
@@ -68,7 +72,7 @@ export function GoogleButton({
     return () => {
       cancelled = true;
     };
-  }, [clientId, mode, nonce]);
+  }, [clientId, mode, nonce, iconOnly]);
 
   if (failed) return <p className="text-center text-xs text-muted-foreground">Google sign-in isn&apos;t available right now.</p>;
   return <div ref={ref} className="flex min-h-[44px] w-full justify-center" />;

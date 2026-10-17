@@ -47,13 +47,13 @@ export function GoogleAuth({ mode }: { mode: "signin" | "signup" }) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <GoogleButton clientId={clientId} nonce={nonce} mode={mode} onCredential={(credential) => void onCredential(credential)} />
-      <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex w-full items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
         <span className="h-px flex-1 bg-border" />
-        or
+        {mode === "signup" ? "or sign up with" : "or sign in with"}
         <span className="h-px flex-1 bg-border" />
       </div>
+      <GoogleButton iconOnly clientId={clientId} nonce={nonce} mode={mode} onCredential={(credential) => void onCredential(credential)} />
     </div>
   );
 }

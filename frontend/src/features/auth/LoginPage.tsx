@@ -126,10 +126,6 @@ export function LoginPage() {
                 <p className="mt-1 text-sm text-muted-foreground">Sign in to manage programs and registrations.</p>
               </div>
 
-              <div className="mb-5">
-                <GoogleAuth mode="signin" />
-              </div>
-
               <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="email" className="sr-only">
@@ -181,6 +177,10 @@ export function LoginPage() {
                   {!submitting && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </form>
+
+              <div className="mt-6">
+                <GoogleAuth mode="signin" />
+              </div>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}

@@ -24,8 +24,8 @@ interface AuthContextValue {
   register: (input: RegisterInput) => Promise<void>;
   /** "Continue with Google": signs in, or registers a new account. `created` is true for a new account. */
   googleSignIn: (credential: string) => Promise<{ created: boolean }>;
-  /** Accepts an invitation: the temporary password from the email is swapped for one the person chooses, and they are signed in. */
-  acceptInvitation: (email: string, temporaryPassword: string, newPassword: string) => Promise<void>;
+  /** Accepts an invitation with the private token from the email: the person chooses a password and is signed in. */
+  acceptInvitation: (token: string, newPassword: string) => Promise<void>;
   /** Signs out; protected pages then send the visitor to `redirectTo` (the website by default). */
   logout: (options?: { redirectTo?: string }) => Promise<void>;
   /** Where a protected page should go after a deliberate sign-out, instead of the sign-in page. */
@@ -115,10 +115,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const acceptInvitation = React.useCallback(
-    async (email: string, temporaryPassword: string, newPassword: string) => {
+    async (token: string, newPassword: string) => {
       const data = await apiFetch<{ accessToken: string; user: AuthUser }>("/auth/accept-invitation", {
         method: "POST",
-        body: { email, temporaryPassword, newPassword },
+        body: { token, newPassword },
         skipAuthRetry: true,
       });
       queryClient.clear();

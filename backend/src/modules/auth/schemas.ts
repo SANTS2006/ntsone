@@ -48,10 +48,9 @@ export const resetPasswordSchema = z.object({
   password: strongPassword,
 });
 
-/** Accepting an invitation: the email, the temporary password from the invitation email, and the password they choose. */
+/** Accepting an invitation: the private token from the invitation email, and the password the person chooses. */
 export const acceptInvitationSchema = z.object({
-  email: z.string().trim().email(),
-  temporaryPassword: z.string().min(1, "Enter the temporary password from your email").max(128),
+  token: z.string().min(10, "This invitation link is not complete. Open it again from your email").max(200),
   newPassword: strongPassword,
 });
 

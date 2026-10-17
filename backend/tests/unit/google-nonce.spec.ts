@@ -39,9 +39,9 @@ describe("checking a Google token", () => {
 
   it("refuses a token with no nonce, a made-up nonce, or a forged one", async () => {
     await expect(google.verifyGoogleCredential(token({}), { requireNonce: true })).rejects.toThrow(USED);
-    await expect(google.verifyGoogleCredential(token({ nonce: "abc.def.ghi" }), { requireNonce: true })).rejects.toThrow(USED);
-    const [raw, time] = google.issueGoogleNonce().split(".");
-    await expect(google.verifyGoogleCredential(token({ nonce: `${raw}.${time}.${"0".repeat(64)}` }), { requireNonce: true })).rejects.toThrow(USED);
+    await expect(google.verifyGoogleCredential(token({ nonce: "abc-def-ghi" }), { requireNonce: true })).rejects.toThrow(USED);
+    const [raw, time] = google.issueGoogleNonce().split("-");
+    await expect(google.verifyGoogleCredential(token({ nonce: `${raw}-${time}-${"0".repeat(24)}` }), { requireNonce: true })).rejects.toThrow(USED);
   });
 
   it("refuses an old nonce", async () => {

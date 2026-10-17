@@ -168,10 +168,6 @@ export function RegisterPage() {
                 </p>
               </div>
 
-              <div className="mb-4">
-                <GoogleAuth mode="signup" />
-              </div>
-
               <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="organizationName" className="sr-only">
@@ -306,6 +302,10 @@ export function RegisterPage() {
                   {!submitting && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </form>
+
+              <div className="mt-5">
+                <GoogleAuth mode="signup" />
+              </div>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
