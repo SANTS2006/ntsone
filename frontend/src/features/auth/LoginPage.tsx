@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ApiError } from "@/lib/api";
 import { usePageMeta } from "@/lib/seo";
+import { AuthFeatures } from "./AuthFeatures";
 import { showServerFieldErrors } from "@/lib/serverErrors";
 import { GoogleAuth } from "./GoogleAuth";
 
@@ -26,26 +27,6 @@ const loginSchema = z.object({
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
-
-function RegistrationsMockCard() {
-  const bars = [40, 65, 50, 80, 60, 95, 70];
-  return (
-    <div className="w-56 -rotate-2 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-2xl backdrop-blur-md">
-      <p className="text-[11px] uppercase tracking-wide text-white/60">This week</p>
-      <p className="mt-1 text-3xl font-bold text-white">128</p>
-      <p className="text-xs text-white/70">New registrations</p>
-      <div className="mt-4 flex h-16 items-end gap-1.5">
-        {bars.map((h, i) => (
-          <span
-            key={i}
-            className="flex-1 rounded-t-sm bg-white/70 last:bg-white"
-            style={{ height: `${h}%` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export function LoginPage() {
   usePageMeta({ title: "Sign in", description: "Sign in to manage your programs, registrations, ID cards and tickets.", index: true });
@@ -93,15 +74,7 @@ export function LoginPage() {
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
 
-            <h1 className="relative text-center text-3xl font-bold leading-tight">
-              Manage every
-              <br />
-              program's registrations
-            </h1>
-
-            <div className="relative">
-              <RegistrationsMockCard />
-            </div>
+            <AuthFeatures heading="Everything you run, on one platform" />
           </div>
 
           <p className="relative text-xs text-white/60">

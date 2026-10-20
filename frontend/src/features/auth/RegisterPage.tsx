@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ApiError } from "@/lib/api";
 import { usePageMeta } from "@/lib/seo";
+import { AuthFeatures } from "./AuthFeatures";
 import { showServerFieldErrors } from "@/lib/serverErrors";
 import { GoogleAuth } from "./GoogleAuth";
 
@@ -52,22 +53,6 @@ const registerSchema = z
   });
 
 type RegisterForm = z.infer<typeof registerSchema>;
-
-function OwnAccountMockCard() {
-  return (
-    <div className="w-56 rotate-2 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-2xl backdrop-blur-md">
-      <p className="text-[11px] uppercase tracking-wide text-white/60">Your account</p>
-      <div className="mt-3 flex flex-col gap-2">
-        {["Programs", "Registrations", "Team"].map((row) => (
-          <div key={row} className="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2">
-            <span className="text-xs font-medium text-white/90">{row}</span>
-            <span className="h-1.5 w-10 rounded-full bg-white/50" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export function RegisterPage() {
   usePageMeta({
@@ -133,15 +118,7 @@ export function RegisterPage() {
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
 
-            <h1 className="relative text-center text-3xl font-bold leading-tight">
-              Your own space for
-              <br />
-              programs and registrations
-            </h1>
-
-            <div className="relative">
-              <OwnAccountMockCard />
-            </div>
+            <AuthFeatures heading="Everything you run, on one platform" />
           </div>
 
           <p className="relative text-xs text-white/60">
