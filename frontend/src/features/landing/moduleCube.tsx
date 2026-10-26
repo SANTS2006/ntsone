@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BookOpen, ClipboardList, FileText, Gift, IdCard, Receipt, ShoppingBag, Smartphone, Vote, type LucideIcon } from "lucide-react";
+import { BookOpen, ClipboardList, FileText, Gift, HandCoins, IdCard, Receipt, ShoppingBag, Smartphone, Vote, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const MODULES: { icon: LucideIcon; name: string; line: string; face: string }[] = [
@@ -15,6 +15,7 @@ export const MODULES: { icon: LucideIcon; name: string; line: string; face: stri
 const MORE_MODULES: typeof MODULES = [
   { icon: Smartphone, name: "Payments", line: "Orange Money, Africell Money and QMoney, refunds, and a payment fund you can withdraw from.", face: "from-orange-500 to-rose-400" },
   { icon: Gift, name: "Wish List", line: "Private lists of what you want to buy, a gotten list with the price and date, and a budget that watches itself.", face: "from-pink-500 to-violet-500" },
+  { icon: HandCoins, name: "Contributions", line: "Collect money for a cause, track who paid month by month, and note every amount taken out.", face: "from-amber-500 to-orange-500" },
   { icon: BookOpen, name: "Bookkeeping", line: "A cash book, loans, credit, profit and loss, and voice notes for anyone who finds writing hard.", face: "from-lime-500 to-emerald-400" },
 ];
 

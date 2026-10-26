@@ -16,6 +16,7 @@ const NAV = [
   { href: "#payments", label: "Payments" },
   { href: "#bookkeeping", label: "Bookkeeping" },
   { href: "#wishlist", label: "Wish List" },
+  { href: "#contributions", label: "Contributions" },
   { href: "#paperwork", label: "Documents" },
   { href: "#voting", label: "Voting" },
   { href: "#designs", label: "Designs" },

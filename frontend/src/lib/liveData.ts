@@ -30,6 +30,7 @@ const LIVE_ROOTS = new Set([
   "platform-payments",
   "platform-backups",
   "wishlists",
+  "contributions",
 ]);
 
 // Single items someone may be editing, and one-off lookups, are never refreshed behind their back.

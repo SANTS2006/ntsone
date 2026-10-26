@@ -1,5 +1,6 @@
 import {
   Gift,
+  HandCoins,
   PiggyBank,
   BarChart3,
   BellRing,
@@ -279,6 +280,11 @@ const FEATURES: { icon: LucideIcon; title: string; description: string }[] = [
     icon: Gift,
     title: "Wish lists",
     description: "Lists of things to buy or have. Add many items at once with optional quantities and prices, set a budget, and mark each one gotten with the price you paid and the date.",
+  },
+  {
+    icon: HandCoins,
+    title: "Contributions",
+    description: "Collect money for a cause. For a one-time collection you choose your own columns and the total grows as you add rows. For monthly dues you track who paid and who did not, by month and year.",
   },
   {
     icon: Share2,
@@ -925,6 +931,18 @@ const FAQS = [
   {
     q: "Can I use it to keep the books of my shop?",
     a: "Yes. Open a business and choose Bookkeeping. Write down sales, expenses, stock you bought, money you lent or borrowed, and credit that is still unpaid. You get your profit or loss, cash flow, and who owes what. Entries are never deleted: a mistake is voided with a reason and stays in the book.",
+  },
+  {
+    q: "What are contributions for?",
+    a: "For collecting money from many people for a purpose, such as a funeral, a wedding, a project or monthly dues. Choose one-time or monthly. For a one-time collection you type the columns you want (name, gender, phone) and add a row for each person with the amount, and the total adds up as you go. For monthly dues you add your contributors and record what each pays every month, so you can see who paid and who did not, month by month and year by year.",
+  },
+  {
+    q: "Is the date and time of each contribution recorded?",
+    a: "Yes. Every row and every monthly payment keeps the date and time it was entered and the date and time it was last changed, and a history lists each change with what it was before. Rows you remove are hidden but kept in that history.",
+  },
+  {
+    q: "Can I write down money I took from a contribution?",
+    a: "Yes. Record each amount you take out with a note saying what it was used for. The total taken adds up, and you always see how much is still held. Only you can see your contributions, and you can download them to Excel or CSV.",
   },
   {
     q: "What is the wish list for?",

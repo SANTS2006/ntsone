@@ -23,6 +23,7 @@ import { HeroDashboard, RegistrationToast, ShareCardMock } from "./visuals";
 import { DesignCarousel, DocumentStack3D, HeroIdCard, HeroTicket } from "./lazyShowcase";
 import { ModuleCube, ModuleList } from "./moduleCube";
 import { BookkeepingPoints, BookkeepingScene, PaymentsPoints, PaymentsScene } from "./paymentsShowcase";
+import { ContributionsPoints, ContributionsScene } from "./contributionsShowcase";
 import { WishJourney, WishlistPoints, WishlistScene } from "./wishlistShowcase";
 import { usePageMeta } from "@/lib/seo";
 import { TAGLINE } from "@/lib/contact";
@@ -86,7 +87,7 @@ function Hero() {
           </Reveal>
           <Reveal delay={240}>
             <p className="max-w-xl text-lg text-muted-foreground">
-              Build registration forms, run voting polls (free or paid), take orders, get paid with mobile money, keep your books, plan what you want to buy with wish lists, and send invoices and receipts. Share
+              Build registration forms, run voting polls (free or paid), take orders, get paid with mobile money, keep your books, collect contributions and track who has paid, plan what you want to buy with wish lists, and send invoices and receipts. Share
               everything with a link or QR code, review every response, and issue ID cards and tickets from a single, secure workspace.
             </p>
           </Reveal>
@@ -179,7 +180,7 @@ function FinalCta() {
           <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-5">
             <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to run it all from one place?</h2>
             <p className="text-lg text-white/85">
-              Create your free NTSOne account and manage registrations, voting, orders, payments, bookkeeping and wish lists from one secure workspace, on any phone or computer.
+              Create your free NTSOne account and manage registrations, voting, orders, payments, bookkeeping, contributions and wish lists from one secure workspace, on any phone or computer.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {user ? (
@@ -242,7 +243,7 @@ export function LandingPage() {
                 Nine modules, <span className="gradient-text">one login</span>
               </>
             }
-            description="Registrations, voting polls, orders, invoices, receipts and quotations, business cards, mobile money payments, bookkeeping and wish lists share one account, one team and one set of exports."
+            description="Registrations, voting polls, orders, invoices, receipts and quotations, business cards, mobile money payments, bookkeeping, contributions and wish lists share one account, one team and one set of exports."
           />
           <div className="grid items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-20">
             <Reveal variant="zoom" className="flex justify-center py-10 lg:px-10">
@@ -326,6 +327,26 @@ export function LandingPage() {
             </Reveal>
           </div>
           <WishJourney />
+        </Section>
+
+        <Section id="contributions" className="overflow-hidden">
+          <SectionHeading
+            eyebrow="Contributions"
+            title={
+              <>
+                Collect money for a cause and <span className="gradient-text">know where the money went</span>
+              </>
+            }
+            description="Run a one-time collection or monthly dues that last for years. Keep a table of who gave, track who paid and who did not by month and year, and note every amount taken out."
+          />
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            <Reveal delay={120} className="order-2 lg:order-1">
+              <ContributionsPoints />
+            </Reveal>
+            <Reveal variant="zoom" className="order-1 flex justify-center lg:order-2">
+              <ContributionsScene />
+            </Reveal>
+          </div>
         </Section>
 
         <Section id="paperwork" className="overflow-hidden">
