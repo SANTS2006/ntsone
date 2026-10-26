@@ -1,7 +1,7 @@
 import * as React from "react";
 import { NavLink } from "react-router-dom";
 import { LazyOutlet } from "@/components/PageLoading";
-import { Building2, DatabaseBackup, Gift, ScrollText, Vault, Wrench, Inbox, Landmark, Wallet, LayoutDashboard, ListChecks, LogOut, Menu, MessageSquarePlus, Settings, Store, Users, Vote, X } from "lucide-react";
+import { Building2, DatabaseBackup, Gift, HandCoins, ScrollText, Vault, Wrench, Inbox, Landmark, Wallet, LayoutDashboard, ListChecks, LogOut, Menu, MessageSquarePlus, Settings, Store, Users, Vote, X } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useAuth } from "./AuthContext";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,8 @@ const navItems = [
   // Tenant team management -- only the tenant's own admin (owner) can invite/manage teammates.
   // Personal lists of things to buy and have, and what was gotten.
   { to: "/admin/wishlists", label: "Wish List", icon: Gift, end: false },
+  // Money collected from many people for a purpose: one-time or month by month.
+  { to: "/admin/contributions", label: "Contributions", icon: HandCoins, end: false },
   { to: "/admin/users", label: "Users", icon: Users, end: false, adminOnly: true },
   // The payment fund: money received from registrations and orders, and withdrawals.
   { to: "/admin/funds", label: "Payment fund", icon: Wallet, end: false, adminOnly: true },

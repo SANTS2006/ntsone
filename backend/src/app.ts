@@ -24,6 +24,7 @@ import { seoRoutes } from "./modules/seo/routes.js";
 import { pollRoutes } from "./modules/polls/routes.js";
 import { maskSecretsInUrl } from "./lib/logRedact.js";
 import { sharedWishlistRoutes, wishlistRoutes } from "./modules/wishlists/routes.js";
+import { contributionRoutes } from "./modules/contributions/routes.js";
 import { businessRoutes } from "./modules/businesses/routes.js";
 import { accessRoutes } from "./modules/access/members.js";
 import { voterRoutes } from "./modules/voters/routes.js";
@@ -222,6 +223,7 @@ export function buildApp() {
       protectedApp.register(businessRoutes, { prefix: "/businesses" });
       // Who has access to a program, poll or business, and giving access to others.
       protectedApp.register(wishlistRoutes, { prefix: "/wishlists" });
+      protectedApp.register(contributionRoutes, { prefix: "/contributions" });
       protectedApp.register(accessRoutes);
       protectedApp.register(formRoutes, { prefix: "/programs" });
       protectedApp.register(registrationRoutes, { prefix: "/programs" });

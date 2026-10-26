@@ -34,6 +34,8 @@ const PublicProgramPage = lazyPage(() => import("@/features/public-registration/
 const ProgramPaymentsPage = lazyPage(() => import("@/features/payments/ProgramPaymentsPage"), "ProgramPaymentsPage");
 const FundsPage = lazyPage(() => import("@/features/payments/FundsPage"), "FundsPage");
 const AuditLogsPage = lazyPage(() => import("@/features/audit/AuditLogsPage"), "AuditLogsPage");
+const ContributionsListPage = lazyPage(() => import("@/features/contributions/ContributionsListPage"), "ContributionsListPage");
+const ContributionPage = lazyPage(() => import("@/features/contributions/ContributionPage"), "ContributionPage");
 const WishlistsListPage = lazyPage(() => import("@/features/wishlists/WishlistsListPage"), "WishlistsListPage");
 const WishlistLayout = lazyPage(() => import("@/features/wishlists/WishlistLayout"), "WishlistLayout");
 const SharedWishlistLayout = lazyPage(() => import("@/features/wishlists/SharedWishlistLayout"), "SharedWishlistLayout");
@@ -199,6 +201,8 @@ export function AppRoutes() {
                 </Route>
                 <Route path="analytics" element={<BusinessAnalyticsTab />} />
               </Route>
+              <Route path="/admin/contributions" element={<ContributionsListPage />} />
+              <Route path="/admin/contributions/:contributionId" element={<ContributionPage />} />
               <Route path="/admin/wishlists" element={<WishlistsListPage />} />
               <Route path="/admin/wishlists/:wishlistId" element={<WishlistLayout />}>
                 <Route index element={<WishItemsPage />} />
