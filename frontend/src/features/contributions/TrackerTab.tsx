@@ -105,7 +105,7 @@ export function TrackerTab({ detail, canEdit }: { detail: ContributionDetail; ca
                         type="button"
                         disabled={!canEdit || cell.status === "na"}
                         onClick={() => setPicked({ member: m, month: cell.month })}
-                        title={cell.updatedAt ? `Entered ${stamp(cell.recordedAt)}${cell.updatedAt !== cell.recordedAt ? `, last changed ${stamp(cell.updatedAt)}` : ""}` : undefined}
+                        title={cell.locked ? "This month has passed, so the payment can no longer be changed" : cell.updatedAt ? `Entered ${stamp(cell.recordedAt)}${cell.updatedAt !== cell.recordedAt ? `, last changed ${stamp(cell.updatedAt)}` : ""}` : undefined}
                         aria-label={`${memberName(m, t.fields)}, ${MONTH_NAMES[cell.month - 1]} ${t.year}: ${cell.amountMinor !== null ? formatMinor(cell.amountMinor) : cell.status === "unpaid" ? "not paid" : cell.status === "upcoming" ? "not yet due" : "not applicable"}`}
                         className={cn("h-9 w-full min-w-[3.6rem] rounded-md px-1 text-xs font-medium transition", STATUS_STYLE[cell.status], !canEdit && "cursor-default")}
                       >
@@ -195,6 +195,7 @@ function PaymentDialog({ detail, tracker, picked, onClose }: { detail: Contribut
           className="flex flex-col gap-3"
           onSubmit={(e) => {
             e.preventDefault();
+            if (cell.locked) return;
             const minor = parseLeones(amount);
             if (!amount.trim() || minor === null || minor <= 0) return setProblem("Enter the amount paid as a number more than zero, for example 50 or 12.50.");
             setProblem("");
@@ -203,9 +204,14 @@ function PaymentDialog({ detail, tracker, picked, onClose }: { detail: Contribut
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="pay-amount">Amount paid</Label>
-            <Input id="pay-amount" inputMode="decimal" autoFocus value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="For example 50" />
+            <Input id="pay-amount" inputMode="decimal" autoFocus={!cell.locked} readOnly={cell.locked} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="For example 50" />
             {tracker.expectedMonthlyMinor ? <p className="text-xs text-muted-foreground">Expected each month: {formatMinor(tracker.expectedMonthlyMinor)}</p> : null}
           </div>
+          {cell.locked && (
+            <p role="status" className="rounded-lg border border-border/70 bg-muted/40 p-3 text-sm">
+              {MONTH_NAMES[picked.month - 1]} {tracker.year} has passed, so this payment can no longer be changed or removed.
+            </p>
+          )}
           {recorded && (
             <p className="text-xs text-muted-foreground">
               Entered {stamp(cell.recordedAt)}
@@ -218,14 +224,20 @@ function PaymentDialog({ detail, tracker, picked, onClose }: { detail: Contribut
             </p>
           )}
           <DialogFooter className="gap-2">
-            {recorded && (
+            {recorded && !cell.locked && (
               <Button type="button" variant="outline" className="text-destructive" loading={remove.isPending} onClick={() => remove.mutate()}>
                 Remove payment
               </Button>
             )}
-            <Button type="submit" loading={save.isPending}>
-              {recorded ? "Save change" : "Record payment"}
-            </Button>
+            {cell.locked ? (
+              <Button type="button" onClick={onClose}>
+                Close
+              </Button>
+            ) : (
+              <Button type="submit" loading={save.isPending}>
+                {recorded ? "Save change" : "Record payment"}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

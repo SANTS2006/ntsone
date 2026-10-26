@@ -156,13 +156,27 @@ describe("contributions on a real database", () => {
     expect(summary.years.reduce((s, y) => s + y.collectedMinor, 0)).toBe(24_000);
     expect(summary.bestMonth).toMatchObject({ collectedMinor: 20_000 });
 
-    // Changing a payment keeps one payment per month and moves its "last changed" time.
-    const before = await svc.setPayment(ada, c.id, paidAll.id, { ...second, amountMinor: 10_000 });
-    expect((await svc.summary(ada, c.id)).collectedMinor).toBe(30_000);
-    expect(before.updatedAt.getTime()).toBeGreaterThanOrEqual(before.createdAt.getTime());
-    await svc.removePayment(ada, c.id, paidAll.id, second.year, second.month);
-    expect((await svc.summary(ada, c.id)).collectedMinor).toBe(20_000);
-    await expect(svc.removePayment(ada, c.id, paidAll.id, second.year, second.month)).rejects.toThrow(/no payment recorded/);
+    // Once a month has passed, a payment recorded for it can no longer be changed or removed...
+    await expect(svc.setPayment(ada, c.id, paidAll.id, { ...second, amountMinor: 10_000 })).rejects.toThrow(/has passed/);
+    await expect(svc.removePayment(ada, c.id, paidAll.id, second.year, second.month)).rejects.toThrow(/has passed/);
+    expect((await svc.summary(ada, c.id)).collectedMinor).toBe(24_000);
+    // ...but a past month with no payment can still be filled in.
+    await svc.setPayment(ada, c.id, missing.id, { ...second, amountMinor: 10_000 });
+    expect((await svc.summary(ada, c.id)).collectedMinor).toBe(34_000);
+    expect((await svc.summary(ada, c.id)).behind.find((b) => b.id === missing.id)!.missingMonths).toBe(1);
+
+    // The current month can still be changed or removed, one payment per month.
+    const created = await svc.setPayment(ada, c.id, paidAll.id, { ...now, amountMinor: 5_000 });
+    const changed = await svc.setPayment(ada, c.id, paidAll.id, { ...now, amountMinor: 6_000 });
+    expect(changed.id).toBe(created.id);
+    expect(changed.updatedAt.getTime()).toBeGreaterThanOrEqual(created.createdAt.getTime());
+    expect((await svc.summary(ada, c.id)).collectedMinor).toBe(40_000);
+    const grid = await svc.tracker(ada, c.id, now.year);
+    expect(grid.members.find((m) => m.id === paidAll.id)!.cells[now.month - 1]).toMatchObject({ status: "partial", locked: false });
+    expect(grid.members.find((m) => m.id === paidAll.id)!.cells[second.month - 1]).toMatchObject({ locked: second.year === now.year });
+    await svc.removePayment(ada, c.id, paidAll.id, now.year, now.month);
+    expect((await svc.summary(ada, c.id)).collectedMinor).toBe(34_000);
+    await expect(svc.removePayment(ada, c.id, paidAll.id, now.year, now.month)).rejects.toThrow(/no payment recorded/);
     await expect(svc.setPayment(ada, (await svc.create(ada, { name: "One", purpose: "Once", kind: "one_time", fields: ["Name"] })).id, paidAll.id, { ...first, amountMinor: 100 })).rejects.toThrow(/recurring/);
   });
 

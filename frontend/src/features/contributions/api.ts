@@ -52,6 +52,8 @@ export interface RecordsResult {
 export interface TrackerCell {
   month: number;
   status: CellStatus;
+  /** A payment is recorded and its month has passed: it can no longer be changed or removed. */
+  locked: boolean;
   amountMinor: number | null;
   recordedAt: string | null;
   updatedAt: string | null;

@@ -3,7 +3,7 @@ import { db } from "../../db/client.js";
 import { contributionEvents, contributionFields, contributionPayments, contributionRecords, contributionWithdrawals, contributions } from "../../db/schema/index.js";
 import { AppError } from "../../lib/errors.js";
 import type { AuthenticatedUser } from "../users/types.js";
-import { cellStatus, currentMonth, monthIndex, monthsDue, yearRange, type YearMonth } from "./rules.js";
+import { cellStatus, currentMonth, isPastMonth, monthIndex, monthsDue, yearRange, type YearMonth } from "./rules.js";
 import type { ContributionInput, ContributionUpdate, PaymentInput, RecordInput, RecordUpdate, WithdrawalInput, WithdrawalUpdate } from "./schemas.js";
 
 /** Contributions are private to the person who keeps them. */
@@ -11,6 +11,7 @@ export type Actor = Pick<AuthenticatedUser, "id" | "tenantId">;
 type ContributionRow = typeof contributions.$inferSelect;
 type RecordRow = typeof contributionRecords.$inferSelect;
 
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const num = (v: unknown) => (v === null || v === undefined ? 0 : Number(v));
 const MAX_ROWS = 5000;
 const MAX_CONTRIBUTIONS = 200;
@@ -343,6 +344,10 @@ export const contributionsService = {
       .from(contributionPayments)
       .where(and(eq(contributionPayments.recordId, recordId), eq(contributionPayments.year, input.year), eq(contributionPayments.month, input.month)))
       .limit(1);
+    // Once the month is over, a payment that was recorded for it stays as it is. A month with no payment can still be filled in.
+    if (existing && isPastMonth({ year: input.year, month: input.month }, currentMonth())) {
+      throw AppError.conflict(`The payment for ${MONTH_NAMES[input.month - 1]} ${input.year} cannot be changed because that month has passed.`);
+    }
     const now = new Date();
     const [saved] = existing
       ? await db.update(contributionPayments).set({ amountMinor: input.amountMinor, updatedAt: now }).where(eq(contributionPayments.id, existing.id)).returning()
@@ -368,6 +373,7 @@ export const contributionsService = {
       .where(and(eq(contributionPayments.recordId, recordId), eq(contributionPayments.year, year), eq(contributionPayments.month, month)))
       .limit(1);
     if (!existing) throw AppError.notFound("There is no payment recorded for that month.");
+    if (isPastMonth({ year, month }, currentMonth())) throw AppError.conflict(`The payment for ${MONTH_NAMES[month - 1]} ${year} cannot be removed because that month has passed.`);
     await db.delete(contributionPayments).where(eq(contributionPayments.id, existing.id));
     await db.update(contributionRecords).set({ updatedAt: new Date() }).where(eq(contributionRecords.id, recordId));
     await log(id, "payment_removed", `Removed the payment for ${month}/${year}`, { recordId, year, month, before: existing.amountMinor });
@@ -414,7 +420,7 @@ export const contributionsService = {
           unpaidMonths += 1;
         }
         if (expected !== null && (status === "paid" || status === "partial" || status === "unpaid" || status === "upcoming")) totals.expectedMinor += expected;
-        return { month: totals.month, status, amountMinor: payment?.amountMinor ?? null, recordedAt: payment?.createdAt ?? null, updatedAt: payment?.updatedAt ?? null };
+        return { month: totals.month, status, locked: Boolean(payment) && isPastMonth({ year, month: totals.month }, now), amountMinor: payment?.amountMinor ?? null, recordedAt: payment?.createdAt ?? null, updatedAt: payment?.updatedAt ?? null };
       });
       return { id: r.id, values: r.values, startYear: memberStart.year, startMonth: memberStart.month, cells, paidMonths, unpaidMonths, totalMinor };
     });

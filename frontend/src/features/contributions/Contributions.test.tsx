@@ -163,6 +163,7 @@ describe("the monthly tracker", () => {
         cells: Array.from({ length: 12 }, (_, i) => ({
           month: i + 1,
           status: i === 0 ? "paid" : i === 1 ? "unpaid" : "upcoming",
+          locked: i === 0,
           amountMinor: i === 0 ? 10_000 : null,
           recordedAt: i === 0 ? "2026-01-05T10:00:00Z" : null,
           updatedAt: i === 0 ? "2026-01-05T10:00:00Z" : null,
@@ -185,7 +186,21 @@ describe("the monthly tracker", () => {
     expect(screen.getByLabelText(/Pat, January 2026: NLe 100.00/)).toBeTruthy();
     expect(screen.getByLabelText(/Pat, February 2026: not paid/)).toBeTruthy();
     expect(screen.getByLabelText(/Pat, March 2026: not yet due/)).toBeTruthy();
+    // January is over and has a payment, so it is locked; the missed February can still be filled in.
+    expect((screen.getByLabelText(/Pat, January 2026: NLe 100.00/) as HTMLButtonElement).title).toMatch(/can no longer be changed/);
     expect(screen.getByText("Payments missing in 2026").nextElementSibling?.textContent).toBe("1");
+  });
+
+  it("shows a past, recorded payment as read-only, with no way to change or remove it", async () => {
+    api.getTracker.mockResolvedValue(tracker);
+    wrap(<TrackerTab detail={detail({ kind: "recurring" })} canEdit />);
+    fireEvent.click(await screen.findByLabelText(/Pat, January 2026: NLe 100.00/));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(/has passed, so this payment can no longer be changed or removed/)).toBeTruthy();
+    expect(within(dialog).queryByRole("button", { name: /remove payment/i })).toBeNull();
+    expect(within(dialog).queryByRole("button", { name: /save change/i })).toBeNull();
+    expect((within(dialog).getByLabelText("Amount paid") as HTMLInputElement).readOnly).toBe(true);
+    expect(api.setPayment).not.toHaveBeenCalled();
   });
 
   it("records a payment for a month, starting from the expected amount", async () => {

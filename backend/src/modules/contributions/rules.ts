@@ -28,6 +28,9 @@ export function cellStatus(args: { start: YearMonth; cell: YearMonth; now: YearM
   return "unpaid";
 }
 
+/** True once the month is over: a payment recorded for it can no longer be changed or removed. */
+export const isPastMonth = (cell: YearMonth, now: YearMonth) => monthIndex(cell) < monthIndex(now);
+
 /** Every year from `fromYear` to `toYear`, oldest first. */
 export function yearRange(fromYear: number, toYear: number): number[] {
   const years: number[] = [];
