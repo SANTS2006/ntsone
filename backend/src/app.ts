@@ -93,6 +93,8 @@ export function buildApp() {
     contentSecurityPolicy: {
       directives: {
         imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://*.googleusercontent.com"],
+        // Item videos on order pages (and voice notes) play straight from Cloudinary.
+        mediaSrc: ["'self'", "blob:", "https://res.cloudinary.com"],
         connectSrc: ["'self'", "https://api.cloudinary.com", "https://accounts.google.com/gsi/"],
         // "Sign in with Google" on the voting pages loads Google's script, button frame, and styles.
         scriptSrc: ["'self'", "https://accounts.google.com/gsi/client"],

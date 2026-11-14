@@ -32,13 +32,30 @@ export function resolvePaymentConfig(raw: unknown): PaymentConfig {
   return parsed.success ? parsed.data : { enabled: false, registrationFeeMinor: 0, idCardPriceMinor: 0, ticketPriceMinor: 0, allowPayInPerson: true };
 }
 
+export const MAX_ITEM_IMAGES = 10;
+export const MAX_ITEM_VIDEOS = 3;
+
+/** A picture or video uploaded through the app to this account's Cloudinary, of the right kind. */
+function itemMediaUrl(kind: "image" | "video") {
+  return z
+    .string()
+    .url()
+    .max(1000)
+    .refine((v) => isOwnCloudinaryUrl(v) && new URL(v).pathname.includes(`/${kind}/upload/`), kind === "image" ? "Item pictures must be uploaded here" : "Item videos must be uploaded here");
+}
+
 /** One thing an order form sells. */
 export const orderItemSchema = z.object({
   id: z.string().regex(/^[A-Za-z0-9_-]{1,40}$/, "Item ids use letters, numbers, dashes and underscores"),
   name: z.string().trim().min(1, "Every item needs a name").max(100),
   description: z.string().trim().max(300).optional(),
   priceMinor: price.refine((v) => v > 0, "Every item needs a price above zero"),
+  // The first picture, kept for older pages and anything that shows a single thumbnail.
   imageUrl: z.string().url().max(1000).refine(isOwnCloudinaryUrl, "Item pictures must be uploaded here").optional(),
+  // Every picture of the item, in the order the seller arranged them.
+  images: z.array(itemMediaUrl("image")).max(MAX_ITEM_IMAGES, `An item can have up to ${MAX_ITEM_IMAGES} pictures`).optional(),
+  // Optional videos of the item.
+  videos: z.array(itemMediaUrl("video")).max(MAX_ITEM_VIDEOS, `An item can have up to ${MAX_ITEM_VIDEOS} videos`).optional(),
   // The most of this item one order may hold; unset means up to 1000.
   maxQuantity: z.number().int().min(1).max(1000).optional(),
 });

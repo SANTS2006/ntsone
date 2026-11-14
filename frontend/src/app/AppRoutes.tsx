@@ -160,9 +160,13 @@ export function AppRoutes() {
               <Route path="summary" element={<WishSummaryPage />} />
               <Route path="activity" element={<WishActivityPage />} />
             </Route>
-            {/* A business's live order page and its confirmation. */}
-            <Route path="/order/:slug" element={<PublicOrderPage />} />
+            {/* A business's order confirmation. */}
             <Route path="/order/:slug/confirmation" element={<OrderConfirmationPage />} />
+          </Route>
+
+          {/* A business's live order page: a full-width storefront with its own header. */}
+          <Route element={<BareLayout wide />}>
+            <Route path="/order/:slug" element={<PublicOrderPage />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

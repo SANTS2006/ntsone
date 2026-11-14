@@ -21,6 +21,12 @@ export interface UploadSignature {
 // Cloudinary itself, because the list is part of what the signature covers.
 export const ALLOWED_UPLOAD_FORMATS = "jpg,jpeg,png,webp,gif,heic,pdf,doc,docx";
 
+// Pictures only: item photos on an order page.
+export const IMAGE_UPLOAD_FORMATS = "jpg,jpeg,png,webp,gif,heic,heif,avif";
+
+// Videos: what phones and cameras record in, for item videos on an order page.
+export const VIDEO_UPLOAD_FORMATS = "mp4,mov,m4v,webm,3gp,mkv,avi";
+
 // Voice notes: what phones and browsers record in.
 export const VOICE_UPLOAD_FORMATS = "webm,weba,ogg,oga,opus,mp3,m4a,mp4,aac,wav";
 

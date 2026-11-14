@@ -67,7 +67,12 @@ export interface OrderItem {
   name: string;
   description?: string;
   priceMinor: number;
+  /** The first picture; kept for older pages. */
   imageUrl?: string;
+  /** Every picture of the item, cover first. */
+  images?: string[];
+  /** Optional videos of the item. */
+  videos?: string[];
   maxQuantity?: number;
 }
 

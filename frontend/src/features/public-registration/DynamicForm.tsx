@@ -71,6 +71,12 @@ interface DynamicFormProps {
   storageKey?: string;
   /** Shows a summary of the answers to confirm before the form is actually submitted. */
   reviewBeforeSubmit?: boolean;
+  /**
+   * The chosen items, when the page shows the items itself (the order storefront). The form then leaves the
+   * item picker out and only checks, on submit, that something was chosen.
+   */
+  selection?: Selection;
+  onSelectionChange?: React.Dispatch<React.SetStateAction<Selection>>;
 }
 
 interface SavedDraft {
@@ -80,7 +86,7 @@ interface SavedDraft {
   step: number;
 }
 
-function loadDraft(key: string | undefined): SavedDraft | null {
+export function loadDraft(key: string | undefined): SavedDraft | null {
   if (!key) return null;
   try {
     const raw = window.localStorage.getItem(key);
@@ -445,6 +451,8 @@ export function DynamicForm({
   reviewConfirmConditions,
   storageKey,
   reviewBeforeSubmit = false,
+  selection: outsideSelection,
+  onSelectionChange,
 }: DynamicFormProps) {
   const orderedSections = [...sections].sort((a, b) => a.orderIndex - b.orderIndex);
   const hasSections = orderedSections.length > 0;
@@ -470,7 +478,11 @@ export function DynamicForm({
   const [reviewConfirmed, setReviewConfirmed] = React.useState(false);
   const [reviewing, setReviewing] = React.useState(false);
   const catalogue = orderItems ?? [];
-  const [selection, setSelection] = React.useState<Selection>(() => draft?.selection ?? {});
+  const [ownSelection, setOwnSelection] = React.useState<Selection>(() => draft?.selection ?? {});
+  const itemsOutside = outsideSelection !== undefined && onSelectionChange !== undefined;
+  const selection = itemsOutside ? outsideSelection : ownSelection;
+  const setSelection = itemsOutside ? onSelectionChange : setOwnSelection;
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const [itemsMissing, setItemsMissing] = React.useState(false);
   const chosenCount = Object.values(selection).reduce((a, b) => a + b, 0);
   // What will be charged: an order's items, or the registration's fee, ID card and ticket.
@@ -642,8 +654,8 @@ export function DynamicForm({
 
   const validateStep = (): boolean => {
     const missing = validateFields(currentStep.fields);
-    // An order needs at least one item, asked on the step that shows the items.
-    const needsItems = catalogue.length > 0 && (isSingle || activeStep === 0) && chosenCount === 0;
+    // An order needs at least one item, asked on the step that shows the items (or, when the page shows them, on submit).
+    const needsItems = catalogue.length > 0 && (isSingle || (itemsOutside ? isLastStep : activeStep === 0)) && chosenCount === 0;
     setItemsMissing(needsItems);
     if (needsItems) missing.unshift("Choose at least one item to order");
     setStepErrors(missing);
@@ -672,7 +684,8 @@ export function DynamicForm({
     }
     if (reviewBeforeSubmit && !reviewing) {
       setReviewing(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (itemsOutside) window.setTimeout(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+      else window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     await submitNow();
@@ -1015,7 +1028,7 @@ export function DynamicForm({
 
   if (reviewing) {
     return (
-      <div className="flex flex-col gap-6">
+      <div ref={rootRef} className="flex scroll-mt-24 flex-col gap-6">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold">{catalogue.length > 0 ? "Review your order" : "Check your answers"}</h2>
           <p className="text-sm text-muted-foreground">{catalogue.length > 0 ? "Look over your order and your details. If something is wrong, go back and fix it before you confirm." : "Look everything over. If something is wrong, go back and fix it before you confirm."}</p>
@@ -1091,7 +1104,7 @@ export function DynamicForm({
         </div>
       )}
 
-      {catalogue.length > 0 && (isSingle || activeStep === 0) && (
+      {catalogue.length > 0 && !itemsOutside && (isSingle || activeStep === 0) && (
         <OrderItemsPicker
           items={catalogue}
           selection={selection}

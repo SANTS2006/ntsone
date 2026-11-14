@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ApiError } from "@/lib/api";
-import { clearSavedDraft, DynamicForm, type UploadedFileInfo } from "./DynamicForm";
+import { clearSavedDraft, DynamicForm, loadDraft, type UploadedFileInfo } from "./DynamicForm";
+import { OrderStorefront } from "./OrderStorefront";
 import { FormCoverHeader } from "./FormCoverHeader";
 import { getPublicForm, getPublicProgram, submitRegistration, uploadPublicFile } from "./api";
 import { usePageMeta } from "@/lib/seo";
@@ -46,16 +47,18 @@ export function PublicRegistrationPage({ variant = "registration" }: { variant?:
     retry: false,
   });
 
-  if (isLoading) return <Loading label="Loading registration form" />;
+  if (isLoading) return <Loading label={isOrder ? "Loading the shop" : "Loading registration form"} />;
 
   if (error || !data) {
-    return (
+    const card = (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          {error instanceof ApiError ? error.message : "This registration form is not available."}
+          {error instanceof ApiError ? error.message : isOrder ? "This order page is not available." : "This registration form is not available."}
         </CardContent>
       </Card>
     );
+    // The order page has no surrounding container of its own (it is full width).
+    return isOrder ? <div className="mx-auto w-full max-w-5xl px-4 py-10">{card}</div> : card;
   }
 
   const draftKey = data ? `draft:${isOrder ? "order" : "program"}:${slug}:${data.form.id}` : undefined;
@@ -85,17 +88,48 @@ export function PublicRegistrationPage({ variant = "registration" }: { variant?:
     }
   };
 
+  if (isOrder) {
+    return (
+      <OrderStorefront
+        business={business}
+        fallbackName={program?.name ?? data.form.title}
+        coverUrl={program?.thumbnailUrl}
+        formTitle={data.form.title}
+        formDescription={data.form.description}
+        formInstructions={data.form.instructions}
+        items={data.form.orderItems ?? []}
+        initialSelection={loadDraft(draftKey)?.selection}
+        renderCheckout={(selection, setSelection) => (
+          <DynamicForm
+            sections={data.sections}
+            fields={data.fields}
+            errors={errors}
+            submitting={submitting}
+            layoutMode={data.form.layoutMode}
+            requireConsent={data.form.requireConsent}
+            consentText={data.form.consentText}
+            consentConditions={data.form.consentConditions}
+            requireReviewConfirmation={data.form.reviewConfirmEnabled ?? true}
+            reviewConfirmText={data.form.reviewConfirmText}
+            reviewConfirmConditions={data.form.reviewConfirmConditions}
+            onUploadFile={(file, fieldKey) => uploadPublicFile(slug!, fieldKey, file)}
+            onSubmit={handleSubmit}
+            orderItems={data.form.orderItems}
+            selection={selection}
+            onSelectionChange={setSelection}
+            payment={program?.payment}
+            storageKey={draftKey}
+            reviewBeforeSubmit
+            submitLabel={!program?.payment?.enabled ? "Confirm and place order" : undefined}
+          />
+        )}
+      />
+    );
+  }
+
   return (
     <Card className="overflow-hidden">
-      {isOrder && business ? (
-        <FormCoverHeader
-          name={business.name}
-          thumbnailUrl={business.logoUrl}
-          description={[business.description, [business.phone, business.email, business.address].filter(Boolean).join(" · ")].filter(Boolean).join("\n\n")}
-        />
-      ) : (
-        program && <FormCoverHeader name={program.name} thumbnailUrl={program.thumbnailUrl} description={program.description} />
-      )}
+      {program && <FormCoverHeader name={program.name} thumbnailUrl={program.thumbnailUrl} description={program.description} />}
       <CardHeader>
         <CardTitle>{data.form.title}</CardTitle>
         {data.form.description && <CardDescription>{data.form.description}</CardDescription>}
@@ -119,9 +153,7 @@ export function PublicRegistrationPage({ variant = "registration" }: { variant?:
           orderItems={data.form.orderItems}
           payment={program?.payment}
           storageKey={draftKey}
-          reviewBeforeSubmit={isOrder}
-          onCancel={isOrder ? undefined : () => navigate(`/programs/${slug}`)}
-          submitLabel={isOrder && !(program?.payment?.enabled) ? "Confirm and place order" : undefined}
+          onCancel={() => navigate(`/programs/${slug}`)}
         />
       </CardContent>
     </Card>

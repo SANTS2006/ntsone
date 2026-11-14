@@ -426,7 +426,7 @@ export function FormBuilderPage() {
       {program.kind === "order_form" && (
         <>
           <PaymentSettingsCard program={program} />
-          <OrderItemsEditor items={orderItems} onChange={setOrderItems} />
+          <OrderItemsEditor programId={program.id} items={orderItems} onChange={setOrderItems} />
         </>
       )}
       <Card>

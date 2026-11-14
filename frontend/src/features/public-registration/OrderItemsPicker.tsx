@@ -2,6 +2,7 @@ import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatMinor } from "@/lib/money";
 import type { OrderItem } from "@/types/api";
+import { imageAt, itemImages } from "../payments/itemMedia";
 
 export type Selection = Record<string, number>;
 
@@ -14,19 +15,20 @@ export function selectionList(items: OrderItem[], selection: Selection) {
   return items.filter((item) => (selection[item.id] ?? 0) > 0).map((item) => ({ itemId: item.id, quantity: selection[item.id]! }));
 }
 
+/** A new selection with this item's quantity worked out from the current one, kept between 0 and the item's limit. */
+export function withQuantity(previous: Selection, item: OrderItem, compute: (current: number) => number): Selection {
+  const limit = item.maxQuantity ?? 1000;
+  const next = { ...previous };
+  const clamped = Math.max(0, Math.min(limit, Math.floor(compute(previous[item.id] ?? 0)) || 0));
+  if (clamped === 0) delete next[item.id];
+  else next[item.id] = clamped;
+  return next;
+}
+
 /** What the customer can order: tap + to add, and the total updates as they go. The server works the total out again itself. */
 export function OrderItemsPicker({ items, selection, onChange, error }: { items: OrderItem[]; selection: Selection; onChange: (update: (previous: Selection) => Selection) => void; error?: boolean }) {
   // Always built from the latest selection, so quick taps on one or several items never undo each other.
-  const change = (item: OrderItem, compute: (current: number) => number) => {
-    const limit = item.maxQuantity ?? 1000;
-    onChange((previous) => {
-      const next = { ...previous };
-      const clamped = Math.max(0, Math.min(limit, Math.floor(compute(previous[item.id] ?? 0)) || 0));
-      if (clamped === 0) delete next[item.id];
-      else next[item.id] = clamped;
-      return next;
-    });
-  };
+  const change = (item: OrderItem, compute: (current: number) => number) => onChange((previous) => withQuantity(previous, item, compute));
   const total = selectionTotal(items, selection);
   const count = Object.values(selection).reduce((a, b) => a + b, 0);
 
@@ -41,7 +43,7 @@ export function OrderItemsPicker({ items, selection, onChange, error }: { items:
           const quantity = selection[item.id] ?? 0;
           return (
             <li key={item.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/80 p-3">
-              {item.imageUrl && <img src={item.imageUrl} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" loading="lazy" />}
+              {itemImages(item)[0] && <img src={imageAt(itemImages(item)[0]!, 200)} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" loading="lazy" />}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{item.name}</p>
                 {item.description && <p className="line-clamp-2 text-xs text-muted-foreground">{item.description}</p>}

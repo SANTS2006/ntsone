@@ -2,11 +2,14 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { AppError } from "../../lib/errors.js";
 import { sendSuccess } from "../../lib/response.js";
 import * as programsRepo from "../programs/repository.js";
-import { createUploadSignature } from "./service.js";
+import { createUploadSignature, IMAGE_UPLOAD_FORMATS, VIDEO_UPLOAD_FORMATS } from "./service.js";
 
 export async function programUploadSignatureHandler(request: FastifyRequest, reply: FastifyReply) {
   const { programId } = request.params as { programId: string };
-  const signature = createUploadSignature(`programs/${programId}`);
+  // `?kind=image` or `?kind=video` narrows what Cloudinary accepts (item photos and videos on an order page).
+  const { kind } = request.query as { kind?: string };
+  const formats = kind === "video" ? VIDEO_UPLOAD_FORMATS : kind === "image" ? IMAGE_UPLOAD_FORMATS : undefined;
+  const signature = createUploadSignature(`programs/${programId}${kind === "video" ? "/videos" : ""}`, formats);
   return sendSuccess(reply, signature);
 }
 

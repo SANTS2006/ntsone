@@ -6,6 +6,12 @@ import { PublicFormFooter } from "@/features/legal/SiteFooter";
 
 type Theme = "light" | "dark";
 
+/** What a full-width page (see `wide`) gets, so it can put the light/dark switch in its own header. */
+export interface BareThemeContext {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
 /**
  * Used for pages meant to be shared as standalone links (the registration form
  * itself, and its confirmation screen) -- no admin/marketing chrome, just the
@@ -18,7 +24,7 @@ type Theme = "light" | "dark";
  * It defaults to (and follows live changes to) the device's system
  * preference, but a manual toggle click always wins from then on.
  */
-export function BareLayout() {
+export function BareLayout({ wide = false }: { wide?: boolean }) {
   const [theme, setThemeState] = React.useState<Theme>(() =>
     window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light",
   );
@@ -58,6 +64,19 @@ export function BareLayout() {
     userOverriddenRef.current = true;
     setThemeState((t) => (t === "dark" ? "light" : "dark"));
   };
+
+  // A full-width page, like a business's order storefront, draws its own header with the theme switch in it.
+  // No entrance animation here: its leftover transform would break the page's sticky header and floating bar.
+  if (wide) {
+    return (
+      <div className="min-h-screen bg-transparent">
+        <main id="main-content" tabIndex={-1} className="focus:outline-none">
+          <LazyOutlet context={{ theme, toggleTheme } satisfies BareThemeContext} />
+        </main>
+        <PublicFormFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="page-enter min-h-screen bg-transparent">

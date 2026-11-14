@@ -95,8 +95,9 @@ export interface UploadSignature {
   allowedFormats: string;
 }
 
-export function getProgramUploadSignature(programId: string) {
-  return apiFetch<UploadSignature>(`/programs/${programId}/uploads/signature`, { method: "POST" });
+/** `kind` narrows what may be uploaded with the signature: only pictures, or only videos. */
+export function getProgramUploadSignature(programId: string, kind?: "image" | "video") {
+  return apiFetch<UploadSignature>(`/programs/${programId}/uploads/signature${kind ? `?kind=${kind}` : ""}`, { method: "POST" });
 }
 
 export function setProgramThumbnail(programId: string, thumbnailUrl: string) {
@@ -124,4 +125,38 @@ export async function uploadToCloudinary(file: File, signature: UploadSignature)
 
   const json = await response.json();
   return { secureUrl: json.secure_url, publicId: json.public_id };
+}
+
+/** Like uploadToCloudinary, but reports progress (0-100) as it goes: videos can take a while on a phone. */
+export function uploadToCloudinaryWithProgress(
+  file: File,
+  signature: UploadSignature,
+  onProgress: (percent: number) => void,
+): Promise<{ secureUrl: string; publicId: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", signature.apiKey);
+  formData.append("timestamp", String(signature.timestamp));
+  formData.append("signature", signature.signature);
+  formData.append("folder", signature.folder);
+  formData.append("allowed_formats", signature.allowedFormats);
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${signature.cloudName}/auto/upload`);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onload = () => {
+      try {
+        const json = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300 && json.secure_url) resolve({ secureUrl: json.secure_url, publicId: json.public_id });
+        else reject(new Error(json?.error?.message ?? "File upload failed"));
+      } catch {
+        reject(new Error("File upload failed"));
+      }
+    };
+    xhr.onerror = () => reject(new Error("File upload failed. Check your connection and try again."));
+    xhr.send(formData);
+  });
 }
