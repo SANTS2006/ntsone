@@ -4,8 +4,7 @@ import { payments } from "../../db/schema/index.js";
 import { AppError } from "../../lib/errors.js";
 import type { PaginationInput } from "../../lib/pagination.js";
 import { buildPaginatedResult } from "../../lib/pagination.js";
-import { queueEmail } from "../email/outbox.js";
-import { registrationConfirmationEmail } from "../email/templates.js";
+import { sendRegistrationConfirmations } from "./confirmations.js";
 import { resolveStatuses } from "../../shared/designs/index.js";
 import { getBusiness } from "../businesses/service.js";
 import * as formsService from "../forms/service.js";
@@ -105,26 +104,9 @@ export async function submitRegistration(
     });
   }
 
-  if (program.kind === "order_form") {
-    // Customers get an order confirmation branded with the business instead.
-    void notifyCustomer(program, registration, { isNew: true, fields: published.fields, files });
-  } else if (contact.email) {
-    // Queued rather than sent here: the registration is already saved, and a slow or failing mail
-    // provider must neither slow the response nor lose the confirmation.
-    void queueEmail({
-      to: contact.email,
-      toName: contact.name ?? contact.email,
-      subject: `Registration confirmed - ${program.name}`,
-      html: registrationConfirmationEmail({
-        programName: program.name,
-        registrationNumber,
-        applicantName: contact.name ?? "there",
-      }),
-    });
-  }
-
-  // Sent in the background so the registrant isn't kept waiting on the team's emails.
-  void notifyNewRegistration(program, registration, published.fields, files);
+  // Nothing that has to be paid for is announced yet: "we received your order" goes out once the payment is
+  // confirmed (see completePayment), so an unpaid or abandoned order never produces a confirmation.
+  if (!plan?.charge) void sendRegistrationConfirmations(registration.id);
 
   return {
     registration,

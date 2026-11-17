@@ -38,6 +38,12 @@ export async function paymentStatusHandler(request: FastifyRequest, reply: Fasti
   return sendSuccess(reply, await paymentsService.paymentStatusForToken(token, { refresh: refresh === "1" }));
 }
 
+export async function cancelPaymentHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { token } = request.params as { token: string };
+  noStore(reply);
+  return sendSuccess(reply, await paymentsService.cancelPaymentForToken(token), "Payment cancelled");
+}
+
 export async function retryPaymentHandler(request: FastifyRequest, reply: FastifyReply) {
   const { token } = request.params as { token: string };
   noStore(reply);

@@ -3,13 +3,14 @@ import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import { env } from "../../config/env.js";
 import { dateRangeConditions } from "../../lib/dateRange.js";
 import { db } from "../../db/client.js";
-import { forms, payments, pollPositions, polls, programs, registrations } from "../../db/schema/index.js";
+import { forms, payments, pollPositions, polls, programs, registrations, registrationStatusHistory } from "../../db/schema/index.js";
 import { AppError } from "../../lib/errors.js";
 import { formatMinor } from "../../lib/money.js";
 import { buildPaginatedResult, toOffsetLimit, type PaginationInput } from "../../lib/pagination.js";
 import { recordAudit } from "../audit/recorder.js";
 import { queueEmail } from "../email/outbox.js";
 import { paymentReceivedEmail } from "../email/templates.js";
+import { sendRegistrationConfirmations } from "../registrations/confirmations.js";
 import { signSubmissionToken } from "../registrations/summary.js";
 import { riskFlagsFor, type PaymentActor } from "./fraud.js";
 import {
@@ -298,6 +299,7 @@ export async function paymentStatusForToken(token: string, options: { refresh?: 
   if (lastRefresh.size > 5_000) lastRefresh.clear();
   const { payment, registration } = ctx;
   const open = payment.status === "pending" && (!payment.expiresAt || payment.expiresAt > new Date());
+  const teamCancelled = registration.status === "cancelled" && !(await cancelledByPayment(registration.id));
   return {
     status: payment.status,
     // What the registration as a whole is waiting on: pending, paid, review or waived.
@@ -313,7 +315,7 @@ export async function paymentStatusForToken(token: string, options: { refresh?: 
     // Only offered while the payment can still be completed there.
     redirectUrl: open ? payment.redirectUrl : null,
     expiresAt: payment.expiresAt,
-    canRetry: registration.paymentStatus !== "paid" && registration.paymentStatus !== "waived" && payment.status !== "pending",
+    canRetry: registration.paymentStatus !== "paid" && registration.paymentStatus !== "waived" && payment.status !== "pending" && !teamCancelled,
     registrationStatus: registration.status,
     confirmationMessage: ctx.confirmationMessage,
     showRegistrationNumber: ctx.showRegistrationNumber,
@@ -326,6 +328,21 @@ export async function paymentStatusForToken(token: string, options: { refresh?: 
   };
 }
 
+/**
+ * The payer pressed cancel on (or came back from) the payment page without paying: the payment is cancelled and so is
+ * the order. First asks Monime, so a payment that actually went through is never cancelled by mistake.
+ */
+export async function cancelPaymentForToken(token: string) {
+  const paymentId = readPaymentToken(token);
+  const [payment] = await db.select().from(payments).where(eq(payments.id, paymentId)).limit(1);
+  if (!payment) throw AppError.notFound("Payment not found");
+  if (payment.status === "pending") {
+    const fresh = await refreshPayment(paymentId).catch(() => payment);
+    if (fresh.status === "pending") await markPayment(paymentId, "cancelled", "Cancelled by the payer");
+  }
+  return paymentStatusForToken(token);
+}
+
 /** Starts a fresh payment for the same registration (same items and total) after one failed, expired or was cancelled. */
 export async function retryPaymentForToken(token: string, context: { ip?: string | null; userAgent?: string | null }) {
   assertPaymentsAvailable();
@@ -336,6 +353,15 @@ export async function retryPaymentForToken(token: string, context: { ip?: string
   const { payment, registration } = ctx;
   if (registration.paymentStatus === "paid" || registration.paymentStatus === "waived") throw AppError.conflict("This has already been paid.");
   if (registration.paymentStatus === "review") throw AppError.conflict("This payment is being checked by the organizer. Please wait or contact them.");
+  if (registration.status === "cancelled" && !(await cancelledByPayment(registration.id))) throw AppError.conflict("This order was cancelled and can no longer be paid.");
+
+  // An earlier checkout may still be payable on Monime's side: look before opening another, so nobody pays twice.
+  if (payment.checkoutSessionId && payment.status !== "completed") {
+    const earlier = await refreshPayment(payment.id).catch(() => payment);
+    if (earlier.status === "completed") throw AppError.conflict("This has already been paid.");
+  }
+  const [alreadyPaid] = await db.select({ id: payments.id }).from(payments).where(and(eq(payments.registrationId, registration.id), eq(payments.status, "completed"))).limit(1);
+  if (alreadyPaid) throw AppError.conflict("This has already been paid.");
 
   // A payment that is still open is simply resumed.
   if (payment.status === "pending" && payment.redirectUrl && (!payment.expiresAt || payment.expiresAt > new Date())) {
@@ -367,6 +393,7 @@ export async function retryPaymentForToken(token: string, context: { ip?: string
     })
     .returning();
   const newToken = signPaymentToken(created!.id);
+  await reviveRegistrationForPayment(registration.id, "Payment started again");
   try {
     const opened = await openCheckout(created!, ctx.programName);
     return { token: newToken, status: "pending" as const, redirectUrl: opened.redirectUrl, amountMinor: payment.amountMinor, currency: payment.currency };
@@ -447,6 +474,49 @@ export async function verifyWithProvider(payment: PaymentRow): Promise<ProviderV
   return { outcome: "completed", receivedMinor: received, payment: done[0] };
 }
 
+/** History notes written by the payment system start with this, so a payment's cancellation can be told from a team member's. */
+const PAYMENT_NOTE = "Payment";
+
+/** True when the registration's "cancelled" status came from its payment being cancelled or lapsing (not from the team). */
+async function cancelledByPayment(registrationId: string): Promise<boolean> {
+  const [last] = await db
+    .select({ toStatus: registrationStatusHistory.toStatus, note: registrationStatusHistory.note })
+    .from(registrationStatusHistory)
+    .where(eq(registrationStatusHistory.registrationId, registrationId))
+    .orderBy(desc(registrationStatusHistory.createdAt))
+    .limit(1);
+  return last?.toStatus === "cancelled" && Boolean(last.note?.startsWith(PAYMENT_NOTE));
+}
+
+/**
+ * The payer cancelled (or let the payment lapse) before paying: the order or registration is cancelled too, so it
+ * doesn't sit in the team's list looking like a real, unpaid one. Does nothing if anything was paid or another payment is still open.
+ */
+async function cancelRegistrationForPayment(registrationId: string, note: string) {
+  const [live] = await db
+    .select({ id: payments.id })
+    .from(payments)
+    .where(and(eq(payments.registrationId, registrationId), inArray(payments.status, ["completed", "pending", "review"])))
+    .limit(1);
+  if (live) return;
+  const [registration] = await db.select().from(registrations).where(eq(registrations.id, registrationId)).limit(1);
+  if (!registration || registration.status === "cancelled" || registration.paymentStatus === "paid" || registration.paymentStatus === "waived") return;
+  await db.transaction(async (tx) => {
+    await tx.update(registrations).set({ status: "cancelled", updatedAt: new Date() }).where(eq(registrations.id, registrationId));
+    await tx.insert(registrationStatusHistory).values({ registrationId, fromStatus: registration.status, toStatus: "cancelled", note });
+  });
+}
+
+/** Puts a payment-cancelled order back to "submitted" because it is being paid for after all (a retry, or a late payment). */
+async function reviveRegistrationForPayment(registrationId: string, note: string) {
+  const [registration] = await db.select().from(registrations).where(eq(registrations.id, registrationId)).limit(1);
+  if (!registration || registration.status !== "cancelled" || !(await cancelledByPayment(registrationId))) return;
+  await db.transaction(async (tx) => {
+    await tx.update(registrations).set({ status: "submitted", updatedAt: new Date() }).where(eq(registrations.id, registrationId));
+    await tx.insert(registrationStatusHistory).values({ registrationId, fromStatus: "cancelled", toStatus: "submitted", note });
+  });
+}
+
 async function setRegistrationStatus(registrationId: string, status: string, paidAt?: Date) {
   await db.update(registrations).set({ paymentStatus: status, ...(paidAt ? { paidAt } : {}) }).where(eq(registrations.id, registrationId));
 }
@@ -463,7 +533,13 @@ async function completePayment(paymentId: string, verdict: ProviderVerdict): Pro
   const result = await db.transaction(async (tx) => {
     const [row] = await tx.select().from(payments).where(eq(payments.id, paymentId)).for("update");
     if (!row) throw AppError.notFound("Payment not found");
-    if (row.status === "completed") return { firstTime: false, row };
+    if (row.status === "completed") return { firstTime: false, becamePaid: false, row };
+    // Whether this payment is what turns the registration from unpaid to paid (a second payment for it is not).
+    let becamePaid = false;
+    if (row.registrationId) {
+      const [owner] = await tx.select({ paymentStatus: registrations.paymentStatus }).from(registrations).where(eq(registrations.id, row.registrationId)).for("update");
+      becamePaid = owner !== undefined && owner.paymentStatus !== "paid";
+    }
 
     const { feeMinor, netMinor } = await creditPayment(tx, row);
     const risk = row.risk as { flags?: string[] };
@@ -487,11 +563,17 @@ async function completePayment(paymentId: string, verdict: ProviderVerdict): Pro
       .where(eq(payments.id, paymentId))
       .returning();
     if (row.registrationId) await tx.update(registrations).set({ paymentStatus: "paid", paidAt: now }).where(eq(registrations.id, row.registrationId));
-    return { firstTime: true, row: updated! };
+    return { firstTime: true, becamePaid, row: updated! };
   });
 
   if (result.firstTime) {
     const row = result.row;
+    if (row.registrationId && result.becamePaid) {
+      // Paid after the payer had cancelled or the checkout lapsed: the order is real again.
+      await reviveRegistrationForPayment(row.registrationId, "Payment received after the order was cancelled");
+      // The payment is confirmed (this is what the success page waits for): now, and only now, say the order was received.
+      void sendRegistrationConfirmations(row.registrationId);
+    }
     void recordAudit({ action: "payment.completed", actorType: "system", tenantId: row.tenantId, entityType: "payment", entityId: row.id, metadata: { programId: row.programId, amountMinor: row.amountMinor, registrationId: row.registrationId } });
     if (row.payerEmail) {
       const email = paymentReceivedEmail({
@@ -528,6 +610,9 @@ async function markPayment(paymentId: string, status: "failed" | "expired" | "ca
   else {
     const [paid] = await db.select({ id: payments.id }).from(payments).where(and(eq(payments.registrationId, row.registrationId), eq(payments.status, "completed"))).limit(1);
     if (!paid) await setRegistrationStatus(row.registrationId, "pending");
+    // Cancelled before paying, or the payment window ran out: the order is cancelled (a retry brings it back).
+    if (status === "cancelled") await cancelRegistrationForPayment(row.registrationId, `${PAYMENT_NOTE} cancelled before it was paid`);
+    if (status === "expired") await cancelRegistrationForPayment(row.registrationId, `${PAYMENT_NOTE} window expired without payment`);
   }
 }
 
@@ -565,7 +650,18 @@ async function noteFailedAttempts(payment: PaymentRow) {
 export async function refreshPayment(paymentId: string): Promise<PaymentRow> {
   const [payment] = await db.select().from(payments).where(eq(payments.id, paymentId)).limit(1);
   if (!payment) throw AppError.notFound("Payment not found");
-  if (payment.status !== "pending" && payment.status !== "review") return payment;
+  if (payment.status !== "pending" && payment.status !== "review") {
+    // The payer may have cancelled here and then paid on Monime's page anyway (back button, old tab). Money that arrived is never ignored.
+    const lapsed = payment.status === "cancelled" || payment.status === "expired" || payment.status === "failed";
+    if (lapsed && payment.checkoutSessionId && payment.createdAt.getTime() > Date.now() - 7 * 24 * 3_600_000) {
+      const late = await verifyWithProvider(payment);
+      if (late.outcome === "completed") {
+        await completePayment(paymentId, late);
+        return (await db.select().from(payments).where(eq(payments.id, paymentId)).limit(1))[0]!;
+      }
+    }
+    return payment;
+  }
   if (!payment.checkoutSessionId) {
     if (Date.now() - payment.createdAt.getTime() > 15 * 60_000) await markPayment(paymentId, "failed", "The payment page was never opened");
     return (await db.select().from(payments).where(eq(payments.id, paymentId)).limit(1))[0]!;
@@ -616,10 +712,12 @@ export async function reconcilePendingPayments(limit = 25): Promise<number> {
     }
   }
   // Anything still open long after its checkout lapsed is closed (Monime will have said so; this is the safety net).
-  await db
-    .update(payments)
-    .set({ status: "expired", updatedAt: new Date() })
-    .where(and(eq(payments.status, "pending"), lt(payments.createdAt, new Date(Date.now() - 3 * 24 * 3_600_000))));
+  const stale = await db
+    .select({ id: payments.id })
+    .from(payments)
+    .where(and(eq(payments.status, "pending"), lt(payments.createdAt, new Date(Date.now() - 3 * 24 * 3_600_000))))
+    .limit(100);
+  for (const { id } of stale) await markPayment(id, "expired", "Never completed");
   return handled;
 }
 

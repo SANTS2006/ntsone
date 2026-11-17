@@ -1,6 +1,6 @@
 import { Loading, LogoSpinner } from "@/components/Loading";
 import * as React from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle2, Clock, ShieldCheck, XCircle } from "lucide-react";
@@ -10,7 +10,7 @@ import { ApiError } from "@/lib/api";
 import { formatMinor } from "@/lib/money";
 import { usePageMeta } from "@/lib/seo";
 import type { SubmitRegistrationResult } from "../public-registration/api";
-import { getPaymentView, retryPayment, type PaymentView } from "./api";
+import { cancelPayment, getPaymentView, retryPayment, type PaymentView } from "./api";
 
 function Lines({ view }: { view: PaymentView }) {
   return (
@@ -47,6 +47,17 @@ export function PublicPaymentPage() {
     refetchInterval: (query) => (query.state.data?.status === "pending" && (query.state.data?.redirectUrl === null || cameBack === "success") ? 3_000 : false),
     refetchIntervalInBackground: false,
   });
+
+  // Coming back from Monime's page with "cancelled" means the payer chose not to pay: cancel the payment and the order.
+  const queryClient = useQueryClient();
+  const cancelSent = React.useRef(false);
+  React.useEffect(() => {
+    if (cameBack !== "cancelled" || view?.status !== "pending" || cancelSent.current) return;
+    cancelSent.current = true;
+    cancelPayment(token)
+      .then((fresh) => queryClient.setQueryData(["payment-view", token], fresh))
+      .catch(() => undefined);
+  }, [cameBack, view?.status, token, queryClient]);
 
   const retry = useMutation({
     mutationFn: () => retryPayment(token),

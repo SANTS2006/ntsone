@@ -79,6 +79,7 @@ const ROUTES: Record<string, Entry> = {
   "GET /api/public/verify/:slug/:registrationNumber": ["public.verify", "Scanned or opened a verification link", "registration"],
   "GET /api/public/payments/:token": ["public.payment_view", "Viewed a payment", "payment"],
   "POST /api/public/payments/:token/retry": ["public.payment_retry", "Tried a payment again", "payment"],
+  "POST /api/public/payments/:token/cancel": ["public.payment_cancel", "Cancelled a payment before paying", "payment"],
   "POST /api/public/client-errors": ["public.client_error", "A browser reported an error"],
   "POST /api/platform/backups": ["backup.request_create", "Asked for a database backup", "backup"],
   "PUT /api/platform/backups/policy": ["backup.request_policy", "Changed the backup retention policy", "backup"],

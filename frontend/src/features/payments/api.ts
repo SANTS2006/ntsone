@@ -159,6 +159,11 @@ export interface PaymentStartView {
   currency: string;
 }
 
+/** The payer left the payment page without paying: cancels the payment and the order. */
+export function cancelPayment(token: string) {
+  return apiFetch<PaymentView>(`/public/payments/${encodeURIComponent(token)}/cancel`, { method: "POST" });
+}
+
 export function retryPayment(token: string) {
   return apiFetch<PaymentStartView>(`/public/payments/${encodeURIComponent(token)}/retry`, { method: "POST" });
 }

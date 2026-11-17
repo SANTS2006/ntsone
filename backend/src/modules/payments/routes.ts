@@ -20,6 +20,7 @@ import {
   removeAccountHandler,
   requestPayoutHandler,
   retryPaymentHandler,
+  cancelPaymentHandler,
   reviewPayoutHandler,
   updatePaymentConfigHandler,
   waivePaymentHandler,
@@ -29,6 +30,7 @@ import {
 /** What a payer sees: the state of their payment, and trying again. Reached by a private link, no account. */
 export async function publicPaymentRoutes(app: FastifyInstance) {
   app.get("/payments/:token", { config: { rateLimit: { max: 90, timeWindow: "1 minute" } } }, paymentStatusHandler);
+  app.post("/payments/:token/cancel", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, cancelPaymentHandler);
   app.post("/payments/:token/retry", { config: { rateLimit: { max: 8, timeWindow: "1 minute" } } }, retryPaymentHandler);
 }
 
