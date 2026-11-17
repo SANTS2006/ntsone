@@ -1,4 +1,5 @@
 import { recordAudit } from "../audit/recorder.js";
+import { isPaymentSettled } from "../payments/gate.js";
 import { assertDocumentsUnlocked } from "../payments/gate.js";
 import { env } from "../../config/env.js";
 import { participantFileName } from "../../lib/downloadName.js";
@@ -260,7 +261,7 @@ export async function verifyRegistration(
   if (!registration) throw AppError.notFound("Registration not found");
 
   // An ID card or ticket that hasn't been paid for is not valid.
-  const valid = registration.status !== "rejected" && registration.status !== "cancelled" && registration.paymentStatus !== "pending" && registration.paymentStatus !== "review" && registration.paymentStatus !== "refunded";
+  const valid = registration.status !== "rejected" && registration.status !== "cancelled" && isPaymentSettled(registration.paymentStatus);
   void recordAudit({
     action: "verification.scan",
     actorType: context.user ? "user" : "visitor",

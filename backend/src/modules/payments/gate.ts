@@ -8,7 +8,12 @@ export function assertDocumentsUnlocked(registration: { paymentStatus: string; d
   if (registration.documentsInPerson) {
     throw AppError.paymentRequired("You chose to buy this in person. You can collect it at the program.");
   }
-  if (registration.paymentStatus === "pending" || registration.paymentStatus === "review" || registration.paymentStatus === "refunded") {
+  if (!isPaymentSettled(registration.paymentStatus)) {
     throw AppError.paymentRequired("This becomes available once the payment is complete.");
   }
+}
+
+/** A registration's payment is settled when nothing had to be paid, it was paid, or an administrator let it through. */
+export function isPaymentSettled(paymentStatus: string): boolean {
+  return paymentStatus === "none" || paymentStatus === "paid" || paymentStatus === "waived";
 }

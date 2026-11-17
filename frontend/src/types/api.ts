@@ -76,7 +76,7 @@ export interface OrderItem {
   maxQuantity?: number;
 }
 
-export type PaymentStatus = "none" | "pending" | "paid" | "review" | "waived" | "failed" | "refunded";
+export type PaymentStatus = "none" | "pending" | "paid" | "review" | "waived" | "failed" | "refunded" | "cancelled" | "expired";
 
 export interface RegistrationNumberConfig {
   prefix: string;

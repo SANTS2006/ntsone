@@ -16,7 +16,7 @@ export const updateStatusSchema = z.object({
 
 export const listRegistrationsQuerySchema = paginationSchema.extend({
   status: statusKey.optional(),
-  paymentStatus: z.enum(["none", "pending", "paid", "review", "waived", "refunded"]).optional(),
+  paymentStatus: z.enum(["none", "pending", "paid", "review", "waived", "refunded", "cancelled", "failed", "expired"]).optional(),
   search: z.string().trim().min(1).optional(),
   dateFrom: z.coerce.date().optional(),
   dateTo: z.coerce.date().optional(),
@@ -27,7 +27,7 @@ export const listRegistrationsQuerySchema = paginationSchema.extend({
 export const exportRegistrationsQuerySchema = z.object({
   format: z.enum(["csv", "xlsx"]).default("csv"),
   status: statusKey.optional(),
-  paymentStatus: z.enum(["none", "pending", "paid", "review", "waived", "refunded"]).optional(),
+  paymentStatus: z.enum(["none", "pending", "paid", "review", "waived", "refunded", "cancelled", "failed", "expired"]).optional(),
   search: z.string().trim().min(1).optional(),
   dateFrom: z.coerce.date().optional(),
   dateTo: z.coerce.date().optional(),

@@ -219,7 +219,7 @@ export async function getRegistrationHistory(registrationId: string) {
 
 export interface RegistrationFilters {
   status?: RegistrationStatus;
-  paymentStatus?: "none" | "pending" | "paid" | "review" | "waived" | "refunded";
+  paymentStatus?: "none" | "pending" | "paid" | "review" | "waived" | "refunded" | "cancelled" | "failed" | "expired";
   search?: string;
   dateFrom?: Date;
   dateTo?: Date;

@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, lt, notInArray, sql } from "drizzle-orm";
 import { env } from "../../config/env.js";
 import { dateRangeConditions } from "../../lib/dateRange.js";
 import { db } from "../../db/client.js";
@@ -187,6 +187,7 @@ export async function startPayment(input: {
   } catch (err) {
     // The registration is saved either way; the payer can come back to the payment link and try again.
     await db.update(payments).set({ status: "failed", failureReason: "The payment page could not be opened", updatedAt: new Date() }).where(eq(payments.id, created!.id));
+    await setRegistrationStatus(input.registration.id, "failed");
     console.error("Could not open a checkout session", err instanceof MonimeError ? { status: err.status, requestId: err.requestId } : err);
     return { token, status: "failed", redirectUrl: null, amountMinor: input.totalMinor, currency: "SLE" };
   }
@@ -394,11 +395,13 @@ export async function retryPaymentForToken(token: string, context: { ip?: string
     .returning();
   const newToken = signPaymentToken(created!.id);
   await reviveRegistrationForPayment(registration.id, "Payment started again");
+  await setRegistrationStatus(registration.id, "pending");
   try {
     const opened = await openCheckout(created!, ctx.programName);
     return { token: newToken, status: "pending" as const, redirectUrl: opened.redirectUrl, amountMinor: payment.amountMinor, currency: payment.currency };
   } catch (err) {
     await db.update(payments).set({ status: "failed", failureReason: "The payment page could not be opened", updatedAt: new Date() }).where(eq(payments.id, created!.id));
+    await setRegistrationStatus(registration.id, "failed");
     if (err instanceof AppError) throw err;
     throw AppError.paymentUnavailable();
   }
@@ -517,8 +520,16 @@ async function reviveRegistrationForPayment(registrationId: string, note: string
   });
 }
 
+/**
+ * The payments table is the source of truth: an order's payment status always follows its latest payment
+ * (pending, review, failed, expired, cancelled; "paid" is set when the payment completes). Never overwrites a registration
+ * that is already paid, waived or refunded.
+ */
 async function setRegistrationStatus(registrationId: string, status: string, paidAt?: Date) {
-  await db.update(registrations).set({ paymentStatus: status, ...(paidAt ? { paidAt } : {}) }).where(eq(registrations.id, registrationId));
+  await db
+    .update(registrations)
+    .set({ paymentStatus: status, ...(paidAt ? { paidAt } : {}) })
+    .where(and(eq(registrations.id, registrationId), notInArray(registrations.paymentStatus, ["paid", "waived", "refunded"])));
 }
 
 function channelOf(p: MonimePayment | undefined) {
@@ -609,7 +620,8 @@ async function markPayment(paymentId: string, status: "failed" | "expired" | "ca
   if (status === "review") await setRegistrationStatus(row.registrationId, "review");
   else {
     const [paid] = await db.select({ id: payments.id }).from(payments).where(and(eq(payments.registrationId, row.registrationId), eq(payments.status, "completed"))).limit(1);
-    if (!paid) await setRegistrationStatus(row.registrationId, "pending");
+    // The order shows exactly what its payment shows: cancelled, expired or failed (not "awaiting payment").
+    if (!paid) await setRegistrationStatus(row.registrationId, status);
     // Cancelled before paying, or the payment window ran out: the order is cancelled (a retry brings it back).
     if (status === "cancelled") await cancelRegistrationForPayment(row.registrationId, `${PAYMENT_NOTE} cancelled before it was paid`);
     if (status === "expired") await cancelRegistrationForPayment(row.registrationId, `${PAYMENT_NOTE} window expired without payment`);

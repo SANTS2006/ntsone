@@ -70,7 +70,7 @@ export function RegistrationPaymentCard({ programId, detail, canEdit }: { progra
   const [refunding, setRefunding] = React.useState<(typeof payments)[number] | null>(null);
   const inPerson = Boolean(registration.documentsInPerson);
   if ((!registration.paymentStatus || registration.paymentStatus === "none") && !inPerson) return null;
-  const unpaid = registration.paymentStatus === "pending" || registration.paymentStatus === "review";
+  const unpaid = ["pending", "review", "failed", "expired"].includes(registration.paymentStatus ?? "");
 
   const confirmInPerson = async () => {
     setBusy(true);

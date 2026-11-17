@@ -190,6 +190,9 @@ export function RegistrationsListPage() {
               <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="review">Needs review</SelectItem>
               <SelectItem value="waived">Waived</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
             </SelectContent>
           </Select>
         )}
