@@ -204,10 +204,10 @@ export function PaymentsSection({ data }: { data: PaymentInsights }) {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Money collected in the last 30 days</CardTitle>
-            <CardDescription>Whole Leones (NLe) paid each day</CardDescription>
+            <CardDescription>Whole Leones (SLE) paid each day</CardDescription>
           </CardHeader>
           <CardContent>
-            <RegistrationTrendChart data={data.trend} name="Collected (NLe)" color={CATEGORICAL_LIGHT[1]!} />
+            <RegistrationTrendChart data={data.trend} name="Collected (SLE)" color={CATEGORICAL_LIGHT[1]!} />
           </CardContent>
         </Card>
         <Card>
@@ -374,7 +374,7 @@ export function BooksSection({ data }: { data: BooksInsights }) {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Money earned in the last 30 days</CardTitle>
-            <CardDescription>Whole units of {data.currency === "SLE" ? "NLe" : data.currency} from sales and other income</CardDescription>
+            <CardDescription>Whole units of {data.currency} from sales and other income</CardDescription>
           </CardHeader>
           <CardContent>
             <RegistrationTrendChart data={data.trend.map((p) => ({ date: p.date, count: Math.round(p.revenueMinor / 100) }))} name="Earned" color={CATEGORICAL_LIGHT[2]!} />

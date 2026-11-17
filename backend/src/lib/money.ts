@@ -14,9 +14,9 @@ export function leonesToMinor(leones: number): number {
 
 export const minorToLeones = (minor: number) => minor / MINOR_PER_UNIT;
 
-/** "NLe 1,250.50" */
+/** "SLE 1,250.50" */
 export function formatMinor(minor: number, currency = CURRENCY): string {
-  const prefix = currency === "SLE" ? "NLe" : currency;
+  const prefix = currency;
   return `${prefix} ${minorToLeones(minor).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 

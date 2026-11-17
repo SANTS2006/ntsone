@@ -37,7 +37,7 @@ export const PAYMENT_METHODS = ["cash", "mobile_money", "bank", "other"] as cons
 export const loanEntryKind = (direction: "lent" | "borrowed"): EntryKind => (direction === "lent" ? "loan_out" : "loan_in");
 export const repaymentKind = (direction: "lent" | "borrowed"): EntryKind => (direction === "lent" ? "loan_repayment_in" : "loan_repayment_out");
 
-/** The most any single amount can be, in minor units (NLe 1,000,000,000), so a typo can't write nonsense into the books. */
+/** The most any single amount can be, in minor units (SLE 1,000,000,000), so a typo can't write nonsense into the books. */
 export const MAX_AMOUNT_MINOR = 100_000_000_000;
 
 export interface LoanFigures {

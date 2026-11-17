@@ -128,7 +128,7 @@ function WithdrawDialog({ fund, funds, open, onOpenChange }: { fund: FundApi; fu
             {funds.accounts.length > usable.length && <p className="text-xs text-muted-foreground">A new account can be used {waitText(funds.limits.newAccountMinutes)} after it is added.</p>}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="amount">Amount (NLe)</Label>
+            <Label htmlFor="amount">Amount (SLE)</Label>
             <Input id="amount" inputMode="decimal" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={tooMuch || tooLittle || minor === null || undefined} />
             {tooMuch && <p className="text-xs text-destructive">That is more than you can withdraw right now.</p>}
             {tooLittle && <p className="text-xs text-destructive">The smallest withdrawal is {formatMinor(funds.limits.minMinor)}.</p>}

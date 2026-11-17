@@ -111,7 +111,7 @@ describe("the one-time table", () => {
     wrap(<RecordsTable detail={detail()} canEdit />);
     expect(await screen.findByText("Musa")).toBeTruthy();
     expect(screen.getByText("Fatmata")).toBeTruthy();
-    expect(screen.getByText("NLe 750.50", { selector: "td" })).toBeTruthy(); // the total
+    expect(screen.getByText("SLE 750.50", { selector: "td" })).toBeTruthy(); // the total
     expect(screen.getByText("Not changed")).toBeTruthy(); // a row never changed says so; a changed one shows its date
     expect(screen.getAllByText(/Mar 2026/).length).toBeGreaterThanOrEqual(3);
   });
@@ -183,18 +183,18 @@ describe("the monthly tracker", () => {
     api.getTracker.mockResolvedValue(tracker);
     wrap(<TrackerTab detail={detail({ kind: "recurring" })} canEdit />);
     expect(await screen.findByText("Pat")).toBeTruthy();
-    expect(screen.getByLabelText(/Pat, January 2026: NLe 100.00/)).toBeTruthy();
+    expect(screen.getByLabelText(/Pat, January 2026: SLE 100.00/)).toBeTruthy();
     expect(screen.getByLabelText(/Pat, February 2026: not paid/)).toBeTruthy();
     expect(screen.getByLabelText(/Pat, March 2026: not yet due/)).toBeTruthy();
     // January is over and has a payment, so it is locked; the missed February can still be filled in.
-    expect((screen.getByLabelText(/Pat, January 2026: NLe 100.00/) as HTMLButtonElement).title).toMatch(/can no longer be changed/);
+    expect((screen.getByLabelText(/Pat, January 2026: SLE 100.00/) as HTMLButtonElement).title).toMatch(/can no longer be changed/);
     expect(screen.getByText("Payments missing in 2026").nextElementSibling?.textContent).toBe("1");
   });
 
   it("shows a past, recorded payment as read-only, with no way to change or remove it", async () => {
     api.getTracker.mockResolvedValue(tracker);
     wrap(<TrackerTab detail={detail({ kind: "recurring" })} canEdit />);
-    fireEvent.click(await screen.findByLabelText(/Pat, January 2026: NLe 100.00/));
+    fireEvent.click(await screen.findByLabelText(/Pat, January 2026: SLE 100.00/));
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText(/has passed, so this payment can no longer be changed or removed/)).toBeTruthy();
     expect(within(dialog).queryByRole("button", { name: /remove payment/i })).toBeNull();

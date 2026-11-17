@@ -64,6 +64,19 @@ export function PublicRegistrationPage({ variant = "registration" }: { variant?:
   const draftKey = data ? `draft:${isOrder ? "order" : "program"}:${slug}:${data.form.id}` : undefined;
 
   const handleSubmit = async (responses: Record<string, unknown>, files: UploadedFileInfo[], consentAccepted: boolean, items?: { itemId: string; quantity: number }[], documentsInPerson?: boolean) => {
+    // Never open the payment page for an empty cart or empty details.
+    if (isOrder) {
+      const hasItems = (items ?? []).some((i) => i.quantity > 0);
+      const hasDetails = Object.values(responses).some((v) => !(v === undefined || v === null || v === "" || (Array.isArray(v) && v.length === 0)));
+      if (!hasItems) {
+        setErrors(["Add at least one item to your order before continuing."]);
+        return;
+      }
+      if (!hasDetails) {
+        setErrors(["Fill in your details before continuing."]);
+        return;
+      }
+    }
     setSubmitting(true);
     setErrors([]);
     try {

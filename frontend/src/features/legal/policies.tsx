@@ -194,7 +194,7 @@ const TERMS: LegalSection[] = [
           mobile network operators it supports, for example Orange Money, Africell Money and QMoney. You pay on the
           provider&apos;s own secure page. We never see or store your mobile money PIN, password or card details. The
           terms, charges, limits and availability of the provider and the network operator apply separately and are
-          outside our control. Amounts are shown in Sierra Leonean Leones (NLe) unless stated otherwise.
+          outside our control. Amounts are shown in Sierra Leonean Leones (SLE) unless stated otherwise.
         </p>
         <p>
           <strong>When a payment counts.</strong> A payment is treated as complete only after we have confirmed it

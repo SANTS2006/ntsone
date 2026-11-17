@@ -451,19 +451,6 @@ export function FormBuilderPage() {
             <Textarea value={confirmationMessage} onChange={(e) => setConfirmationMessage(e.target.value)} rows={2} />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label>Form layout</Label>
-            <Select value={layoutMode} onValueChange={(v) => setLayoutMode(v as FormLayoutMode)}>
-              <SelectTrigger className="w-full sm:max-w-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="stepped">Step by step (one section at a time)</SelectItem>
-                <SelectItem value="single">Single page (show all fields at once)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex flex-col gap-3 rounded-lg border border-border/70 p-3">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="requireConsent" className="flex min-w-0 items-center gap-2 font-medium">
@@ -546,16 +533,6 @@ export function FormBuilderPage() {
             </div>
             <Switch id="showRegistrationNumber" className="shrink-0" checked={showRegistrationNumber} onCheckedChange={setShowRegistrationNumber} />
             </div>
-            {showRegistrationNumber && (
-              <ConditionalLogicEditor
-                rules={registrationNumberConditions}
-                ownerKey=""
-                otherFields={fields}
-                onChange={setRegistrationNumberConditions}
-                heading="Show the number only when… (optional)"
-                hint="Leave empty to always show it. Otherwise it is shown only when another answer matches, or when another question is filled in or left empty."
-              />
-            )}
           </div>
         </CardContent>
       </Card>

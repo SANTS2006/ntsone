@@ -31,7 +31,7 @@ export function resolveFeeAcceptance(existing: FeeAcceptance | undefined, accept
   if (!acceptFee) {
     const { feePercent, feeFixedMinor } = currentFeeTerms();
     throw AppError.validation(
-      `Agree to the platform fee before turning payments on: ${feePercent}% of every payment${feeFixedMinor > 0 ? ` plus ${(feeFixedMinor / 100).toFixed(2)} NLe` : ""} is kept by the platform.`,
+      `Agree to the platform fee before turning payments on: ${feePercent}% of every payment${feeFixedMinor > 0 ? ` plus ${(feeFixedMinor / 100).toFixed(2)} SLE` : ""} is kept by the platform.`,
     );
   }
   return { percent: env.PAYMENTS_FEE_PERCENT, at: new Date().toISOString(), by: userId };

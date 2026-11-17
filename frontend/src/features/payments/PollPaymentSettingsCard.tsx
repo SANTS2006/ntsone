@@ -94,10 +94,10 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`pv-price-${poll.id}`}>Price of one vote</Label>
                 <div className="relative">
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">NLe</span>
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">SLE</span>
                   <Input id={`pv-price-${poll.id}`} inputMode="decimal" className="pl-12" value={price} onChange={(e) => setPrice(e.target.value)} disabled={!canEdit} aria-invalid={!validPrice || undefined} />
                 </div>
-                <p className={`text-xs ${validPrice ? "text-muted-foreground" : "text-destructive"}`}>{validPrice ? "At least NLe 1." : "Enter at least NLe 1."}</p>
+                <p className={`text-xs ${validPrice ? "text-muted-foreground" : "text-destructive"}`}>{validPrice ? "At least SLE 1." : "Enter at least SLE 1."}</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`pv-max-${poll.id}`}>Most votes in one payment</Label>
@@ -113,7 +113,7 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
                 </Label>
                 <p className="text-xs text-muted-foreground">
                   {anyAmount
-                    ? `The votes come from the amount: ${validPrice ? `NLe ${price} buys one vote, ${formatMinor((priceMinor ?? 0) * 5)} buys five.` : "set the price above."}`
+                    ? `The votes come from the amount: ${validPrice ? `SLE ${price} buys one vote, ${formatMinor((priceMinor ?? 0) * 5)} buys five.` : "set the price above."}`
                     : "Off: every payment is exactly the price and buys one vote."}
                 </p>
               </div>

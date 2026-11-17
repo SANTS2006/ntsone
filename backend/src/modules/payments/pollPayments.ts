@@ -30,7 +30,7 @@ const price = z.number().int().min(100).max(MAX_PAYMENT_MINOR);
 
 export const pollPaymentConfigSchema = z.object({
   enabled: z.boolean().default(false),
-  // What one vote costs, in cents (NLe 1 is 100).
+  // What one vote costs, in cents (SLE 1 is 100).
   pricePerVoteMinor: price.default(100),
   // Off: one vote per payment, at exactly the price. On: any amount, as many votes as it buys.
   allowAnyAmount: z.boolean().default(false),

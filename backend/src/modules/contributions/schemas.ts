@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const MAX_AMOUNT_MINOR = 1_000_000_000_000; // NLe 10 billion; far above anything real, and safe as a number
+const MAX_AMOUNT_MINOR = 1_000_000_000_000; // SLE 10 billion; far above anything real, and safe as a number
 const amount = z
   .number({ invalid_type_error: "Enter the amount as a number", required_error: "Enter an amount" })
   .int("The amount must be a whole number of cents")

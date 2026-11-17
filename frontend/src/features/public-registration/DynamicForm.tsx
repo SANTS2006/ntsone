@@ -125,7 +125,6 @@ function ChargeSummary({ lines, total, heading = "To pay" }: { lines: { id: stri
         <span>Total</span>
         <span>{formatMinor(total)}</span>
       </div>
-      <p className="text-xs text-muted-foreground">You&apos;ll pay on the next page with Orange Money, Africell Money or QMoney. Your registration is held until the payment is confirmed.</p>
     </section>
   );
 }
@@ -199,6 +198,43 @@ function isVisible(field: FormField, responses: Record<string, unknown>) {
 
 const FILE_TYPES = new Set(["image_upload", "pdf_upload", "document_upload"]);
 const NUMBER_TYPES = new Set(["number", "currency", "rating"]);
+/** Questions typed into: they are checked once the person leaves them (or tries to continue), not while typing. */
+const TEXT_TYPES = new Set(["short_text", "long_text", "address", "email", "phone", "url", "number", "currency", "rating", "date", "date_of_birth", "time", "datetime", "full_name", "name", "text"]);
+/** Questions made of several buttons rather than one box, outlined as a whole. */
+const GROUP_TYPES = new Set(["single_choice", "gender", "country", "multiple_choice", "yes_no", "image_upload", "pdf_upload", "document_upload"]);
+
+interface Issue {
+  key: string;
+  message: string;
+}
+
+/** Why an answer is the wrong shape for its kind of question (email, phone, link, number range, length), if it is. */
+function formatProblem(field: FormField, value: unknown, responses: Record<string, unknown>): string | null {
+  if (isEmpty(value) || typeof value === "boolean" || Array.isArray(value)) return null;
+  const text = String(value).trim();
+  const limits = limitsFor(field, responses);
+  if (field.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(text)) return `${field.label} must be a valid email address`;
+  if (field.type === "phone" && !(/^[+()\d\s.-]{6,25}$/.test(text) && text.replace(/\D/g, "").length >= 6)) return `${field.label} must be a valid phone number`;
+  if (field.type === "url") {
+    try {
+      const u = new URL(text);
+      if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error("scheme");
+    } catch {
+      return `${field.label} must be a valid web address (https://...)`;
+    }
+  }
+  if (NUMBER_TYPES.has(field.type)) {
+    const n = Number(text);
+    if (!Number.isFinite(n)) return `${field.label} must be a number`;
+    if (typeof limits.minNumber === "number" && n < limits.minNumber) return `${field.label} must be at least ${limits.minNumber}`;
+    if (typeof limits.maxNumber === "number" && n > limits.maxNumber) return `${field.label} must be at most ${limits.maxNumber}`;
+    if (n < 0) return `${field.label} can't be negative`;
+  } else {
+    if (typeof limits.minLength === "number" && text.length < limits.minLength) return `${field.label} must be at least ${limits.minLength} characters`;
+    if (typeof limits.maxLength === "number" && text.length > limits.maxLength) return `${field.label} must be at most ${limits.maxLength} characters`;
+  }
+  return null;
+}
 
 /** Options like "Other" or "Other (please specify)" ask the registrant to type their own answer. */
 export function isOtherOption(option: string) {
@@ -469,6 +505,11 @@ export function DynamicForm({
   const [uploadedFiles, setUploadedFiles] = React.useState<Record<string, UploadedFileInfo>>(() => draft?.files ?? {});
   const [uploadingKey, setUploadingKey] = React.useState<string | null>(null);
   const [stepErrors, setStepErrors] = React.useState<string[]>([]);
+  // Questions the person has been through, and whether a submit was attempted: only then do errors show under a question.
+  const [visited, setVisited] = React.useState<Set<string>>(() => new Set());
+  const [showAll, setShowAll] = React.useState(false);
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const markVisited = (key: string) => setVisited((v) => (v.has(key) ? v : new Set(v).add(key)));
   const errorBoxRef = React.useRef<HTMLDivElement>(null);
   const errorCount = (errors?.length ?? 0) + stepErrors.length;
   // The messages sit just above the submit button; make sure they are in view when they appear.
@@ -547,8 +588,9 @@ export function DynamicForm({
     setStepIndex(0);
     setReviewConfirmed(false);
     setConsentChecked(false);
-    setSelection({});
     setItemsMissing(false);
+    setVisited(new Set());
+    setShowAll(false);
   };
 
   // Questions the person has typed in themselves no longer follow the question they copy from.
@@ -592,8 +634,9 @@ export function DynamicForm({
     }
   };
 
-  const validateFields = (fieldsToCheck: FormField[]): string[] => {
-    const missing: string[] = [];
+  const validateFields = (fieldsToCheck: FormField[]): Issue[] => {
+    const missing: Issue[] = [];
+    const add = (key: string, message: string) => missing.push({ key, message });
     for (const field of fieldsToCheck) {
       if (!isVisible(field, responses)) continue;
       if (!isRequired(field, responses)) continue;
@@ -601,12 +644,17 @@ export function DynamicForm({
       if (field.config.optionsDependOn && optionsFor(field, responses).length === 0) continue;
       const isFile = field.type.endsWith("_upload");
       const hasValue = isFile ? !!uploadedFiles[field.fieldKey] : !isEmpty(responses[field.fieldKey]);
-      if (!hasValue) missing.push(`${field.label} is required`);
+      if (!hasValue) add(field.fieldKey, `${field.label} is required`);
+    }
+    for (const field of fieldsToCheck) {
+      if (!isVisible(field, responses)) continue;
+      const problem = formatProblem(field, responses[field.fieldKey], responses);
+      if (problem) add(field.fieldKey, problem);
     }
     for (const field of fieldsToCheck) {
       if (!isVisible(field, responses)) continue;
       const problem = dateProblem(field, responses[field.fieldKey], responses);
-      if (problem) missing.push(problem);
+      if (problem) add(field.fieldKey, problem);
     }
     for (const field of fieldsToCheck) {
       if (!isVisible(field, responses)) continue;
@@ -618,11 +666,11 @@ export function DynamicForm({
         const asksText = followUpAsksText(followUp.mode);
         const asksFile = followUpAsksFile(followUp.mode);
         const ok = asksText && asksFile ? hasText || hasFile : asksText ? hasText : hasFile;
-        if (!ok) missing.push(`${field.label}: please provide ${followUp.label?.trim() || "more details"}`);
+        if (!ok) add(field.fieldKey, `${field.label}: please provide ${followUp.label?.trim() || "more details"}`);
       }
       if (followUp && followUpAsksText(followUp.mode)) {
         const problem = followUpFormatProblem(followUp, String(responses[otherTextKey(field.fieldKey)] ?? "").trim());
-        if (problem) missing.push(`${field.label}: ${followUp.label?.trim() || "your answer"} ${problem}`);
+        if (problem) add(field.fieldKey, `${field.label}: ${followUp.label?.trim() || "your answer"} ${problem}`);
       }
     }
     for (const field of fieldsToCheck) {
@@ -635,35 +683,39 @@ export function DynamicForm({
         const hasFile = !!uploadedFiles[key];
         if (followUp.required) {
           const ok = asksText && asksFile ? !!text || hasFile : asksText ? !!text : hasFile;
-          if (!ok) missing.push(`${field.label} (${option}): please provide ${followUp.label?.trim() || "more details"}`);
+          if (!ok) add(field.fieldKey, `${field.label} (${option}): please provide ${followUp.label?.trim() || "more details"}`);
         }
         const problem = asksText ? followUpFormatProblem(followUp, text) : null;
-        if (problem) missing.push(`${field.label} (${option}): ${followUp.label?.trim() || "your answer"} ${problem}`);
+        if (problem) add(field.fieldKey, `${field.label} (${option}): ${followUp.label?.trim() || "your answer"} ${problem}`);
       }
     }
     for (const field of fieldsToCheck) {
       if (!isVisible(field, responses)) continue;
       const pickedOther = chosenOptions(responses[field.fieldKey]).some(isOtherOption) && otherApplies(field, responses);
       if (pickedOther && isEmpty(String(responses[otherTextKey(field.fieldKey)] ?? "").trim())) {
-        missing.push(`Please specify your answer for ${field.label}`);
+        add(field.fieldKey, `Please specify your answer for ${field.label}`);
       }
     }
     // Editing an existing registration: answers still missing are allowed, wrong ones are not.
-    return lenient ? missing.filter((m) => !/( is required$|: please provide |^Please specify your answer)/.test(m)) : missing;
+    return lenient ? missing.filter((m) => !/( is required$|: please provide |^Please specify your answer)/.test(m.message)) : missing;
   };
 
   const validateStep = (): boolean => {
-    const missing = validateFields(currentStep.fields);
+    const issues = validateFields(currentStep.fields);
     // An order needs at least one item, asked on the step that shows the items (or, when the page shows them, on submit).
     const needsItems = catalogue.length > 0 && (isSingle || (itemsOutside ? isLastStep : activeStep === 0)) && chosenCount === 0;
     setItemsMissing(needsItems);
-    if (needsItems) missing.unshift("Choose at least one item to order");
-    setStepErrors(missing);
-    return missing.length === 0;
+    setStepErrors(needsItems ? ["Choose at least one item to order"] : []);
+    setShowAll(true);
+    if (issues.length > 0) {
+      window.setTimeout(() => formRef.current?.querySelector('[data-invalid="true"]')?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+    }
+    return issues.length === 0 && !needsItems;
   };
 
   const handleNext = () => {
     if (!validateStep()) return;
+    setShowAll(false);
     setStepIndex(activeStep + 1);
   };
 
@@ -714,23 +766,51 @@ export function DynamicForm({
     await onSubmit(responses, files, !consentNeeded || consentChecked, catalogue.length > 0 ? selectionList(catalogue, selection) : undefined, documentsInPerson || undefined);
   };
 
+  const issuesByField: Record<string, string[]> = {};
+  for (const issue of validateFields(currentStep.fields)) (issuesByField[issue.key] ??= []).push(issue.message);
+
   const renderField = (field: FormField) => {
     if (!isVisible(field, responses)) return null;
     // A cascading question with nothing to pick for the chosen answer is left out entirely.
     const parentKey = field.config.optionsDependOn?.fieldKey;
     if (parentKey && !isEmpty(responses[parentKey]) && optionsFor(field, responses).length === 0) return null;
     const value = responses[field.fieldKey];
+    const isGroup = GROUP_TYPES.has(field.type);
+    const answered = FILE_TYPES.has(field.type) ? !!uploadedFiles[field.fieldKey] : !isEmpty(value);
+    const seen = showAll || visited.has(field.fieldKey) || (!TEXT_TYPES.has(field.type) && answered);
+    const problems = seen ? issuesByField[field.fieldKey] : undefined;
+    const tone: "bad" | "good" | null = problems ? "bad" : seen && answered && field.type !== "consent" ? "good" : null;
 
     return (
-      <div key={field.fieldKey} className="flex flex-col gap-1.5">
+      <div key={field.fieldKey} className="flex flex-col gap-1.5" data-invalid={problems ? "true" : undefined} onBlur={() => markVisited(field.fieldKey)}>
         <Label htmlFor={field.fieldKey}>
           {field.label}
           {isRequired(field, responses) && <span className="text-destructive"> *</span>}
         </Label>
         {field.description && showHelp(field, responses) && <p className="text-xs text-muted-foreground">{field.description}</p>}
 
-        {renderInput(field, value)}
-        {renderOtherInput(field, value)}
+        <div
+          className={cn(
+            "flex flex-col gap-1.5",
+            tone === "bad" && "[&_input:not([type=radio])]:border-destructive [&_input:not([type=radio])]:ring-1 [&_input:not([type=radio])]:ring-destructive/40 [&_textarea]:border-destructive [&_textarea]:ring-1 [&_textarea]:ring-destructive/40 [&_button[role=combobox]]:border-destructive [&_button[role=combobox]]:ring-1 [&_button[role=combobox]]:ring-destructive/40",
+            tone === "good" && "[&_input:not([type=radio])]:border-green-600 [&_input:not([type=radio])]:ring-1 [&_input:not([type=radio])]:ring-green-600/30 [&_textarea]:border-green-600 [&_textarea]:ring-1 [&_textarea]:ring-green-600/30 [&_button[role=combobox]]:border-green-600 [&_button[role=combobox]]:ring-1 [&_button[role=combobox]]:ring-green-600/30",
+            tone === "bad" && isGroup && "rounded-md border border-destructive p-2",
+            tone === "good" && isGroup && "rounded-md border border-green-600 p-2",
+          )}
+        >
+          {renderInput(field, value)}
+          {renderOtherInput(field, value)}
+        </div>
+        {problems && (
+          <ul role="alert" className="flex flex-col gap-0.5 text-xs font-medium text-destructive">
+            {problems.map((m, i) => (
+              <li key={i} className="flex items-start gap-1">
+                <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" />
+                {m}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {field.helpText && showHelp(field, responses) && <p className="text-xs text-muted-foreground">{field.helpText}</p>}
       </div>
@@ -1030,7 +1110,7 @@ export function DynamicForm({
     return (
       <div ref={rootRef} className="flex scroll-mt-24 flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-semibold">{catalogue.length > 0 ? "Review your order" : "Check your answers"}</h2>
+          <h2 className="text-xl font-semibold">{catalogue.length > 0 ? "Confirm order and details" : "Check your answers"}</h2>
           <p className="text-sm text-muted-foreground">{catalogue.length > 0 ? "Look over your order and your details. If something is wrong, go back and fix it before you confirm." : "Look everything over. If something is wrong, go back and fix it before you confirm."}</p>
         </div>
         {combinedErrors.length > 0 && (
@@ -1086,7 +1166,7 @@ export function DynamicForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-6" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-6" noValidate>
       {!isSingle && steps.length > 1 && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -1132,7 +1212,7 @@ export function DynamicForm({
       )}
 
       {canChooseInPerson && (isSingle || isLastStep) && <DocumentPaymentChoice lines={documentLines} value={documentChoice} onChange={setDocumentChoice} />}
-      {willPay && (isSingle || isLastStep) && <ChargeSummary lines={chargeLines} total={chargeTotal} />}
+      {willPay && catalogue.length === 0 && (isSingle || isLastStep) && <ChargeSummary lines={chargeLines} total={chargeTotal} />}
 
       {consentNeeded && (isSingle || isLastStep) && (
         <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-gradient-brand-soft p-4">
@@ -1219,7 +1299,7 @@ export function DynamicForm({
           </Button>
           {isSingle || isLastStep ? (
             <Button type="submit" loading={submitting}>
-              {reviewBeforeSubmit ? "Review your answers" : submitting ? "Submitting..." : (submitLabel ?? (willPay ? `Submit and pay ${formatMinor(chargeTotal)}` : "Submit registration"))}
+              {reviewBeforeSubmit ? (catalogue.length > 0 ? "Confirm your order" : "Review your answers") : submitting ? "Submitting..." : (submitLabel ?? (willPay ? `Submit and pay ${formatMinor(chargeTotal)}` : "Submit registration"))}
             </Button>
           ) : (
             <Button type="button" onClick={handleNext}>

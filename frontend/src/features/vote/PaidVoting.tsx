@@ -134,7 +134,7 @@ function BuyCard({ poll, position, payment, standings, alreadyVoted }: { poll: V
           </p>
         ) : payment.allowAnyAmount ? (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`amount-${position.id}`}>How much do you want to pay? (NLe)</Label>
+            <Label htmlFor={`amount-${position.id}`}>How much do you want to pay? (SLE)</Label>
             <Input id={`amount-${position.id}`} inputMode="decimal" placeholder={`${payment.pricePerVoteMinor / 100}`} value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={Boolean(amount && plan.error) || undefined} />
             <p className={cn("text-sm", amount && plan.error ? "text-destructive" : "text-muted-foreground")}>
               {amount && plan.error

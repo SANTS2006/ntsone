@@ -32,7 +32,7 @@ In a list, **Share** (or the **Sharing** tab) invites someone:
 - **Can view:** items, gotten list, summary, activity, and download. Nothing can be changed.
 - **Can edit:** also add items, change them, mark gotten, move back, remove and restore. They can **not** change the list itself (name, budget, colour, archive, remove) or who it is shared with.
 - The owner can **change the level** at any time (it works at once on the same link), **extend or end the expiry**, **make a new link** (the old link and QR stop working), **email the link again**, or **remove access** for good. They see when each link was last opened and how many times.
-- What an editor does is recorded in the Activity under the name the owner gave them, for example "Got Sofa for NLe 3,800 by Fatmata (shared link)".
+- What an editor does is recorded in the Activity under the name the owner gave them, for example "Got Sofa for SLE 3,800 by Fatmata (shared link)".
 - A list can be shared with up to 50 people at once. Removing a list ends all its links.
 
 ### How the links stay safe
@@ -44,7 +44,7 @@ In a list, **Share** (or the **Sharing** tab) invites someone:
 - Anyone who has a link can open the list, so send it only to the person it is for and use **New link** if it spreads.
 
 ## 4. Rules the system enforces
-- Money is stored as whole cents (never decimals). Prices cannot be negative; a unit price is limited to NLe 100,000,000 and a total paid to NLe 100,000,000,000; quantity is a whole number from 1 to 100,000.
+- Money is stored as whole cents (never decimals). Prices cannot be negative; a unit price is limited to SLE 100,000,000 and a total paid to SLE 100,000,000,000; quantity is a whole number from 1 to 100,000.
 - A gotten date must be a real date, not before 1990 and not in the future (one day of leeway for time zones).
 - Limits: 100 lists per person, 1,000 items per list, 100 items per request. Two requests at the same moment cannot get past a limit.
 - **Safe to press twice.** Marking an item gotten is atomic: if two requests arrive together only one succeeds, the other is reported as "already gotten", and the item is never counted twice.
@@ -93,7 +93,7 @@ All routes are under `/api/wishlists`, need a signed-in user, and respond with t
 ### Public routes for people with a link (no account)
 `/api/public/wish/:token` answers with the list, who shared it and the access; under it the same item, summary, activity, categories and export routes as above (`/items`, `/items/gotten`, `/items/:itemId`, `/items/:itemId/ungot`, `/items/:itemId/restore`, `/summary`, `/activity`, `/export`). Changing routes are refused with 403 for view-only links. The token is never accepted for anything outside this list.
 
-Prices in the API are whole minor units (`unitPriceMinor: 15000` = NLe 150.00). Wrong input answers 400 with the reason; someone else's list or item answers 404.
+Prices in the API are whole minor units (`unitPriceMinor: 15000` = SLE 150.00). Wrong input answers 400 with the reason; someone else's list or item answers 404.
 
 ## 7. Code
 - Backend: `backend/src/modules/wishlists` (`rules.ts` plain rules, `schemas.ts` validation, `service.ts` all database work, `routes.ts`), `backend/src/db/schema/wishlists.ts`, `backend/drizzle/0031_wishlist_module.sql`.

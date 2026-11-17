@@ -25,7 +25,7 @@ describe("money", () => {
     expect(leonesToMinor(0.1 + 0.2)).toBe(30);
     expect(() => leonesToMinor(-1)).toThrow();
     expect(() => leonesToMinor(Number.NaN)).toThrow();
-    expect(formatMinor(125050)).toBe("NLe 1,250.50");
+    expect(formatMinor(125050)).toBe("SLE 1,250.50");
   });
   it("takes the platform fee, never more than the payment", () => {
     expect(platformFee(100_000, 2.5, 0)).toBe(2_500);
@@ -279,7 +279,7 @@ describe("the private payment link", () => {
 describe("refunds", () => {
   it("returns the platform's fee in proportion, and the exact rest on the last refund", async () => {
     const { feeShare } = await import("../../src/modules/payments/refunds.js");
-    // A NLe 100.00 payment with a NLe 5.00 fee.
+    // A SLE 100.00 payment with a SLE 5.00 fee.
     const payment = { amountMinor: 10_000, feeMinor: 500, refundedMinor: 0 };
     expect(feeShare(payment, 0, 4_000)).toBe(200);
     // The rest of it: whatever fee is left, so nothing is lost to rounding.

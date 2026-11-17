@@ -122,7 +122,7 @@ export function EntryDialog({ businessId, currency, state, onClose }: { business
             >
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="book-amount" className="text-base">
-                  How much? ({currency === "SLE" ? "NLe" : currency})
+                  How much? ({currency})
                 </Label>
                 <Input id="book-amount" autoFocus inputMode="decimal" placeholder="0.00" className="h-14 text-2xl font-bold" value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={Boolean(amount) && !validAmount ? true : undefined} />
                 {amount && !validAmount && <p className="text-xs text-destructive">Enter an amount such as 450 or 450.50</p>}

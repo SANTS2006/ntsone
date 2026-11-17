@@ -55,9 +55,9 @@ export function ContributionsScene() {
         </div>
         <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
           {[
-            ["Collected", "NLe 1,350"],
-            ["Taken out", "NLe 400"],
-            ["Still held", "NLe 950"],
+            ["Collected", "SLE 1,350"],
+            ["Taken out", "SLE 400"],
+            ["Still held", "SLE 950"],
           ].map(([label, value]) => (
             <div key={label} className="rounded-xl bg-muted/40 p-2">
               <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</dt>

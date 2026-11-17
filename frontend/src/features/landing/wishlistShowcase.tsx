@@ -15,12 +15,12 @@ function Layer({ depth, delay = 0, className, children }: { depth: number; delay
 }
 
 const WISHED = [
-  { name: "Chairs", detail: "4 x NLe 500.00", tag: "Furniture" },
+  { name: "Chairs", detail: "4 x SLE 500.00", tag: "Furniture" },
   { name: "Curtains", detail: "No price yet", tag: "Home" },
 ];
 const GOTTEN = [
-  { name: "Lamp", detail: "Paid NLe 90.00", date: "2 Oct" },
-  { name: "Rug", detail: "Paid NLe 260.00", date: "28 Sep" },
+  { name: "Lamp", detail: "Paid SLE 90.00", date: "2 Oct" },
+  { name: "Rug", detail: "Paid SLE 260.00", date: "28 Sep" },
 ];
 
 // Where the confetti flies, as [x, y] in pixels, when the card lands.
@@ -50,7 +50,7 @@ export function WishlistScene() {
             <div className="flex items-center gap-2 border-b border-border/70 bg-gradient-to-r from-pink-500/15 via-violet-500/10 to-transparent px-4 py-3 text-sm font-semibold">
               <Sparkles className="h-4 w-4 text-pink-500" aria-hidden="true" />
               Home
-              <span className="ml-auto rounded-full bg-background/70 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Budget NLe 10,000</span>
+              <span className="ml-auto rounded-full bg-background/70 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">Budget SLE 10,000</span>
             </div>
 
             <div className="relative grid grid-cols-2 gap-3 p-3">
@@ -100,7 +100,7 @@ export function WishlistScene() {
                 <div className="wl-flip relative h-[3.6rem] [transform-style:preserve-3d]">
                   <div className="face absolute inset-0 flex flex-col justify-center rounded-xl border border-pink-400/50 bg-card px-2.5 text-xs shadow-lg">
                     <p className="truncate font-semibold">Sofa</p>
-                    <p className="truncate text-[11px] text-muted-foreground">Expected NLe 4,000.00</p>
+                    <p className="truncate text-[11px] text-muted-foreground">Expected SLE 4,000.00</p>
                     <span className="mt-0.5 inline-flex w-fit rounded-full bg-gradient-to-r from-pink-500 to-violet-500 px-2 py-px text-[9px] font-bold text-white">Got it</span>
                   </div>
                   <div className="face wl-back absolute inset-0 flex flex-col justify-center rounded-xl border border-emerald-500/60 bg-gradient-to-br from-emerald-500 to-teal-500 px-2.5 text-xs text-white shadow-lg">
@@ -108,8 +108,8 @@ export function WishlistScene() {
                       <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
                       Sofa
                     </p>
-                    <p className="truncate text-[11px] text-white/90">Paid NLe 3,800 · 9 Oct</p>
-                    <span className="mt-0.5 inline-flex w-fit rounded-full bg-white/25 px-2 py-px text-[9px] font-bold">Saved NLe 200</span>
+                    <p className="truncate text-[11px] text-white/90">Paid SLE 3,800 · 9 Oct</p>
+                    <span className="mt-0.5 inline-flex w-fit rounded-full bg-white/25 px-2 py-px text-[9px] font-bold">Saved SLE 200</span>
                   </div>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export function WishlistScene() {
               </svg>
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Budget</p>
-                <p className="text-sm font-bold tabular-nums">NLe 3,800</p>
+                <p className="text-sm font-bold tabular-nums">SLE 3,800</p>
                 <p className="text-[11px] text-muted-foreground">of 10,000 spent</p>
               </div>
             </div>
@@ -149,7 +149,7 @@ export function WishlistScene() {
           <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-card px-3 py-2 text-xs shadow-xl">
             <PiggyBank className="h-5 w-5 text-emerald-500" aria-hidden="true" />
             <span>
-              <span className="block font-semibold">Saved NLe 200</span>
+              <span className="block font-semibold">Saved SLE 200</span>
               <span className="block text-[11px] text-muted-foreground">on this list so far</span>
             </span>
           </div>
@@ -161,7 +161,7 @@ export function WishlistScene() {
 
         <Layer depth={80} delay={2} className="left-4 top-0 hidden sm:block">
           <div className="rounded-full border border-pink-400/40 bg-card px-3 py-1 text-[11px] font-semibold shadow-lg">
-            <span className="text-pink-500">x4</span> Chairs, NLe 500 each
+            <span className="text-pink-500">x4</span> Chairs, SLE 500 each
           </div>
         </Layer>
       </div>

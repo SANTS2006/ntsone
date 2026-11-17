@@ -20,7 +20,7 @@ function PriceField({ id, label, hint, value, onChange }: { id: string; label: s
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>
       <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">NLe</span>
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">SLE</span>
         <Input id={id} inputMode="decimal" className="pl-12" placeholder="0 (free)" value={value} onChange={(e) => onChange(e.target.value)} aria-invalid={invalid || undefined} />
       </div>
       <p className={`text-xs ${invalid ? "text-destructive" : "text-muted-foreground"}`}>{invalid ? "Enter an amount such as 150 or 150.50" : hint}</p>

@@ -95,7 +95,7 @@ export async function dashboardRoutes(app: FastifyInstance) {
         { label: "Date", value: (p) => date(p.createdAt) },
         { label: "Program", value: (p) => p.programName },
         { label: "Payer", value: (p) => p.payer ?? "" },
-        { label: "Amount (NLe)", value: (p) => p.amountMinor / 100 },
+        { label: "Amount (SLE)", value: (p) => p.amountMinor / 100 },
         { label: "Status", value: (p) => p.status },
       ],
     };

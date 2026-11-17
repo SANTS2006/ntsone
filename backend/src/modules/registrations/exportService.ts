@@ -81,14 +81,14 @@ async function buildRows(programId: string, filters: RegistrationFilters) {
     ...(hasPayments
       ? [
           { key: "paymentStatus", label: "Payment" },
-          { key: "amountDue", label: "Amount due (NLe)" },
+          { key: "amountDue", label: "Amount due (SLE)" },
           { key: "paidAt", label: "Paid at" },
         ]
       : []),
     ...(hasOrders
       ? [
           { key: "orderItems", label: "Order items" },
-          { key: "orderTotal", label: "Order total (NLe)" },
+          { key: "orderTotal", label: "Order total (SLE)" },
         ]
       : []),
     ...fieldColumns,

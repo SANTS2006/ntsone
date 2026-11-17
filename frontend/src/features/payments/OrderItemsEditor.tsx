@@ -99,7 +99,7 @@ export function OrderItemsEditor({ programId, items, onChange }: { programId: st
                   <Input aria-label={`Description of item ${index + 1}`} placeholder="Short description (optional)" maxLength={300} value={item.description ?? ""} onChange={(e) => update(item.id, { description: e.target.value })} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor={`${item.id}-price`}>Price (NLe)</Label>
+                  <Label htmlFor={`${item.id}-price`}>Price (SLE)</Label>
                   <Input id={`${item.id}-price`} inputMode="decimal" placeholder="0.00" value={item.price} onChange={(e) => update(item.id, { price: e.target.value })} aria-invalid={price === null || undefined} />
                   <p className="text-xs text-muted-foreground">{price ? formatMinor(price) : "Price per item"}</p>
                 </div>

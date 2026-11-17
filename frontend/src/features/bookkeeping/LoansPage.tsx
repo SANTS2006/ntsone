@@ -103,7 +103,7 @@ export function LoanDialog({ businessId, currency, direction, voiceNoteId, onClo
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="loan-amount" className="text-base">
-              How much? ({currency === "SLE" ? "NLe" : currency})
+              How much? ({currency})
             </Label>
             <Input id="loan-amount" autoFocus inputMode="decimal" className="h-14 text-2xl font-bold" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
           </div>

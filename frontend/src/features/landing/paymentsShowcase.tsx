@@ -45,9 +45,9 @@ export function PaymentsScene() {
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Review your order</p>
               <div className="rounded-xl border border-border/70 bg-card p-3 text-sm">
                 {[
-                  ["2 × Rice (25 kg)", "NLe 700.00"],
-                  ["1 × Cooking oil", "NLe 120.00"],
-                  ["3 × Sugar (1 kg)", "NLe 90.00"],
+                  ["2 × Rice (25 kg)", "SLE 700.00"],
+                  ["1 × Cooking oil", "SLE 120.00"],
+                  ["3 × Sugar (1 kg)", "SLE 90.00"],
                 ].map(([item, price]) => (
                   <div key={item} className="flex items-center justify-between gap-2 py-1 text-xs">
                     <span className="truncate">{item}</span>
@@ -56,7 +56,7 @@ export function PaymentsScene() {
                 ))}
                 <div className="mt-2 flex items-center justify-between border-t border-border/70 pt-2 font-semibold">
                   <span>Total</span>
-                  <span className="gradient-text tabular-nums">NLe 910.00</span>
+                  <span className="gradient-text tabular-nums">SLE 910.00</span>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
@@ -68,7 +68,7 @@ export function PaymentsScene() {
                 ))}
               </div>
               <span className="flex h-10 items-center justify-center gap-2 rounded-full bg-gradient-brand text-sm font-semibold text-white shadow-md">
-                <Lock className="h-3.5 w-3.5" /> Confirm and pay NLe 910.00
+                <Lock className="h-3.5 w-3.5" /> Confirm and pay SLE 910.00
               </span>
             </div>
           </div>
@@ -80,7 +80,7 @@ export function PaymentsScene() {
           <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-blue-100/80">
             <Wallet className="h-3.5 w-3.5" /> Payment fund
           </p>
-          <p className="mt-1 text-xl font-bold tabular-nums">NLe 12,450.00</p>
+          <p className="mt-1 text-xl font-bold tabular-nums">SLE 12,450.00</p>
           <p className="text-[11px] text-blue-100/75">Ready to withdraw</p>
           <span className="mt-3 inline-flex rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold">Withdraw</span>
         </div>
@@ -93,7 +93,7 @@ export function PaymentsScene() {
           </span>
           <div className="min-w-0">
             <p className="text-sm font-semibold">Payment received</p>
-            <p className="truncate text-[11px] text-muted-foreground">NLe 910.00 · order unlocked</p>
+            <p className="truncate text-[11px] text-muted-foreground">SLE 910.00 · order unlocked</p>
           </div>
         </div>
       </Layer>
@@ -140,10 +140,10 @@ export function PaymentsPoints() {
 }
 
 const LEDGER = [
-  { what: "Sold 3 bags of rice", who: "Fatmata", amount: "+ NLe 450.00", tone: "text-emerald-600" },
-  { what: "Taxi to the market", who: "Cash", amount: "- NLe 120.00", tone: "text-foreground" },
-  { what: "Cooking oil on credit", who: "Mohamed owes NLe 500", amount: "+ NLe 800.00", tone: "text-emerald-600" },
-  { what: "Lent to Ibrahim", who: "Due in 14 days", amount: "- NLe 1,000.00", tone: "text-foreground" },
+  { what: "Sold 3 bags of rice", who: "Fatmata", amount: "+ SLE 450.00", tone: "text-emerald-600" },
+  { what: "Taxi to the market", who: "Cash", amount: "- SLE 120.00", tone: "text-foreground" },
+  { what: "Cooking oil on credit", who: "Mohamed owes SLE 500", amount: "+ SLE 800.00", tone: "text-emerald-600" },
+  { what: "Lent to Ibrahim", who: "Due in 14 days", amount: "- SLE 1,000.00", tone: "text-foreground" },
 ];
 
 /** A cash book with entries, a profit card and a voice note bubble floating around it. */
@@ -181,7 +181,7 @@ export function BookkeepingScene() {
         <Layer depth={120} delay={1} className="-right-2 top-2 w-44">
           <div className="rounded-2xl bg-[radial-gradient(120%_120%_at_0%_0%,#059669,#064e3b)] p-4 text-white shadow-2xl shadow-emerald-900/30">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-100/80">Profit this month</p>
-            <p className="mt-1 text-xl font-bold tabular-nums">NLe 2,200.00</p>
+            <p className="mt-1 text-xl font-bold tabular-nums">SLE 2,200.00</p>
             <p className="text-[11px] text-emerald-100/75">Earned 5,200 · cost 3,000</p>
           </div>
         </Layer>
@@ -205,7 +205,7 @@ export function BookkeepingScene() {
         <Layer depth={90} delay={5} className="-right-1 bottom-4">
           <div className="rounded-2xl border border-amber-500/30 bg-card px-3 py-2 text-xs shadow-xl">
             <span className="font-semibold">1 loan overdue</span>
-            <span className="block text-[11px] text-muted-foreground">Ibrahim · NLe 800.00 left</span>
+            <span className="block text-[11px] text-muted-foreground">Ibrahim · SLE 800.00 left</span>
           </div>
         </Layer>
       </div>

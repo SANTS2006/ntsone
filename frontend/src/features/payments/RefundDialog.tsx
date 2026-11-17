@@ -94,7 +94,7 @@ export function RefundDialog({ programId, pollId, payment, onClose }: { programI
           }}
         >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="refund-amount">Amount to refund (NLe)</Label>
+            <Label htmlFor="refund-amount">Amount to refund (SLE)</Label>
             <Input id="refund-amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={tooMuch || minor === null || undefined} />
             <p className={`text-xs ${tooMuch ? "text-destructive" : "text-muted-foreground"}`}>
               {tooMuch ? `At most ${formatMinor(remaining, payment?.currency)} can still be refunded.` : `Up to ${formatMinor(remaining, payment?.currency)} can be refunded.`}

@@ -82,10 +82,10 @@ export function PaymentAnalyticsSection({ programId }: { programId: string }) {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Money collected in the last 30 days</CardTitle>
-            <CardDescription>Whole Leones (NLe) paid each day · largest payment {money(data.largestMinor)}</CardDescription>
+            <CardDescription>Whole Leones (SLE) paid each day · largest payment {money(data.largestMinor)}</CardDescription>
           </CardHeader>
           <CardContent>
-            <RegistrationTrendChart data={data.trend} name="Collected (NLe)" color={CATEGORICAL_LIGHT[1]!} />
+            <RegistrationTrendChart data={data.trend} name="Collected (SLE)" color={CATEGORICAL_LIGHT[1]!} />
           </CardContent>
         </Card>
         <Card>

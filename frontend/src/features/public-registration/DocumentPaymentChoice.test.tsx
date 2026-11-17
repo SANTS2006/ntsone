@@ -46,7 +46,7 @@ describe("choosing how to get the ID card or ticket on the registration form", (
   it("asks, and pays for everything online by default", async () => {
     const onSubmit = open({ enabled: true, allowPayInPerson: true, lines });
     expect(screen.getByText(/How would you like to get your ID card/)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /submit and pay NLe 70/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /submit and pay SLE 70/i })).toBeTruthy();
     submit();
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     // The last argument says whether they will buy in person: not chosen.
@@ -56,7 +56,7 @@ describe("choosing how to get the ID card or ticket on the registration form", (
   it("lets them just register: only the registration fee is charged, and the server is told", async () => {
     const onSubmit = open({ enabled: true, allowPayInPerson: true, lines });
     fireEvent.click(screen.getByLabelText(/I will buy my ID card in person/));
-    expect(screen.getByRole("button", { name: /submit and pay NLe 50/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /submit and pay SLE 50/i })).toBeTruthy();
     submit();
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect((onSubmit.mock.calls[0] as unknown[])[4]).toBe(true);

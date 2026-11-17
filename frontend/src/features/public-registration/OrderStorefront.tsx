@@ -74,7 +74,7 @@ function initials(name: string) {
  * items as a browsable catalogue (each with its pictures and videos), the checkout form beside the order summary,
  * and the business's contact details.
  */
-export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, formDescription, formInstructions, items, initialSelection, renderCheckout }: OrderStorefrontProps) {
+export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, formDescription, items, initialSelection, renderCheckout }: OrderStorefrontProps) {
   const themeContext = useOutletContext<BareThemeContext | undefined>();
   const name = business?.name ?? fallbackName;
   const [selection, setSelection] = React.useState<Selection>(() => initialSelection ?? {});
@@ -276,8 +276,6 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
               onOpen={(id) => setOpenItemId(id)}
             />
             <div className="min-w-0 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-6 lg:order-1">
-              <h3 className="mb-1 text-lg font-semibold">Your details</h3>
-              {formInstructions ? <p className="mb-5 whitespace-pre-line text-sm text-muted-foreground">{formInstructions}</p> : <div className="mb-4" />}
               {renderCheckout(selection, setSelection)}
             </div>
           </div>
@@ -288,9 +286,9 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
       {contacts.length > 0 && (
         <section id="contact" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:py-16">
           <h2 className="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">Get in touch</h2>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="flex flex-wrap gap-4">
             {contacts.map((c) => (
-              <li key={c.label}>
+              <li key={c.label} className="min-w-0 max-w-full flex-1 sm:min-w-fit">
                 <a
                   href={c.href}
                   target={c.href.startsWith("http") ? "_blank" : undefined}
@@ -302,7 +300,7 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
                   </span>
                   <span className="flex min-w-0 flex-col">
                     <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{c.label}</span>
-                    <span className="break-words text-sm font-medium">{c.value}</span>
+                    <span className="break-words text-sm font-medium sm:whitespace-nowrap">{c.value}</span>
                   </span>
                 </a>
               </li>
