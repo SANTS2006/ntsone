@@ -1,5 +1,5 @@
 import { Loading } from "@/components/Loading";
-import { CoverImage } from "@/components/CoverImage";
+import { BannerImage } from "@/components/CoverImage";
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
@@ -29,7 +29,7 @@ export function PublicProgramPage() {
 
   return (
     <article className="flex flex-col gap-6">
-      {program.thumbnailUrl && <div className="relative h-64 w-full overflow-hidden rounded-lg"><CoverImage src={program.thumbnailUrl} /></div>}
+      {program.thumbnailUrl && <div className="relative w-full overflow-hidden rounded-lg"><BannerImage src={program.thumbnailUrl} /></div>}
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">

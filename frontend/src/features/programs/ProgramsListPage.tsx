@@ -1,5 +1,5 @@
 import { Loading } from "@/components/Loading";
-import { CoverImage } from "@/components/CoverImage";
+import { BannerImage } from "@/components/CoverImage";
 import * as React from "react";
 import { RefreshButton } from "@/components/RefreshButton";
 import { Link } from "react-router-dom";
@@ -61,11 +61,11 @@ export function ProgramsListPage() {
         {data?.items.map((program) => (
           <Link key={program.id} to={`/admin/programs/${program.id}`}>
             <CardInteractive className="flex h-full flex-col overflow-hidden">
-              <div className="relative h-36 w-full shrink-0 overflow-hidden bg-gradient-brand-soft">
+              <div className="relative min-h-28 w-full shrink-0 overflow-hidden bg-gradient-brand-soft">
                 {program.thumbnailUrl ? (
-                  <CoverImage src={program.thumbnailUrl} loading="lazy" />
+                  <BannerImage src={program.thumbnailUrl} loading="lazy" className="max-h-64" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
+                  <div className="flex h-36 w-full items-center justify-center">
                     <ImageIcon className="h-8 w-8 text-primary/40" />
                   </div>
                 )}

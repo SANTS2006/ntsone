@@ -118,21 +118,6 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
     ...(contacts.length > 0 ? [{ id: "contact", label: "Contact" }] : []),
   ];
 
-  const progressRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
   const steps = [
     { icon: Images, title: "Browse", text: "Look through the pictures and videos of every item." },
     { icon: ShoppingCart, title: "Add to your order", text: "Choose what you want and how many." },
@@ -142,18 +127,17 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
 
   return (
     <div id="top" className="sf-page relative flex min-h-screen flex-col overflow-x-clip">
-      {/* Scroll progress */}
-      <div aria-hidden className="fixed inset-x-0 top-0 z-50 h-1">
-        <div ref={progressRef} className="h-full origin-left bg-gradient-to-r from-blue-500 via-cyan-400 to-violet-500" style={{ transform: "scaleX(0)" }} />
-      </div>
-
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-background/75 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
           <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex min-w-0 items-center gap-2.5 text-left">
-            <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-glow">
-              <ShoppingBag className="h-5 w-5" />
-            </span>
+            {business?.logoUrl ? (
+              <img src={imageAt(business.logoUrl, 96)} alt={`${name} logo`} className="h-9 w-9 shrink-0 rounded-lg bg-white object-contain" />
+            ) : (
+              <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-glow">
+                <ShoppingBag className="h-5 w-5" />
+              </span>
+            )}
             <span className="truncate text-base font-bold tracking-tight">{name}</span>
           </button>
           <nav aria-label="Page sections" className="ml-auto hidden items-center gap-1 md:flex">

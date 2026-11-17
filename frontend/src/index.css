@@ -468,3 +468,24 @@ select:autofill {
 @media (prefers-reduced-motion: reduce) {
   .sf-aurora, .sf-blob, .sf-float, .sf-cube, .sf-shine::after, .sf-pop { animation: none; }
 }
+
+
+/* Overflow safety: long words, links and numbers wrap instead of pushing a box wider than the screen; media never exceeds its box. */
+@layer base {
+  h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, blockquote, figcaption, td, th, a, button {
+    overflow-wrap: break-word;
+  }
+  img, video, canvas, svg, iframe {
+    max-width: 100%;
+  }
+  img, video {
+    height: auto;
+  }
+  pre, code {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  table {
+    max-width: 100%;
+  }
+}

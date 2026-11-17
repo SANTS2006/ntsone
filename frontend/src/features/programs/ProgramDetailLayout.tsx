@@ -1,5 +1,5 @@
 import { Loading } from "@/components/Loading";
-import { CoverImage } from "@/components/CoverImage";
+import { BannerImage } from "@/components/CoverImage";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { LazyOutlet } from "@/components/PageLoading";
 import { ArrowLeft, ImageIcon, MessageSquarePlus } from "lucide-react";
@@ -105,9 +105,9 @@ export function ProgramDetailLayout() {
     <div className="flex flex-col gap-6">
       {/* Hero banner: image container uses `relative` positioning so the name/status
           overlay can be laid on top with `absolute`, anchored to its bottom-left. */}
-      <div className="relative flex min-h-40 w-full flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-gradient-brand shadow-glow sm:min-h-52">
+      <div className="relative grid min-h-40 w-full overflow-hidden [&>*]:col-start-1 [&>*]:row-start-1 rounded-2xl border border-border/70 bg-gradient-brand shadow-glow sm:min-h-52">
         {program.thumbnailUrl ? (
-          <CoverImage src={program.thumbnailUrl} />
+          <BannerImage src={program.thumbnailUrl} />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-brand">
             <ImageIcon className="h-10 w-10 text-white/40" />
@@ -128,7 +128,7 @@ export function ProgramDetailLayout() {
             />
           </div>
         )}
-        <div className="relative flex min-w-0 flex-col gap-2 p-4 pt-16 sm:p-6 sm:pt-14">
+        <div className="relative flex min-w-0 flex-col gap-2 self-end p-4 pt-16 sm:p-6 sm:pt-14">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="min-w-0 break-words text-2xl font-bold tracking-tight text-white drop-shadow sm:text-3xl">{program.name}</h1>
             <ProgramStatusBadge status={program.status} />

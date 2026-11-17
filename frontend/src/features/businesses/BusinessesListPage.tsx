@@ -1,5 +1,5 @@
 import { Loading } from "@/components/Loading";
-import { CoverImage } from "@/components/CoverImage";
+import { BannerImage } from "@/components/CoverImage";
 import * as React from "react";
 import { RefreshButton } from "@/components/RefreshButton";
 import { Link, useNavigate } from "react-router-dom";
@@ -181,11 +181,11 @@ export function BusinessesListPage() {
         {data?.items.map((business) => (
           <Link key={business.id} to={`/admin/businesses/${business.id}`}>
             <CardInteractive className="flex h-full flex-col overflow-hidden">
-              <div className="relative h-32 w-full shrink-0 overflow-hidden bg-gradient-brand-soft">
+              <div className="relative min-h-32 w-full shrink-0 overflow-hidden bg-gradient-brand-soft">
                 {business.logoUrl ? (
-                  <CoverImage src={business.logoUrl} loading="lazy" />
+                  <BannerImage src={business.logoUrl} loading="lazy" className="max-h-64" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
+                  <div className="flex h-32 w-full items-center justify-center">
                     <Store className="h-9 w-9 text-primary/40" aria-hidden="true" />
                   </div>
                 )}

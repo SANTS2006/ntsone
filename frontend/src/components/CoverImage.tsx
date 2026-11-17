@@ -12,3 +12,11 @@ export function CoverImage({ src, alt = "", className, loading }: { src: string;
     </div>
   );
 }
+
+/**
+ * A banner picture at the full width of its box. The box takes the picture's own height (so nothing is cut off),
+ * up to a limit for very tall pictures. Put it first in a relatively positioned box; overlays go on top of it.
+ */
+export function BannerImage({ src, alt = "", className, loading }: { src: string; alt?: string; className?: string; loading?: "lazy" | "eager" }) {
+  return <img src={src} alt={alt} loading={loading} className={cn("block h-auto max-h-[28rem] w-full object-cover", className)} />;
+}
