@@ -24,7 +24,9 @@ export function FieldSettingsDialog({
   usedKeys,
   onSave,
   onClose,
+  simple = false,
 }: {
+  simple?: boolean;
   field: EditableField;
   otherFields: EditableField[];
   usedKeys: Set<string>;
@@ -99,7 +101,7 @@ export function FieldSettingsDialog({
             </Label>
           </div>
 
-          {draft.required && (
+          {draft.required && !simple && (
             <ConditionalLogicEditor
               rules={draft.config.requiredConditions}
               ownerKey={draft.fieldKey}
@@ -110,7 +112,7 @@ export function FieldSettingsDialog({
             />
           )}
 
-          {(draft.type === "short_text" || draft.type === "long_text" || draft.type === "address") && (
+          {!simple && (draft.type === "short_text" || draft.type === "long_text" || draft.type === "address") && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="flex flex-col gap-1.5">
                 <Label>Min length</Label>
@@ -156,7 +158,7 @@ export function FieldSettingsDialog({
             </div>
           )}
 
-          {meta.hasOptions && (
+          {meta.hasOptions && !simple && (
             <DependentOptionsEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />
           )}
 
@@ -213,7 +215,7 @@ export function FieldSettingsDialog({
             </div>
           )}
 
-          {["minLength", "maxLength", "regex", "minNumber", "maxNumber", "minDate", "maxDate", "minAge", "maxAge", "maxSelections"].some(
+          {!simple && ["minLength", "maxLength", "regex", "minNumber", "maxNumber", "minDate", "maxDate", "minAge", "maxAge", "maxSelections"].some(
             (key) => (draft.config as Record<string, unknown>)[key] !== undefined && (draft.config as Record<string, unknown>)[key] !== "",
           ) && (
             <ConditionalLogicEditor
@@ -225,8 +227,8 @@ export function FieldSettingsDialog({
               hint="Leave empty to always apply them. Otherwise the length, number, date, age and selection limits only apply when another answer matches, or when another question is filled in or left empty."
             />
           )}
-          {meta.hasOptions && <OptionConditionsEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />}
-          {(draft.description?.trim() || draft.helpText?.trim()) && (
+          {meta.hasOptions && !simple && <OptionConditionsEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />}
+          {!simple && (draft.description?.trim() || draft.helpText?.trim()) && (
             <ConditionalLogicEditor
               rules={draft.config.descriptionConditions}
               ownerKey={draft.fieldKey}
@@ -238,7 +240,7 @@ export function FieldSettingsDialog({
           )}
           <DateLimitEditor draft={draft} updateConfig={updateConfig} />
           <MaxSelectionsEditor draft={draft} updateConfig={updateConfig} />
-          {meta.hasOptions && (draft.config.options ?? []).some((o) => /^other\b/i.test(o.trim())) && (
+          {!simple && meta.hasOptions && (draft.config.options ?? []).some((o) => /^other\b/i.test(o.trim())) && (
             <ConditionalLogicEditor
               rules={draft.config.otherConditions}
               ownerKey={draft.fieldKey}
@@ -248,10 +250,10 @@ export function FieldSettingsDialog({
               hint={'The "Please specify" box shows only when another answer matches, or when another question is filled in or left empty.'}
             />
           )}
-          <FollowUpEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />
+          {!simple && <FollowUpEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />}
 
-          <AutoFillEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />
-          {draft.config.autoFillFrom && (
+          {!simple && <AutoFillEditor draft={draft} otherFields={otherFields} updateConfig={updateConfig} />}
+          {!simple && draft.config.autoFillFrom && (
             <ConditionalLogicEditor
               rules={draft.config.autoFillConditions}
               ownerKey={draft.fieldKey}
@@ -262,8 +264,8 @@ export function FieldSettingsDialog({
             />
           )}
 
-          <DefaultValueEditor draft={draft} updateConfig={updateConfig} />
-          {draft.config.defaultValue !== undefined && (
+          {!simple && <DefaultValueEditor draft={draft} updateConfig={updateConfig} />}
+          {!simple && draft.config.defaultValue !== undefined && (
             <ConditionalLogicEditor
               rules={draft.config.defaultConditions}
               ownerKey={draft.fieldKey}
@@ -288,7 +290,7 @@ export function FieldSettingsDialog({
             </div>
           )}
 
-          <ConditionalLogicEditor rules={draft.conditionalLogic} ownerKey={draft.fieldKey} otherFields={otherFields} onChange={(conditionalLogic) => update({ conditionalLogic })} />
+          {!simple && <ConditionalLogicEditor rules={draft.conditionalLogic} ownerKey={draft.fieldKey} otherFields={otherFields} onChange={(conditionalLogic) => update({ conditionalLogic })} />}
         </div>
 
         <DialogFooter>

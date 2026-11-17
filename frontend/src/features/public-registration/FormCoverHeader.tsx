@@ -1,3 +1,5 @@
+import { CoverImage } from "@/components/CoverImage";
+
 export function FormCoverHeader({
   name,
   thumbnailUrl,
@@ -10,7 +12,9 @@ export function FormCoverHeader({
   return (
     <div className="flex flex-col">
       {thumbnailUrl && (
-        <img src={thumbnailUrl} alt="" className="h-48 w-full rounded-t-xl object-cover sm:h-64" />
+        <div className="relative h-48 w-full overflow-hidden rounded-t-xl sm:h-72">
+          <CoverImage src={thumbnailUrl} />
+        </div>
       )}
       <div className="flex flex-col gap-2 border-b border-border/70 px-6 pb-5 pt-6">
         <h1 className="break-words text-2xl font-bold tracking-tight sm:text-3xl">{name}</h1>

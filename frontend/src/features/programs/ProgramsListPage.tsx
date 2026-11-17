@@ -1,4 +1,5 @@
 import { Loading } from "@/components/Loading";
+import { CoverImage } from "@/components/CoverImage";
 import * as React from "react";
 import { RefreshButton } from "@/components/RefreshButton";
 import { Link } from "react-router-dom";
@@ -62,7 +63,7 @@ export function ProgramsListPage() {
             <CardInteractive className="flex h-full flex-col overflow-hidden">
               <div className="relative h-36 w-full shrink-0 overflow-hidden bg-gradient-brand-soft">
                 {program.thumbnailUrl ? (
-                  <img src={program.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+                  <CoverImage src={program.thumbnailUrl} loading="lazy" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
                     <ImageIcon className="h-8 w-8 text-primary/40" />

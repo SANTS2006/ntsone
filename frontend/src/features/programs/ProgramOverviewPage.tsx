@@ -1,4 +1,5 @@
 import * as React from "react";
+import { CoverImage } from "@/components/CoverImage";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -162,7 +163,7 @@ export function ProgramOverviewPage() {
                 <Label htmlFor="thumbnail">Thumbnail image</Label>
                 <Input id="thumbnail" type="file" accept="image/*" onChange={onThumbnailChange} disabled={uploading} />
                 {program.thumbnailUrl && (
-                  <img src={program.thumbnailUrl} alt="" className="mt-2 h-32 w-full rounded-md object-cover" />
+                  <div className="relative mt-2 h-40 w-full overflow-hidden rounded-md"><CoverImage src={program.thumbnailUrl} /></div>
                 )}
               </div>
               <Button type="submit" loading={updateProgram.isPending} disabled={!isDirty} className="w-fit">

@@ -10,7 +10,7 @@ export function ordinal(n: number) {
 function CandidateAvatar({ url, size = "h-10 w-10" }: { url: string | null; size?: string }) {
   return (
     <span className={cn("flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/70 bg-muted", size)}>
-      {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : <UserRound className="h-1/2 w-1/2 text-muted-foreground" aria-hidden="true" />}
+      {url ? <img src={url} alt="" className="h-full w-full object-contain" /> : <UserRound className="h-1/2 w-1/2 text-muted-foreground" aria-hidden="true" />}
     </span>
   );
 }

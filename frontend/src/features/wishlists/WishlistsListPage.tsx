@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Archive, CalendarClock, Gift, Plus, RefreshCw } from "lucide-react";
 import { Loading } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardInteractive } from "@/components/ui/card";
 import { usePageMeta } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { listWishlists, wishKeys } from "./api";
@@ -91,7 +91,7 @@ export function WishlistsListPage() {
                 const style = colorOf(list.color);
                 return (
                   <Link key={list.id} to={`/admin/wishlists/${list.id}`} className="group rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                    <Card className="h-full overflow-hidden transition group-hover:-translate-y-0.5 group-hover:shadow-glow">
+                    <CardInteractive className="h-full overflow-hidden">
                       <div className={cn("h-1.5 w-full", style.bar)} />
                       <CardContent className="flex flex-col gap-3 p-4">
                         <div className="flex items-start justify-between gap-2">
@@ -122,7 +122,7 @@ export function WishlistsListPage() {
                           </p>
                         )}
                       </CardContent>
-                    </Card>
+                    </CardInteractive>
                   </Link>
                 );
               })}

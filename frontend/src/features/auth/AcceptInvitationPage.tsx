@@ -53,12 +53,12 @@ export function AcceptInvitationPage() {
       <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="invite-new">New password</Label>
-          <PasswordInput id="invite-new" autoComplete="new-password" autoFocus className="h-12 rounded-full px-5 pr-12" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput id="invite-new" placeholder="Enter a new password" autoComplete="new-password" autoFocus className="h-12 rounded-full px-5 pr-12" value={password} onChange={(e) => setPassword(e.target.value)} />
           <p className="px-2 text-xs text-muted-foreground">{PASSWORD_HINT}</p>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="invite-confirm">Confirm new password</Label>
-          <PasswordInput id="invite-confirm" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <PasswordInput id="invite-confirm" placeholder="Re-enter the new password" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         </div>
         {error && (
           <p role="alert" className="px-2 text-sm text-destructive">
@@ -109,16 +109,16 @@ export function ChooseOwnPasswordScreen() {
       <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="own-temporary">Temporary password</Label>
-          <PasswordInput id="own-temporary" autoComplete="current-password" autoFocus className="h-12 rounded-full px-5 pr-12" value={temporary} onChange={(e) => setTemporary(e.target.value)} />
+          <PasswordInput id="own-temporary" placeholder="Enter your temporary password" autoComplete="current-password" autoFocus className="h-12 rounded-full px-5 pr-12" value={temporary} onChange={(e) => setTemporary(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="own-new">New password</Label>
-          <PasswordInput id="own-new" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput id="own-new" placeholder="Enter a new password" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={password} onChange={(e) => setPassword(e.target.value)} />
           <p className="px-2 text-xs text-muted-foreground">{PASSWORD_HINT}</p>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="own-confirm">Confirm new password</Label>
-          <PasswordInput id="own-confirm" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <PasswordInput id="own-confirm" placeholder="Re-enter the new password" autoComplete="new-password" className="h-12 rounded-full px-5 pr-12" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         </div>
         {error && (
           <p role="alert" className="px-2 text-sm text-destructive">

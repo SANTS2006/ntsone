@@ -24,7 +24,7 @@ export function useVoterSession(slug: string, enabled = true) {
 export function PollLogo({ poll, size = "h-12 w-12" }: { poll: Pick<VotePoll, "imageUrl" | "name">; size?: string }) {
   return (
     <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-brand text-white shadow-glow ${size}`}>
-      {poll.imageUrl ? <img src={poll.imageUrl} alt="" className="h-full w-full object-cover" /> : <Vote className="h-1/2 w-1/2" aria-hidden="true" />}
+      {poll.imageUrl ? <img src={poll.imageUrl} alt="" className="h-full w-full object-contain" /> : <Vote className="h-1/2 w-1/2" aria-hidden="true" />}
     </span>
   );
 }

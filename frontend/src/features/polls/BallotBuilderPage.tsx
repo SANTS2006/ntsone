@@ -63,7 +63,7 @@ function ImageButton({
   return (
     <div className="flex items-center gap-2">
       <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/70 bg-muted">
-        {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <UserRound className="h-6 w-6 text-muted-foreground" aria-hidden="true" />}
+        {value ? <img src={value} alt="" className="h-full w-full object-contain" /> : <UserRound className="h-6 w-6 text-muted-foreground" aria-hidden="true" />}
       </div>
       {!disabled && (
         <div className="flex flex-col gap-1">

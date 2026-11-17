@@ -1,4 +1,5 @@
 import { Loading } from "@/components/Loading";
+import { CoverImage } from "@/components/CoverImage";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { ArrowLeft, Vote } from "lucide-react";
 import { LazyOutlet } from "@/components/PageLoading";
@@ -47,7 +48,7 @@ export function PollDetailLayout() {
     <div className="flex flex-col gap-6">
       <div className="relative flex min-h-36 w-full flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-gradient-brand shadow-glow sm:min-h-44">
         {poll.imageUrl ? (
-          <img src={poll.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <CoverImage src={poll.imageUrl} />
         ) : (
           <div className="absolute inset-0 flex items-start justify-end p-5">
             <Vote className="h-12 w-12 text-white/30" aria-hidden="true" />

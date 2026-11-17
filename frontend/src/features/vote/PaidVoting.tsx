@@ -36,7 +36,7 @@ function Candidates({ position, selected, onSelect, disabled }: { position: Vote
       {position.candidates.map((c) => (
         <label key={c.id} className={cn("flex cursor-pointer items-center gap-3 rounded-xl border-2 bg-card p-3 transition-colors", selected === c.id ? "border-primary shadow-glow" : "border-border/70 hover:border-primary/40")}>
           <input type="radio" name={`paid-${position.id}`} className="sr-only" checked={selected === c.id} onChange={() => onSelect(c.id)} />
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">{c.imageUrl ? <img src={c.imageUrl} alt="" className="h-full w-full object-cover" /> : null}</span>
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">{c.imageUrl ? <img src={c.imageUrl} alt="" className="h-full w-full object-contain" /> : null}</span>
           <span className="min-w-0 flex-1">
             <span className="block font-medium leading-tight">{c.name}</span>
             {c.description && <span className="block text-xs text-muted-foreground">{c.description}</span>}

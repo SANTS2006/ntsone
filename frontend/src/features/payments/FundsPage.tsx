@@ -136,7 +136,7 @@ function WithdrawDialog({ fund, funds, open, onOpenChange }: { fund: FundApi; fu
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="pw">Your password</Label>
-            <PasswordInput id="pw" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput id="pw" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <p className="text-xs text-muted-foreground">We ask again to be sure it is really you moving the money.</p>
           </div>
           <DialogFooter>
@@ -238,7 +238,7 @@ function AddAccountDialog({ fund, funds, open, onOpenChange }: { fund: FundApi; 
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="acc-pw">Your password</Label>
-            <PasswordInput id="acc-pw" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput id="acc-pw" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
@@ -276,7 +276,7 @@ function RemoveAccountDialog({ fund, account, onClose }: { fund: FundApi; accoun
             {account?.providerName} · {account?.accountNumber} · {account?.accountName}. Enter your password to confirm.
           </DialogDescription>
         </DialogHeader>
-        <PasswordInput aria-label="Your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <PasswordInput aria-label="Your password" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel

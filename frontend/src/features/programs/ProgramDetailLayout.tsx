@@ -1,4 +1,5 @@
 import { Loading } from "@/components/Loading";
+import { CoverImage } from "@/components/CoverImage";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { LazyOutlet } from "@/components/PageLoading";
 import { ArrowLeft, ImageIcon, MessageSquarePlus } from "lucide-react";
@@ -106,7 +107,7 @@ export function ProgramDetailLayout() {
           overlay can be laid on top with `absolute`, anchored to its bottom-left. */}
       <div className="relative flex min-h-40 w-full flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-gradient-brand shadow-glow sm:min-h-52">
         {program.thumbnailUrl ? (
-          <img src={program.thumbnailUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <CoverImage src={program.thumbnailUrl} />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-brand">
             <ImageIcon className="h-10 w-10 text-white/40" />

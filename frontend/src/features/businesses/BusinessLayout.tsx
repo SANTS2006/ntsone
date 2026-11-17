@@ -1,4 +1,5 @@
 import { Loading } from "@/components/Loading";
+import { CoverImage } from "@/components/CoverImage";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Store } from "lucide-react";
@@ -78,7 +79,7 @@ export function BusinessLayout() {
         style={{ background: `linear-gradient(135deg, ${business.brandColor}, #0f172a)` }}
       >
         {business.logoUrl ? (
-          <img src={business.logoUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <CoverImage src={business.logoUrl} />
         ) : (
           <div className="absolute inset-0 flex items-start justify-end p-5">
             <Store className="h-12 w-12 text-white/30" aria-hidden="true" />

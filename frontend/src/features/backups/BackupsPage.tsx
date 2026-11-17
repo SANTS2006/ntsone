@@ -388,7 +388,7 @@ function PasswordDialog(props: { title: string; description: string; confirmLabe
         </DialogHeader>
         <div className="space-y-1.5">
           <Label htmlFor="dlg-pw">Your password</Label>
-          <PasswordInput id="dlg-pw" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput id="dlg-pw" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={props.onClose} disabled={run.isPending}>
@@ -476,7 +476,7 @@ function RestoreDialog({ backup, onClose, onQueued }: { backup: BackupItem; onCl
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="rs-pw">Your password</Label>
-              <PasswordInput id="rs-pw" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput id="rs-pw" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <label className="flex items-start gap-2 text-sm">
               <Checkbox checked={ack} onCheckedChange={(v) => setAck(v === true)} className="mt-0.5" />

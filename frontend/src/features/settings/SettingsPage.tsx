@@ -322,21 +322,21 @@ export function SettingsPage() {
             <form className="flex flex-col gap-4" onSubmit={passwordForm.handleSubmit(onChangePassword)}>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="currentPassword">Current password</Label>
-                <PasswordInput id="currentPassword" autoComplete="current-password" {...passwordForm.register("currentPassword")} />
+                <PasswordInput id="currentPassword" placeholder="Enter your current password" autoComplete="current-password" {...passwordForm.register("currentPassword")} />
                 {passwordForm.formState.errors.currentPassword && (
                   <p className="text-sm text-destructive">{passwordForm.formState.errors.currentPassword.message}</p>
                 )}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="newPassword">New password</Label>
-                <PasswordInput id="newPassword" autoComplete="new-password" {...passwordForm.register("newPassword")} />
+                <PasswordInput id="newPassword" placeholder="Enter a new password" autoComplete="new-password" {...passwordForm.register("newPassword")} />
                 {passwordForm.formState.errors.newPassword && (
                   <p className="text-sm text-destructive">{passwordForm.formState.errors.newPassword.message}</p>
                 )}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="confirmPassword">Confirm new password</Label>
-                <PasswordInput id="confirmPassword" autoComplete="new-password" {...passwordForm.register("confirmPassword")} />
+                <PasswordInput id="confirmPassword" placeholder="Re-enter the new password" autoComplete="new-password" {...passwordForm.register("confirmPassword")} />
                 {passwordForm.formState.errors.confirmPassword && (
                   <p className="text-sm text-destructive">{passwordForm.formState.errors.confirmPassword.message}</p>
                 )}

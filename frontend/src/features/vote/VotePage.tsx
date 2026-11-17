@@ -74,7 +74,7 @@ function Ballot({
               />
               <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted sm:h-20 sm:w-20">
                 {candidate.imageUrl ? (
-                  <img src={candidate.imageUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={candidate.imageUrl} alt="" className="h-full w-full object-contain" />
                 ) : (
                   <UserRound className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
                 )}

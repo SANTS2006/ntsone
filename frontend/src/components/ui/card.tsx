@@ -13,22 +13,9 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   );
 }
 
+/** The listing card used for businesses, programs, polls, wish lists and contributions: lifts and tilts a little on hover, with a gradient edge that grows in. */
 export function CardInteractive({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn(
-        "group rounded-xl border border-border/70 bg-card/90 text-card-foreground shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-transparent hover:shadow-glow",
-        className,
-      )}
-      style={{
-        backgroundImage:
-          "linear-gradient(hsl(var(--card)), hsl(var(--card))), linear-gradient(135deg, rgba(99,102,241,0.35), rgba(168,85,247,0.35))",
-        backgroundOrigin: "border-box",
-        backgroundClip: "padding-box, border-box",
-      }}
-      {...props}
-    />
-  );
+  return <div className={cn("card-modern group text-card-foreground", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

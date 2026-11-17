@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { CalendarRange, HandCoins, Plus, X, Zap } from "lucide-react";
 import { Loading } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardInteractive } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,7 +70,7 @@ export function ContributionsListPage() {
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {data.items.map((c) => (
                 <Link key={c.id} to={`/admin/contributions/${c.id}`} className="group">
-                  <Card className="h-full transition group-hover:border-primary/50 group-hover:shadow-md">
+                  <CardInteractive className="h-full">
                     <CardContent className="flex h-full flex-col gap-3 p-5">
                       <div className="flex items-start justify-between gap-2">
                         <h2 className="min-w-0 break-words text-lg font-semibold leading-tight">{c.name}</h2>
@@ -99,7 +99,7 @@ export function ContributionsListPage() {
                         {c.status === "closed" ? " · Closed" : ""}
                       </p>
                     </CardContent>
-                  </Card>
+                  </CardInteractive>
                 </Link>
               ))}
             </div>

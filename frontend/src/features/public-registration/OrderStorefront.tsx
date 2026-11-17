@@ -16,9 +16,16 @@ import {
   Search,
   ShoppingBag,
   ShoppingCart,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Star,
   Sun,
   Trash2,
+  Truck,
+  Gift,
 } from "lucide-react";
+import { CoverImage } from "@/components/CoverImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -58,15 +65,6 @@ interface OrderStorefrontProps {
 /** Scrolls to a part of the page without changing the address (the sticky header is allowed for by scroll-margin). */
 function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]!.toUpperCase())
-    .join("");
 }
 
 /**
@@ -120,37 +118,47 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
     ...(contacts.length > 0 ? [{ id: "contact", label: "Contact" }] : []),
   ];
 
-  const logo = (size: "sm" | "lg") =>
-    business?.logoUrl ? (
-      <img
-        src={imageAt(business.logoUrl, size === "sm" ? 96 : 240)}
-        alt={`${name} logo`}
-        className={cn("shrink-0 bg-white object-cover", size === "sm" ? "h-9 w-9 rounded-lg" : "h-20 w-20 rounded-2xl shadow-lg ring-4 ring-white/25 sm:h-24 sm:w-24")}
-      />
-    ) : (
-      <span
-        aria-hidden
-        className={cn(
-          "flex shrink-0 items-center justify-center bg-gradient-brand font-bold text-white",
-          size === "sm" ? "h-9 w-9 rounded-lg text-sm" : "h-20 w-20 rounded-2xl text-2xl shadow-lg ring-4 ring-white/25 sm:h-24 sm:w-24",
-        )}
-      >
-        {initials(name)}
-      </span>
-    );
+  const progressRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  const steps = [
+    { icon: Images, title: "Browse", text: "Look through the pictures and videos of every item." },
+    { icon: ShoppingCart, title: "Add to your order", text: "Choose what you want and how many." },
+    { icon: Smartphone, title: "Pay with mobile money", text: "Confirm your order and pay safely online." },
+    { icon: Truck, title: "We take it from there", text: "We get your order ready and keep in touch." },
+  ];
 
   return (
-    <div id="top" className="flex min-h-screen flex-col">
+    <div id="top" className="sf-page relative flex min-h-screen flex-col overflow-x-clip">
+      {/* Scroll progress */}
+      <div aria-hidden className="fixed inset-x-0 top-0 z-50 h-1">
+        <div ref={progressRef} className="h-full origin-left bg-gradient-to-r from-blue-500 via-cyan-400 to-violet-500" style={{ transform: "scaleX(0)" }} />
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-background/75 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
           <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex min-w-0 items-center gap-2.5 text-left">
-            {logo("sm")}
-            <span className="truncate text-base font-semibold">{name}</span>
+            <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-glow">
+              <ShoppingBag className="h-5 w-5" />
+            </span>
+            <span className="truncate text-base font-bold tracking-tight">{name}</span>
           </button>
           <nav aria-label="Page sections" className="ml-auto hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
-              <button key={link.id} type="button" onClick={() => scrollToSection(link.id)} className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <button key={link.id} type="button" onClick={() => scrollToSection(link.id)} className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary">
                 {link.label}
               </button>
             ))}
@@ -161,11 +169,11 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
                 {themeContext.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
             )}
-            <Button type="button" onClick={() => scrollToSection("checkout")} className="relative gap-2" aria-label={`Your order: ${count} item${count === 1 ? "" : "s"}, ${formatMinor(total)}`}>
+            <Button type="button" onClick={() => scrollToSection("checkout")} className="relative gap-2 rounded-full" aria-label={`Your order: ${count} item${count === 1 ? "" : "s"}, ${formatMinor(total)}`}>
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">{count > 0 ? formatMinor(total) : "Cart"}</span>
               {count > 0 && (
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-bold text-white ring-2 ring-background">
+                <span key={count} className="sf-pop absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-bold text-white ring-2 ring-background">
                   {count > 99 ? "99+" : count}
                 </span>
               )}
@@ -174,64 +182,96 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
         </div>
       </header>
 
-      {/* Welcome banner */}
-      <section className="relative overflow-hidden">
-        {coverUrl ? (
-          <>
-            <img src={imageAt(coverUrl, 1800)} alt="" className="absolute inset-0 h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30" />
-          </>
-        ) : (
-          <>
-            <div className="absolute inset-0 bg-gradient-brand" />
-            <div aria-hidden className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-2xl" />
-            <div aria-hidden className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl" />
-          </>
-        )}
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-start gap-5 px-4 py-14 text-white sm:py-20 lg:py-24">
-          {logo("lg")}
-          <div className="flex max-w-2xl flex-col gap-3">
-            {formTitle && formTitle !== name && <p className="text-sm font-semibold uppercase tracking-wider text-white/80">{formTitle}</p>}
-            <h1 className="break-words text-3xl font-bold tracking-tight sm:text-5xl">{name}</h1>
+      {/* Hero */}
+      <section className="sf-hero relative isolate overflow-hidden text-white">
+        <div aria-hidden className="sf-aurora absolute inset-0 -z-10" />
+        <div aria-hidden className="sf-grid absolute inset-0 -z-10 opacity-40" />
+        <div aria-hidden className="sf-blob absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-cyan-400/30 blur-3xl" />
+        <div aria-hidden className="sf-blob absolute -bottom-24 right-10 -z-10 h-80 w-80 rounded-full bg-violet-500/30 blur-3xl [animation-delay:-6s]" />
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 sm:py-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-28">
+          <div className="flex flex-col items-start gap-6">
+            <Reveal>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
+                <Sparkles className="h-3.5 w-3.5" />
+                {formTitle && formTitle !== name ? formTitle : "Order online"}
+              </span>
+            </Reveal>
+            <Reveal delay={100}>
+              <h1 className="break-words text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+                <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">{name}</span>
+              </h1>
+            </Reveal>
             {(business?.description || formDescription) && (
-              <p className="whitespace-pre-line break-words text-base text-white/85 sm:text-lg">{business?.description || formDescription}</p>
+              <Reveal delay={200}>
+                <p className="max-w-xl whitespace-pre-line break-words text-base text-white/85 sm:text-lg">{business?.description || formDescription}</p>
+              </Reveal>
             )}
-          </div>
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Button type="button" size="lg" onClick={() => scrollToSection("shop")} className="bg-white text-blue-700 shadow-lg hover:bg-white/90">
-              <ShoppingBag className="h-4 w-4" />
-              Shop now
-            </Button>
-            {contacts.length > 0 && (
-              <Button type="button" size="lg" variant="outline" onClick={() => scrollToSection("contact")} className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
-                Contact us
+            <Reveal delay={300} className="flex flex-wrap gap-3">
+              <Button type="button" size="lg" onClick={() => scrollToSection("shop")} className="sf-shine rounded-full bg-white px-7 text-blue-700 shadow-xl hover:bg-white/90">
+                <ShoppingBag className="h-4 w-4" />
+                Shop now
+                <ArrowRight className="h-4 w-4" />
               </Button>
+              {contacts.length > 0 && (
+                <Button type="button" size="lg" variant="outline" onClick={() => scrollToSection("contact")} className="rounded-full border-white/40 bg-white/10 px-7 text-white backdrop-blur hover:bg-white/20 hover:text-white">
+                  Contact us
+                </Button>
+              )}
+            </Reveal>
+            {(business?.phone || business?.address) && (
+              <Reveal delay={400} className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/80">
+                {business?.phone && (
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5" />
+                    {business.phone}
+                  </span>
+                )}
+                {business?.address && (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {business.address}
+                  </span>
+                )}
+              </Reveal>
             )}
           </div>
-          {(business?.phone || business?.address) && (
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/80">
-              {business?.phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5" />
-                  {business.phone}
-                </span>
-              )}
-              {business?.address && (
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {business.address}
-                </span>
-              )}
-            </div>
-          )}
+          <Reveal delay={250} className="flex justify-center">
+            <HeroScene coverUrl={coverUrl} count={count} total={total} />
+          </Reveal>
         </div>
+        <svg aria-hidden viewBox="0 0 1440 60" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-8 w-full text-background sm:h-12">
+          <path d="M0 60V30C240 0 480 0 720 24s480 30 720 6v30z" fill="currentColor" />
+        </svg>
+      </section>
+
+      {/* How it works */}
+      <section aria-label="How ordering works" className="mx-auto w-full max-w-6xl px-4 pb-4 pt-8 sm:pt-12">
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((step, i) => (
+            <li key={step.title}>
+              <Reveal delay={i * 90} className="h-full">
+                <Tilt className="h-full">
+                  <div className="relative flex h-full flex-col gap-3 overflow-hidden rounded-3xl border border-border/70 bg-card p-5 shadow-sm">
+                    <span aria-hidden className="absolute -right-2 -top-4 select-none text-7xl font-black text-primary/10">{i + 1}</span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-brand text-white shadow-glow">
+                      <step.icon className="h-5 w-5" />
+                    </span>
+                    <h3 className="text-base font-bold">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground">{step.text}</p>
+                  </div>
+                </Tilt>
+              </Reveal>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* Catalogue */}
       <section id="shop" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:py-16">
-        <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Our products</h2>
+        <Reveal className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">Shop</span>
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Our products</h2>
             <p className="text-sm text-muted-foreground sm:text-base">
               {formDescription && business?.description ? formDescription : "Tap an item to see its pictures and videos, then add it to your order."}
             </p>
@@ -239,20 +279,22 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
           {items.length > 6 && (
             <div className="relative w-full sm:w-72">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input type="search" placeholder="Search products" aria-label="Search products" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" />
+              <Input type="search" placeholder="Search products" aria-label="Search products" value={query} onChange={(e) => setQuery(e.target.value)} className="rounded-full pl-9" />
             </div>
           )}
-        </div>
+        </Reveal>
 
         {items.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">There are no items for sale here yet. Please check back soon.</p>
+          <p className="rounded-3xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">There are no items for sale here yet. Please check back soon.</p>
         ) : shown.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Nothing matches &ldquo;{query}&rdquo;.</p>
+          <p className="rounded-3xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Nothing matches &ldquo;{query}&rdquo;.</p>
         ) : (
-          <ul className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
-            {shown.map((item) => (
+          <ul className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {shown.map((item, i) => (
               <li key={item.id}>
-                <ProductCard item={item} quantity={selection[item.id] ?? 0} onOpen={() => setOpenItemId(item.id)} onChange={(compute) => changeQuantity(item, compute)} />
+                <Reveal delay={(i % 4) * 80} className="h-full">
+                  <ProductCard item={item} quantity={selection[item.id] ?? 0} onOpen={() => setOpenItemId(item.id)} onChange={(compute) => changeQuantity(item, compute)} />
+                </Reveal>
               </li>
             ))}
           </ul>
@@ -260,24 +302,22 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
       </section>
 
       {/* Checkout */}
-      <section id="checkout" ref={checkoutRef} className="scroll-mt-16 border-y border-border/60 bg-muted/30">
+      <section id="checkout" ref={checkoutRef} className="relative scroll-mt-16 overflow-hidden border-y border-border/60">
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/5 via-muted/40 to-primary/5" />
+        <div aria-hidden className="sf-blob absolute -right-20 top-10 -z-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
         <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
-          <div className="mb-6 flex flex-col gap-1 sm:mb-8">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Checkout</h2>
+          <Reveal className="mb-8 flex flex-col gap-2">
+            <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">Checkout</span>
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Almost there</h2>
             <p className="text-sm text-muted-foreground sm:text-base">Check your order, then tell us your details so we can get it to you.</p>
-          </div>
+          </Reveal>
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-start">
-            <CartSummary
-              className="lg:order-2 lg:sticky lg:top-20"
-              chosen={chosen}
-              selection={selection}
-              total={total}
-              onChange={changeQuantity}
-              onOpen={(id) => setOpenItemId(id)}
-            />
-            <div className="min-w-0 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-6 lg:order-1">
-              {renderCheckout(selection, setSelection)}
-            </div>
+            <Reveal delay={120} className="lg:order-2 lg:sticky lg:top-20">
+              <CartSummary chosen={chosen} selection={selection} total={total} onChange={changeQuantity} onOpen={(id) => setOpenItemId(id)} />
+            </Reveal>
+            <Reveal className="min-w-0 lg:order-1">
+              <div className="min-w-0 rounded-3xl border border-border/70 bg-card p-4 shadow-lg sm:p-7">{renderCheckout(selection, setSelection)}</div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -285,33 +325,42 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
       {/* Contact */}
       {contacts.length > 0 && (
         <section id="contact" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:py-16">
-          <h2 className="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">Get in touch</h2>
+          <Reveal className="mb-8 flex flex-col gap-2">
+            <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">Contact</span>
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Get in touch</h2>
+          </Reveal>
           <ul className="flex flex-wrap gap-4">
-            {contacts.map((c) => (
+            {contacts.map((c, i) => (
               <li key={c.label} className="min-w-0 max-w-full flex-1 sm:min-w-fit">
-                <a
-                  href={c.href}
-                  target={c.href.startsWith("http") ? "_blank" : undefined}
-                  rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="flex h-full items-start gap-3 rounded-2xl border border-border/70 bg-card p-4 transition hover:border-primary/50 hover:shadow-md"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <c.icon className="h-5 w-5" />
-                  </span>
-                  <span className="flex min-w-0 flex-col">
-                    <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{c.label}</span>
-                    <span className="break-words text-sm font-medium sm:whitespace-nowrap">{c.value}</span>
-                  </span>
-                </a>
+                <Reveal delay={i * 80} className="h-full">
+                  <Tilt className="h-full">
+                    <a
+                      href={c.href}
+                      target={c.href.startsWith("http") ? "_blank" : undefined}
+                      rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      className="group flex h-full items-start gap-3 rounded-3xl border border-border/70 bg-card p-4 shadow-sm transition hover:border-primary/50 hover:shadow-glow"
+                    >
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-brand text-white shadow-glow transition group-hover:scale-110 group-hover:rotate-6">
+                        <c.icon className="h-5 w-5" />
+                      </span>
+                      <span className="flex min-w-0 flex-col">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{c.label}</span>
+                        <span className="break-words text-sm font-semibold sm:whitespace-nowrap">{c.value}</span>
+                      </span>
+                    </a>
+                  </Tilt>
+                </Reveal>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      <p className="mx-auto w-full max-w-6xl px-4 pb-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {name}
-      </p>
+      <footer className="mt-auto border-t border-border/60 bg-muted/30 py-8">
+        <p className="mx-auto w-full max-w-6xl px-4 text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} {name}
+        </p>
+      </footer>
 
       {/* Floating cart, until the checkout is on screen */}
       {count > 0 && !checkoutInView && (
@@ -382,6 +431,96 @@ export function OrderStorefront({ business, fallbackName, coverUrl, formTitle, f
   );
 }
 
+/** Fades and slides its content in the first time it scrolls into view. */
+function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [shown, setShown] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setShown(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setShown(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={cn("transition-[opacity,transform] duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none", shown ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0", className)}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Tilts toward the pointer in 3D while it hovers. */
+function Tilt({ children, className, max = 8 }: { children: React.ReactNode; className?: string; max?: number }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const move = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el || e.pointerType === "touch") return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `perspective(900px) rotateX(${(-y * max).toFixed(2)}deg) rotateY(${(x * max).toFixed(2)}deg) translateZ(0)`;
+  };
+  const leave = () => {
+    if (ref.current) ref.current.style.transform = "";
+  };
+  return (
+    <div ref={ref} onPointerMove={move} onPointerLeave={leave} className={cn("transition-transform duration-200 ease-out will-change-transform motion-reduce:transform-none", className)}>
+      {children}
+    </div>
+  );
+}
+
+/** The 3D picture on the right of the welcome banner: the cover picture on a tilting card, or a spinning cube, with floating chips. */
+function HeroScene({ coverUrl, count, total }: { coverUrl?: string | null; count: number; total: number }) {
+  const faces = [ShoppingBag, Gift, Star, Truck, ShieldCheck, Sparkles];
+  return (
+    <Tilt max={10} className="relative w-full max-w-md">
+      <div className="sf-scene relative mx-auto flex aspect-square w-full max-w-sm items-center justify-center sm:max-w-md">
+        <div aria-hidden className="absolute inset-6 rounded-full bg-white/10 blur-2xl" />
+        {coverUrl ? (
+          <div className="sf-float relative aspect-[4/3] w-[86%] overflow-hidden rounded-3xl border border-white/30 bg-white/10 shadow-2xl shadow-blue-950/40 [transform:rotateY(-14deg)_rotateX(6deg)]">
+            <CoverImage src={imageAt(coverUrl, 1200)} />
+          </div>
+        ) : (
+          <div className="sf-cube" aria-hidden>
+            {faces.map((Icon, i) => (
+              <span key={i} className="sf-face">
+                <Icon className="h-1/2 w-1/2 text-white" />
+              </span>
+            ))}
+          </div>
+        )}
+        <span className="sf-float absolute left-0 top-6 flex items-center gap-2 rounded-2xl border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur [animation-delay:-2s]">
+          <ShieldCheck className="h-4 w-4 text-emerald-300" />
+          Safe mobile money
+        </span>
+        <span className="sf-float absolute bottom-8 right-0 flex items-center gap-2 rounded-2xl border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur [animation-delay:-4s]">
+          <ShoppingCart className="h-4 w-4 text-cyan-200" />
+          {count > 0 ? `${count} in your order · ${formatMinor(total)}` : "Your order is empty"}
+        </span>
+        <span className="sf-float absolute -top-1 right-8 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/30 bg-white/15 text-white shadow-xl backdrop-blur [animation-delay:-1s]">
+          <Sparkles className="h-5 w-5" />
+        </span>
+      </div>
+    </Tilt>
+  );
+}
+
 function QuantityStepper({ item, quantity, onChange, size = "sm" }: { item: OrderItem; quantity: number; onChange: (compute: (current: number) => number) => void; size?: "sm" | "lg" }) {
   const big = size === "lg";
   return (
@@ -408,10 +547,10 @@ function ProductCard({ item, quantity, onOpen, onChange }: { item: OrderItem; qu
   const videos = itemVideos(item);
   const cover = images[0] ? imageAt(images[0], 600) : videos[0] ? videoPoster(videos[0], 600) : undefined;
   return (
-    <article className={cn("group flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:shadow-lg", quantity > 0 ? "border-primary/60 ring-1 ring-primary/30" : "border-border/70")}>
+    <article className={cn("card-modern group flex h-full flex-col", quantity > 0 && "!border-primary/70 ring-2 ring-primary/30")}>
       <button type="button" onClick={onOpen} className="relative aspect-square overflow-hidden bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary" aria-label={`View ${item.name}`}>
         {cover ? (
-          <img src={cover} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <CoverImage src={cover} loading="lazy" className="transition duration-500 group-hover:scale-105" />
         ) : (
           <span className="flex h-full w-full items-center justify-center bg-gradient-brand-soft">
             <ShoppingBag className="h-10 w-10 text-primary/40" />
@@ -448,7 +587,7 @@ function ProductCard({ item, quantity, onOpen, onChange }: { item: OrderItem; qu
         </h3>
         {item.description && <p className="line-clamp-2 text-xs text-muted-foreground sm:text-sm">{item.description}</p>}
         <div className="mt-auto flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <span className="text-base font-bold text-primary">{formatMinor(item.priceMinor)}</span>
+          <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-extrabold text-primary">{formatMinor(item.priceMinor)}</span>
           {quantity === 0 ? (
             <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={() => onChange(() => 1)} aria-label={`Add ${item.name} to your order`}>
               <Plus className="h-3.5 w-3.5" />
@@ -559,7 +698,7 @@ function CartSummary({
   onOpen: (id: string) => void;
 }) {
   return (
-    <aside aria-labelledby="cart-heading" className={cn("flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5", className)}>
+    <aside aria-labelledby="cart-heading" className={cn("flex flex-col gap-4 rounded-3xl border border-border/70 bg-card p-4 shadow-lg sm:p-5", className)}>
       <h3 id="cart-heading" className="flex items-center gap-2 text-lg font-semibold">
         <ShoppingCart className="h-5 w-5 text-primary" />
         Your order

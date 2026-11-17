@@ -128,7 +128,7 @@ export function RefundDialog({ programId, pollId, payment, onClose }: { programI
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="refund-password">Your password</Label>
-            <PasswordInput id="refund-password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput id="refund-password" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           {history && history.length > 0 && (
             <div className="rounded-lg border border-border/70 p-3 text-sm">

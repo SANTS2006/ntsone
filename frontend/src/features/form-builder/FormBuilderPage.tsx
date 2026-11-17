@@ -65,6 +65,7 @@ export function FormBuilderPage() {
   const [reviewConfirmText, setReviewConfirmText] = React.useState("");
   const [reviewConfirmConditions, setReviewConfirmConditions] = React.useState<ConditionalRule[] | undefined>(undefined);
   const [orderItems, setOrderItems] = React.useState<EditableItem[]>([]);
+  const isOrderForm = program.kind === "order_form";
   const [layoutMode, setLayoutMode] = React.useState<FormLayoutMode>("stepped");
   const [sections, setSections] = React.useState<EditableSection[]>([]);
   const [fields, setFields] = React.useState<EditableField[]>([]);
@@ -442,15 +443,19 @@ export function FormBuilderPage() {
             <Label>Description</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Instructions</Label>
-            <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={2} />
-          </div>
+          {!isOrderForm && (
+            <div className="flex flex-col gap-1.5">
+              <Label>Instructions</Label>
+              <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={2} />
+            </div>
+          )}
           <div className="flex flex-col gap-1.5">
             <Label>Confirmation message</Label>
             <Textarea value={confirmationMessage} onChange={(e) => setConfirmationMessage(e.target.value)} rows={2} />
           </div>
 
+          {!isOrderForm && (
+            <>
           <div className="flex flex-col gap-3 rounded-lg border border-border/70 p-3">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="requireConsent" className="flex min-w-0 items-center gap-2 font-medium">
@@ -520,6 +525,8 @@ export function FormBuilderPage() {
             )}
           </div>
 
+            </>
+          )}
           <div className="flex flex-col gap-3 rounded-lg border border-border/70 p-3">
             <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
@@ -540,16 +547,19 @@ export function FormBuilderPage() {
       {sections.map((section) => renderSectionCard(section))}
       {(sections.length === 0 || unassignedFields.length > 0) && renderSectionCard(null)}
 
-      <Button variant="outline" onClick={addSection} className="w-fit">
-        <Plus className="h-4 w-4" />
-        Add section
-      </Button>
+      {!isOrderForm && (
+        <Button variant="outline" onClick={addSection} className="w-fit">
+          <Plus className="h-4 w-4" />
+          Add section
+        </Button>
+      )}
       </>
       )}
 
       {canEdit && editingField && (
         <FieldSettingsDialog
           field={editingField}
+          simple={isOrderForm}
           otherFields={fields.filter((f) => f.fieldKey !== editingField.fieldKey)}
           usedKeys={usedKeys}
           onSave={saveField}
