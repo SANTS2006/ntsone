@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "../../config/env.js";
 import { db } from "../../db/client.js";
-import { paymentEvents, payments, payouts, tenants } from "../../db/schema/index.js";
+import { paymentEvents, payments, payouts, tenants, walletEntries } from "../../db/schema/index.js";
 import { AppError } from "../../lib/errors.js";
 import { leonesToMinor } from "../../lib/money.js";
 import { paginationSchema } from "../../lib/pagination.js";
@@ -121,7 +121,7 @@ export async function waivePaymentHandler(request: FastifyRequest, reply: Fastif
 export async function fundsSummaryHandler(request: FastifyRequest, reply: FastifyReply) {
   const { tenantId } = actorOf(request);
   noStore(reply);
-  const [balances, providers, accounts, terms, [received]] = await Promise.all([
+  const [balances, providers, accounts, terms, [received], [earned]] = await Promise.all([
     wallet.balancesFor(tenantId),
     payoutsService.payoutProviders(),
     payoutsService.listPayoutAccounts(tenantId),
@@ -130,14 +130,25 @@ export async function fundsSummaryHandler(request: FastifyRequest, reply: Fastif
     db
       .select({
         total: sql<string>`coalesce(sum(${payments.amountMinor}), 0)`,
+        afterFees: sql<string>`coalesce(sum(${payments.amountMinor} - ${payments.feeMinor}), 0)`,
         count: sql<number>`count(*)::int`,
       })
       .from(payments)
       .where(and(eq(payments.tenantId, tenantId!), eq(payments.status, "completed"))),
+    // What the organization has earned after the platform fee and any refunds: everything in the ledger except withdrawals.
+    db
+      .select({ earned: sql<string>`coalesce(sum(${walletEntries.amountMinor}), 0)` })
+      .from(walletEntries)
+      .where(and(eq(walletEntries.tenantId, tenantId!), inArray(walletEntries.kind, ["payment", "fee", "refund", "fee_refund", "refund_reversal", "fee_refund_reversal"]))),
   ]);
   return sendSuccess(reply, {
     configured: isMonimeConfigured(),
-    receivedAllTime: { totalMinor: Number(received?.total ?? 0), paymentCount: received?.count ?? 0 },
+    receivedAllTime: {
+      totalMinor: Number(received?.total ?? 0),
+      paymentCount: received?.count ?? 0,
+      afterFeesMinor: Number(received?.afterFees ?? 0),
+      afterRefundsMinor: Number(earned?.earned ?? 0),
+    },
     balances,
     accounts,
     providers,

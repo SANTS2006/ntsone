@@ -290,7 +290,7 @@ function AutoWithdrawCard({ funds }: { funds: FundsSummary }) {
           {current?.enabled && <Badge variant="success">On</Badge>}
         </CardTitle>
         <CardDescription>
-          Send the money to one of your withdrawal accounts the moment a payment succeeds (tickets, ID cards, orders, votes and more), with no waiting period. Very large amounts still wait for approval, and the platform fee is still taken.
+          Send the money to one of your withdrawal accounts the moment a payment succeeds (tickets, ID cards, orders, votes and more), with no waiting period. Anything already available is sent when you turn it on. Very large amounts still wait for approval, and the platform fee is still taken.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -463,18 +463,26 @@ export function FundsPage({ fund = organizationFund }: { fund?: FundApi }) {
       )}
 
       {!platform && funds.receivedAllTime && (
-        <Card>
-          <CardContent className="flex items-center gap-3 py-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-glow">
-              <Banknote className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Total received, all time</p>
-              <p className="text-2xl font-bold">{formatMinor(funds.receivedAllTime.totalMinor)}</p>
-              <p className="text-xs text-muted-foreground">From {funds.receivedAllTime.paymentCount} {funds.receivedAllTime.paymentCount === 1 ? "payment" : "payments"}, before the platform fee and any refunds.</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { label: "Total received, all time", value: funds.receivedAllTime.totalMinor, hint: `From ${funds.receivedAllTime.paymentCount} ${funds.receivedAllTime.paymentCount === 1 ? "payment" : "payments"}, before the platform fee and any refunds.` },
+            { label: "After the platform fee", value: funds.receivedAllTime.afterFeesMinor, hint: `Total received less the ${funds.limits.feePercent}% platform fee taken from each payment.` },
+            { label: "After refunds", value: funds.receivedAllTime.afterRefundsMinor, hint: "What you have earned after the platform fee and any refunds made (withdrawals are not taken off)." },
+          ].map((card) => (
+            <Card key={card.label}>
+              <CardContent className="flex items-center gap-3 py-5">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-glow">
+                  <Banknote className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{card.label}</p>
+                  <p className="text-2xl font-bold">{formatMinor(card.value)}</p>
+                  <p className="text-xs text-muted-foreground">{card.hint}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {!platform && <AutoWithdrawCard funds={funds} />}

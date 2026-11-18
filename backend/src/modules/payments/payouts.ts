@@ -449,6 +449,8 @@ export async function setAutoWithdraw(
       : "Payments now wait out the usual hold period before they can be withdrawn.",
     details: [],
   });
+  // Turning it on (or changing the account) also sends whatever is already available, so nothing is left waiting.
+  if (input.enabled) void autoWithdrawAfterPayment(actor.tenantId, null);
   return termsFor(actor.tenantId);
 }
 
@@ -458,7 +460,7 @@ export async function setAutoWithdraw(
  * review like any other withdrawal, and nothing is sent while withdrawals are switched off or the amount is below the minimum;
  * the money simply stays on the balance and goes out with the next payment or by hand.
  */
-export async function autoWithdrawAfterPayment(tenantId: string, paymentId: string): Promise<void> {
+export async function autoWithdrawAfterPayment(tenantId: string, paymentId: string | null): Promise<void> {
   try {
     const terms = await termsFor(tenantId);
     if (!terms.autoWithdraw || !terms.autoWithdrawAccountId) return;
@@ -477,7 +479,8 @@ export async function autoWithdrawAfterPayment(tenantId: string, paymentId: stri
       if (!account) return "The chosen withdrawal account is no longer available";
       if (account.usableAfter > new Date()) return "The withdrawal account is still in its cooling-off time";
       const { availableMinor } = await balancesFor(tenantId, tx);
-      if (availableMinor < leonesToMinor(env.PAYOUT_MIN_AMOUNT)) return "The available amount is below the smallest withdrawal";
+      // Automatic withdrawals are not held to the smallest-withdrawal rule: a small payment (after the platform fee) is exactly what they are for.
+      if (availableMinor <= 0) return "There is no money available to withdraw";
       const needsReview = availableMinor > leonesToMinor(env.PAYOUT_REVIEW_ABOVE);
       const [row] = await tx
         .insert(payouts)

@@ -194,7 +194,7 @@ export interface FundsSummary {
   /** Whether each payment is sent to a withdrawal account at once, and which one (organizations only). */
   autoWithdraw?: { enabled: boolean; accountId: string | null };
   /** Everything the organization has ever been paid (completed payments, before fees and refunds). */
-  receivedAllTime?: { totalMinor: number; paymentCount: number };
+  receivedAllTime?: { totalMinor: number; paymentCount: number; afterFeesMinor: number; afterRefundsMinor: number };
   /** Withdrawals are off until this moment (empty: on). */
   withdrawalsActiveFrom?: string | null;
   limits: {
