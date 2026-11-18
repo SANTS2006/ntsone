@@ -13,6 +13,7 @@ import { recordAudit } from "../audit/recorder.js";
 import { queueEmail } from "../email/outbox.js";
 import { paymentsNoticeEmail } from "../email/templates.js";
 import { createPayout, getPayout, isMonimeConfigured, listBanks, listMomos, MonimeError, type PayoutDestination } from "./monime.js";
+import { termsFor, withdrawalsInactive } from "./terms.js";
 import { balancesFor, tenantIs, type Tx } from "./wallet.js";
 
 // Withdrawals ("the payment fund"): an organization asks to move money from its balance to a mobile money number or
@@ -170,6 +171,8 @@ export async function requestPayout(
   ipAddress?: string,
 ) {
   await confirmPassword(actor.id, input.password);
+  const terms = await termsFor(actor.tenantId);
+  if (withdrawalsInactive(terms)) throw AppError.validation(`Withdrawals for your organization are not active yet. They switch on from ${terms.withdrawalsActiveFrom!.toUTCString()}.`);
   const minMinor = leonesToMinor(env.PAYOUT_MIN_AMOUNT);
   if (!Number.isSafeInteger(input.amountMinor) || input.amountMinor < minMinor) throw AppError.validation(`The smallest withdrawal is ${formatMinor(minMinor)}.`);
 
@@ -399,4 +402,106 @@ export async function processPayouts(): Promise<number> {
     }
   }
   return handled;
+}
+
+// ---------------------------------------------------------------- automatic withdrawal
+
+/**
+ * An organization admin can have every successful payment sent on to a withdrawal account at once, with no waiting
+ * period. Turning it on asks for the password again, and the account must be past its cooling-off time.
+ */
+export async function setAutoWithdraw(
+  actor: { id: string; tenantId: string | null },
+  input: { enabled: boolean; accountId?: string; password: string },
+  ipAddress?: string,
+) {
+  if (!actor.tenantId) throw AppError.forbidden("Automatic withdrawal is for organizations.");
+  await confirmPassword(actor.id, input.password);
+  let accountId: string | null = null;
+  if (input.enabled) {
+    if (!input.accountId) throw AppError.validation("Choose the withdrawal account the money should be sent to.");
+    const [account] = await db
+      .select()
+      .from(payoutAccounts)
+      .where(and(eq(payoutAccounts.id, input.accountId), eq(payoutAccounts.tenantId, actor.tenantId), isNull(payoutAccounts.disabledAt)))
+      .limit(1);
+    if (!account) throw AppError.validation("Choose one of your withdrawal accounts.");
+    if (account.usableAfter > new Date()) throw AppError.validation(`This account is new and can be used from ${account.usableAfter.toUTCString()}.`);
+    accountId = account.id;
+  }
+  const before = await termsFor(actor.tenantId);
+  await db.update(tenants).set({ autoWithdraw: input.enabled, autoWithdrawAccountId: accountId, updatedAt: new Date() }).where(eq(tenants.id, actor.tenantId));
+  await recordAudit({
+    actorUserId: actor.id,
+    action: input.enabled ? "payout.auto_enable" : "payout.auto_disable",
+    label: input.enabled ? "Turned on automatic withdrawal" : "Turned off automatic withdrawal",
+    entityType: "tenant",
+    entityId: actor.tenantId,
+    metadata: { before: { enabled: before.autoWithdraw, accountId: before.autoWithdrawAccountId }, after: { enabled: input.enabled, accountId } },
+    ipAddress,
+  });
+  await notifyAdmins(actor.tenantId, {
+    heading: input.enabled ? "Automatic withdrawal is on" : "Automatic withdrawal is off",
+    message: input.enabled
+      ? "Every successful payment is now sent to your withdrawal account straight away, with no waiting period. If this wasn't you, sign in, turn it off and change your password."
+      : "Payments now wait out the usual hold period before they can be withdrawn.",
+    details: [],
+  });
+  return termsFor(actor.tenantId);
+}
+
+/**
+ * Called when a payment has succeeded. For an organization that withdraws automatically, sends everything that can be
+ * withdrawn (this payment, plus any earlier leftovers) to its chosen account right away. Large amounts still wait for
+ * review like any other withdrawal, and nothing is sent while withdrawals are switched off or the amount is below the minimum;
+ * the money simply stays on the balance and goes out with the next payment or by hand.
+ */
+export async function autoWithdrawAfterPayment(tenantId: string, paymentId: string): Promise<void> {
+  try {
+    const terms = await termsFor(tenantId);
+    if (!terms.autoWithdraw || !terms.autoWithdrawAccountId || !isMonimeConfigured() || withdrawalsInactive(terms)) return;
+    const created = await db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${tenantId}))`);
+      const [account] = await tx
+        .select()
+        .from(payoutAccounts)
+        .where(and(eq(payoutAccounts.id, terms.autoWithdrawAccountId!), eq(payoutAccounts.tenantId, tenantId), isNull(payoutAccounts.disabledAt)))
+        .limit(1);
+      if (!account || account.usableAfter > new Date()) return null;
+      const { availableMinor } = await balancesFor(tenantId, tx);
+      if (availableMinor < leonesToMinor(env.PAYOUT_MIN_AMOUNT)) return null;
+      const needsReview = availableMinor > leonesToMinor(env.PAYOUT_REVIEW_ABOVE);
+      const [row] = await tx
+        .insert(payouts)
+        .values({ tenantId, accountId: account.id, amountMinor: availableMinor, status: needsReview ? "pending_review" : "queued", requestedBy: null, risk: { needsReview, automatic: true, paymentId } })
+        .returning();
+      await tx.insert(walletEntries).values({ tenantId, kind: "payout", amountMinor: -availableMinor, availableAt: new Date(), payoutId: row!.id, note: "Automatic withdrawal" });
+      return { row: row!, account };
+    });
+    if (!created) return;
+    void recordAudit({
+      action: "payout.auto_request",
+      label: "Withdrew a payment automatically",
+      actorType: "system",
+      tenantId,
+      entityType: "payout",
+      entityId: created.row.id,
+      metadata: { amountMinor: created.row.amountMinor, paymentId, status: created.row.status },
+    });
+    void notifyAdmins(tenantId, {
+      heading: "A payment was sent to your account automatically",
+      message:
+        created.row.status === "pending_review"
+          ? "Because of its size, this withdrawal is waiting for approval from the platform team."
+          : "This withdrawal is on its way. You'll get an email when it is complete.",
+      details: [
+        { label: "Amount", value: formatMinor(created.row.amountMinor) },
+        { label: "To", value: `${created.account.accountName} (${maskNumber(created.account.accountNumber)})` },
+      ],
+    });
+    if (created.row.status === "queued") void processPayouts();
+  } catch (err) {
+    // The payment itself is already safely recorded; the money simply stays on the balance.
+    console.error("Automatic withdrawal failed", tenantId, err);
+  }
 }

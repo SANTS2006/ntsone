@@ -1,9 +1,9 @@
 import { and, desc, eq, isNull, sql, type Column } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { payments, walletEntries } from "../../db/schema/index.js";
-import { env } from "../../config/env.js";
 import { dateRangeConditions, type DateRange } from "../../lib/dateRange.js";
-import { platformFee, leonesToMinor } from "../../lib/money.js";
+import { platformFee } from "../../lib/money.js";
+import { termsFor } from "./terms.js";
 import { toOffsetLimit, buildPaginatedResult, type PaginationInput } from "../../lib/pagination.js";
 
 // An organization's money is an append-only ledger (wallet_entries). A balance is the sum of its entries.
@@ -41,8 +41,11 @@ export async function balancesFor(tenantId: string | null, executor: Pick<typeof
  * fee taken out. Safe to call twice for the same payment: the database allows each entry once.
  */
 export async function creditPayment(tx: Tx, payment: { id: string; tenantId: string; amountMinor: number; currency: string }) {
-  const feeMinor = platformFee(payment.amountMinor, env.PAYMENTS_FEE_PERCENT, leonesToMinor(env.PAYMENTS_FEE_FIXED));
-  const availableAt = new Date(Date.now() + env.PAYMENTS_HOLD_MINUTES * 60_000);
+  // The fee and the hold are the organization's own terms (set by the platform); an organization that withdraws
+  // automatically has chosen to have each payment available straight away.
+  const terms = await termsFor(payment.tenantId, tx);
+  const feeMinor = platformFee(payment.amountMinor, terms.feePercent, terms.feeFixedMinor);
+  const availableAt = terms.autoWithdraw ? new Date() : new Date(Date.now() + terms.holdMinutes * 60_000);
   await tx
     .insert(walletEntries)
     .values({ tenantId: payment.tenantId, kind: "payment", amountMinor: payment.amountMinor, currency: payment.currency, availableAt, paymentId: payment.id })

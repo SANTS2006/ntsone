@@ -191,6 +191,10 @@ export interface FundsSummary {
   balances: { totalMinor: number; availableMinor: number; pendingMinor: number };
   accounts: PayoutAccount[];
   providers: { momo: Provider[]; banks: Provider[] };
+  /** Whether each payment is sent to a withdrawal account at once, and which one (organizations only). */
+  autoWithdraw?: { enabled: boolean; accountId: string | null };
+  /** Withdrawals are off until this moment (empty: on). */
+  withdrawalsActiveFrom?: string | null;
   limits: {
     minMinor: number;
     dailyLimitMinor: number;
@@ -239,6 +243,9 @@ export interface FundRefund {
   registrationNumber: string | null;
 }
 export const getFundRefunds = (page: number) => apiFetch<PaginatedResult<FundRefund>>(`/funds/refunds?page=${page}&pageSize=10`);
+
+export const setAutoWithdraw = (input: { enabled: boolean; accountId?: string; password: string }) =>
+  apiFetch<{ enabled: boolean; accountId: string | null }>("/funds/auto-withdraw", { method: "PUT", body: input });
 
 export const getFunds = () => apiFetch<FundsSummary>("/funds");
 const dates = (range: { dateFrom?: string; dateTo?: string }) =>

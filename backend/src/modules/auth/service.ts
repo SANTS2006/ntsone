@@ -477,6 +477,9 @@ export async function deleteOwnAccount(userId: string, input: { password: string
     const others = await authRepo.countOtherMembers(user.tenantId, user.id);
     if (others === 0) {
       // The last person in their organization: it is deleted with them, so nothing may be left owing.
+      if (await authRepo.hasFinancialRecords(user.tenantId)) {
+        throw AppError.conflict("Your organization has payment records, which must be kept, so it cannot be deleted. Contact support to close it.");
+      }
       const { totalMinor } = await balancesFor(user.tenantId);
       if (totalMinor !== 0) throw AppError.conflict("There is still money in your payment fund. Withdraw it first, then delete your account.");
       if ((await authRepo.countOpenPayouts(user.tenantId)) > 0) throw AppError.conflict("A withdrawal is still on its way. Wait for it to finish, then delete your account.");

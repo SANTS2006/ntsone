@@ -11,7 +11,8 @@ import { sendSuccess } from "../../lib/response.js";
 import { recordAudit } from "../audit/recorder.js";
 import { requirePollAccess } from "../polls/access.js";
 import { listPollPaymentRefundsHandler, refundPollPaymentHandler } from "./controller.js";
-import { assertCanAgreeToFee, currentFeeTerms, resolveFeeAcceptance } from "./fees.js";
+import { assertCanAgreeToFee, resolveFeeAcceptance } from "./fees.js";
+import { feeTermsFor } from "./terms.js";
 import { assertPollPaymentSettings, listPollPayments, pollPaymentConfigInputSchema, resolvePollPaymentConfig } from "./pollPayments.js";
 
 type PollParams = { pollId: string };
@@ -27,7 +28,7 @@ export async function pollPaymentRoutes(app: FastifyInstance) {
     const [poll] = await db.select().from(polls).where(eq(polls.id, request.params.pollId)).limit(1);
     if (!poll) throw AppError.notFound("Poll not found");
     const accepted = resolvePollPaymentConfig(poll.paymentConfig).feeAccepted;
-    return sendSuccess(reply, { ...currentFeeTerms(), accepted: accepted ? { percent: accepted.percent, at: accepted.at } : null });
+    return sendSuccess(reply, { ...(await feeTermsFor(poll.tenantId)), accepted: accepted ? { percent: accepted.percent, at: accepted.at } : null });
   });
 
   app.put<{ Params: PollParams }>("/:pollId/payment-config", admin, async (request, reply) => {

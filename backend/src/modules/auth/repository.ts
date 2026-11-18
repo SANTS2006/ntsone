@@ -1,6 +1,6 @@
 import { and, desc, eq, gt, inArray, isNull, ne, notInArray, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
-import { businesses, businessMembers, emailVerificationCodes, passwordResetTokens, payouts, pollMembers, polls, programMembers, programs, refreshTokens, tenantMembers, tenants, users } from "../../db/schema/index.js";
+import { businesses, businessMembers, payments, walletEntries, emailVerificationCodes, passwordResetTokens, payouts, pollMembers, polls, programMembers, programs, refreshTokens, tenantMembers, tenants, users } from "../../db/schema/index.js";
 
 export type VerificationPurpose = (typeof emailVerificationCodes.purpose.enumValues)[number];
 
@@ -308,4 +308,14 @@ export async function listOtherOrganizations(user: { id: string; tenantId: strin
   if (ids.size === 0) return [];
   const rows = await db.select({ id: tenants.id, name: tenants.name, ownerUserId: tenants.ownerUserId }).from(tenants).where(inArray(tenants.id, [...ids]));
   return rows.filter((t) => t.ownerUserId !== user.id).map((t) => ({ id: t.id, name: t.name }));
+}
+
+/** Payments, withdrawals and ledger entries are financial records that must be kept, so an organization that has any cannot be deleted. */
+export async function hasFinancialRecords(tenantId: string): Promise<boolean> {
+  const [p, w, o] = await Promise.all([
+    db.select({ id: payments.id }).from(payments).where(eq(payments.tenantId, tenantId)).limit(1),
+    db.select({ id: walletEntries.id }).from(walletEntries).where(eq(walletEntries.tenantId, tenantId)).limit(1),
+    db.select({ id: payouts.id }).from(payouts).where(eq(payouts.tenantId, tenantId)).limit(1),
+  ]);
+  return p.length + w.length + o.length > 0;
 }

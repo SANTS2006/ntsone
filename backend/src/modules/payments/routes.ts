@@ -6,6 +6,7 @@ import {
   fundsEntriesHandler,
   fundsPayoutsHandler,
   fundsSummaryHandler,
+  setAutoWithdrawHandler,
   listProgramPaymentsHandler,
   monimeWebhookHandler,
   paymentStatusHandler,
@@ -70,6 +71,7 @@ export async function fundsRoutes(app: FastifyInstance) {
   const strict = { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } };
   app.get("/", fundsSummaryHandler);
   app.get("/entries", fundsEntriesHandler);
+  app.put("/auto-withdraw", strict, setAutoWithdrawHandler);
   app.get("/payouts", fundsPayoutsHandler);
   app.get("/refunds", fundsRefundsHandler);
   app.post("/accounts", strict, addAccountHandler);

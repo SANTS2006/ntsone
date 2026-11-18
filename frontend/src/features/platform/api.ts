@@ -58,6 +58,23 @@ export function listTenants(params: ListTenantsParams) {
   return apiFetch<PaginatedResult<TenantSummary>>(`/platform/tenants${str ? `?${str}` : ""}`);
 }
 
+export interface PaymentTerms {
+  feePercent: number;
+  feeFixedMinor: number;
+  holdMinutes: number;
+  withdrawalsActiveFrom: string | null;
+  autoWithdraw: boolean;
+  custom: { feePercent: boolean; feeFixed: boolean; hold: boolean };
+  defaults: { feePercent: number; feeFixedMinor: number; holdMinutes: number };
+}
+
+export const getPaymentTerms = (tenantId: string) => apiFetch<PaymentTerms>(`/platform/tenants/${tenantId}/payment-terms`);
+
+export const savePaymentTerms = (
+  tenantId: string,
+  input: { feePercent: number | null; feeFixedMinor: number | null; holdMinutes: number | null; withdrawalsActiveFrom: string | null },
+) => apiFetch<PaymentTerms>(`/platform/tenants/${tenantId}/payment-terms`, { method: "PUT", body: input });
+
 export function getTenant(tenantId: string) {
   return apiFetch<TenantDetail>(`/platform/tenants/${tenantId}`);
 }

@@ -3,7 +3,7 @@ import * as React from "react";
 import { DateRangeFilter, useDateRange } from "@/components/DateRangeFilter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowDownToLine, Banknote, Clock, Landmark, Plus, Smartphone, Trash2, Wallet } from "lucide-react";
+import { ArrowDownToLine, Banknote, Clock, Landmark, Plus, Smartphone, Trash2, Wallet, Zap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { ApiError } from "@/lib/api";
 import { formatMinor, parseLeones } from "@/lib/money";
 import { usePageMeta } from "@/lib/seo";
 import { cn } from "@/lib/utils";
-import { getFundRefunds, organizationFund, type FundApi, type FundsSummary, type PayoutAccount, type PayoutRow } from "./api";
+import { getFundRefunds, organizationFund, setAutoWithdraw, type FundApi, type FundsSummary, type PayoutAccount, type PayoutRow } from "./api";
 
 const KIND_LABEL: Record<string, string> = {
   payment: "Payment received",
@@ -254,6 +254,89 @@ function AddAccountDialog({ fund, funds, open, onOpenChange }: { fund: FundApi; 
   );
 }
 
+/** An organization's own choice: send each successful payment to a withdrawal account straight away, with no hold. */
+function AutoWithdrawCard({ funds }: { funds: FundsSummary }) {
+  const queryClient = useQueryClient();
+  const current = funds.autoWithdraw;
+  const usable = funds.accounts.filter((a) => a.usable);
+  const [accountId, setAccountId] = React.useState(current?.accountId ?? "");
+  const [password, setPassword] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  React.useEffect(() => setAccountId(current?.accountId ?? ""), [current?.accountId]);
+  const inactive = funds.withdrawalsActiveFrom && new Date(funds.withdrawalsActiveFrom) > new Date();
+
+  const apply = async (enabled: boolean) => {
+    if (!password) return toast.error("Enter your password to confirm");
+    if (enabled && !accountId) return toast.error("Choose the account the money should be sent to");
+    setBusy(true);
+    try {
+      await setAutoWithdraw({ enabled, accountId: enabled ? accountId : undefined, password });
+      setPassword("");
+      await queryClient.invalidateQueries({ queryKey: ["funds"] });
+      toast.success(enabled ? "Automatic withdrawal is on" : "Automatic withdrawal is off");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Could not change this");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Zap className="h-4 w-4 text-primary" />
+          Automatic withdrawal
+          {current?.enabled && <Badge variant="success">On</Badge>}
+        </CardTitle>
+        <CardDescription>
+          Send the money to one of your withdrawal accounts the moment a payment succeeds (tickets, ID cards, orders, votes and more), with no waiting period. Very large amounts still wait for approval, and the platform fee is still taken.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {inactive && <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">Withdrawals for your organization switch on from {new Date(funds.withdrawalsActiveFrom!).toLocaleString()}. Until then money stays on your balance.</p>}
+        {usable.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Add a withdrawal account first (it can be used after a short cooling-off time).</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="auto-account">Send payments to</Label>
+              <Select value={accountId || undefined} onValueChange={setAccountId}>
+                <SelectTrigger id="auto-account">
+                  <SelectValue placeholder="Choose an account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {usable.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.accountName} · {a.providerName} {a.accountNumber}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="auto-password">Your password</Label>
+              <PasswordInput id="auto-password" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+          </div>
+        )}
+        {usable.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => apply(true)} loading={busy}>
+              {current?.enabled ? "Update account" : "Turn on automatic withdrawal"}
+            </Button>
+            {current?.enabled && (
+              <Button variant="outline" onClick={() => apply(false)} disabled={busy}>
+                Turn off
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function RemoveAccountDialog({ fund, account, onClose }: { fund: FundApi; account: PayoutAccount | null; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [password, setPassword] = React.useState("");
@@ -378,6 +461,8 @@ export function FundsPage({ fund = organizationFund }: { fund?: FundApi }) {
           A platform fee of {funds.limits.feePercent}%{funds.limits.feeFixedMinor > 0 ? ` + ${formatMinor(funds.limits.feeFixedMinor)}` : ""} is taken from each payment received.
         </p>
       )}
+
+      {!platform && <AutoWithdrawCard funds={funds} />}
 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-3">

@@ -11,6 +11,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTenant, useTenantPrograms, useTenantUsers, useUpdateUserStatus } from "./hooks";
 import { usePageMeta } from "@/lib/seo";
+import { PaymentTermsCard } from "./PaymentTermsCard";
 
 export function TenantDetailPage() {
   usePageMeta({ title: "Organization" });
@@ -47,6 +48,8 @@ export function TenantDetailPage() {
           </p>
         </div>
       </div>
+
+      {tenantId && <PaymentTermsCard tenantId={tenantId} />}
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">

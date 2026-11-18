@@ -24,6 +24,7 @@ import {
 } from "./monime.js";
 import { assertChargeable, type LineItem } from "./pricing.js";
 import { refundableAt } from "./refunds.js";
+import { autoWithdrawAfterPayment } from "./payouts.js";
 import { creditPayment } from "./wallet.js";
 
 export type PaymentRow = typeof payments.$inferSelect;
@@ -579,6 +580,8 @@ async function completePayment(paymentId: string, verdict: ProviderVerdict): Pro
 
   if (result.firstTime) {
     const row = result.row;
+    // Organizations that withdraw automatically get this payment sent on at once.
+    void autoWithdrawAfterPayment(row.tenantId, row.id);
     if (row.registrationId && result.becamePaid) {
       // Paid after the payer had cancelled or the checkout lapsed: the order is real again.
       await reviveRegistrationForPayment(row.registrationId, "Payment received after the order was cancelled");

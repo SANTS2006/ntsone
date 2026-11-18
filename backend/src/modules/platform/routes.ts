@@ -11,6 +11,7 @@ import { getSupportMessageHandler, listSupportMessagesHandler, updateSupportMess
 import { platformExportRoutes } from "./exports.js";
 import { platformPaymentRoutes } from "../payments/routes.js";
 import { platformFundRoutes } from "../payments/platformFund.js";
+import { platformPaymentTermsRoutes } from "../payments/termsAdmin.js";
 import { platformBackupRoutes } from "../backups/routes.js";
 import { platformMaintenanceRoutes } from "../maintenance/routes.js";
 
@@ -34,6 +35,7 @@ export async function platformRoutes(app: FastifyInstance) {
   await app.register(platformExportRoutes);
   await app.register(platformPaymentRoutes);
   await app.register(platformFundRoutes);
+  await app.register(platformPaymentTermsRoutes);
   await app.register(platformMaintenanceRoutes);
   await app.register(platformBackupRoutes);
 }

@@ -13,7 +13,8 @@ import { recordAudit } from "../audit/recorder.js";
 import * as programsRepo from "../programs/repository.js";
 import { getProgramPaymentAnalytics } from "./insights.js";
 import { diagnoseMonime, getFinancialAccount, isMonimeConfigured, listFinancialAccounts, MonimeError } from "./monime.js";
-import { assertCanAgreeToFee, currentFeeTerms, resolveFeeAcceptance } from "./fees.js";
+import { assertCanAgreeToFee, resolveFeeAcceptance } from "./fees.js";
+import { feeTermsFor, termsFor } from "./terms.js";
 import { paymentConfigInputSchema, resolvePaymentConfig } from "./pricing.js";
 import * as payoutsService from "./payouts.js";
 import * as refundsService from "./refunds.js";
@@ -84,7 +85,7 @@ export async function paymentTermsHandler(request: FastifyRequest, reply: Fastif
   const program = await programsRepo.findProgramById(programId);
   if (!program) throw AppError.notFound("Program not found");
   const accepted = resolvePaymentConfig(program.paymentConfig).feeAccepted;
-  return sendSuccess(reply, { ...currentFeeTerms(), accepted: accepted ? { percent: accepted.percent, at: accepted.at } : null });
+  return sendSuccess(reply, { ...(await feeTermsFor(program.tenantId)), accepted: accepted ? { percent: accepted.percent, at: accepted.at } : null });
 }
 
 const listQuerySchema = paginationSchema.extend({ status: z.enum(["pending", "completed", "failed", "expired", "cancelled", "review"]).optional(), ...dateRangeQuery });
@@ -120,22 +121,33 @@ export async function waivePaymentHandler(request: FastifyRequest, reply: Fastif
 export async function fundsSummaryHandler(request: FastifyRequest, reply: FastifyReply) {
   const { tenantId } = actorOf(request);
   noStore(reply);
-  const [balances, providers, accounts] = await Promise.all([wallet.balancesFor(tenantId), payoutsService.payoutProviders(), payoutsService.listPayoutAccounts(tenantId)]);
+  const [balances, providers, accounts, terms] = await Promise.all([wallet.balancesFor(tenantId), payoutsService.payoutProviders(), payoutsService.listPayoutAccounts(tenantId), termsFor(tenantId)]);
   return sendSuccess(reply, {
     configured: isMonimeConfigured(),
     balances,
     accounts,
     providers,
+    autoWithdraw: { enabled: terms.autoWithdraw, accountId: terms.autoWithdrawAccountId },
+    withdrawalsActiveFrom: terms.withdrawalsActiveFrom,
     limits: {
       minMinor: leonesToMinor(env.PAYOUT_MIN_AMOUNT),
       dailyLimitMinor: leonesToMinor(env.PAYOUT_DAILY_LIMIT),
       reviewAboveMinor: leonesToMinor(env.PAYOUT_REVIEW_ABOVE),
-      holdMinutes: env.PAYMENTS_HOLD_MINUTES,
+      holdMinutes: terms.autoWithdraw ? 0 : terms.holdMinutes,
       newAccountMinutes: env.PAYOUT_NEW_ACCOUNT_MINUTES,
-      feePercent: env.PAYMENTS_FEE_PERCENT,
-      feeFixedMinor: leonesToMinor(env.PAYMENTS_FEE_FIXED),
+      feePercent: terms.feePercent,
+      feeFixedMinor: terms.feeFixedMinor,
     },
   });
+}
+
+const autoWithdrawSchema = z.object({ enabled: z.boolean(), accountId: z.string().uuid().optional(), password: z.string().min(1).max(128) });
+
+export async function setAutoWithdrawHandler(request: FastifyRequest, reply: FastifyReply) {
+  const actor = actorOf(request);
+  const input = autoWithdrawSchema.parse(request.body);
+  const terms = await payoutsService.setAutoWithdraw(actor, input, request.ip);
+  return sendSuccess(reply, { enabled: terms.autoWithdraw, accountId: terms.autoWithdrawAccountId }, input.enabled ? "Automatic withdrawal is on" : "Automatic withdrawal is off");
 }
 
 export async function fundsEntriesHandler(request: FastifyRequest, reply: FastifyReply) {
