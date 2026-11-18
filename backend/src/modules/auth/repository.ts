@@ -1,6 +1,6 @@
-import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNull, ne, notInArray, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
-import { emailVerificationCodes, passwordResetTokens, refreshTokens, tenants, users } from "../../db/schema/index.js";
+import { businesses, businessMembers, emailVerificationCodes, passwordResetTokens, payouts, pollMembers, polls, programMembers, programs, refreshTokens, tenantMembers, tenants, users } from "../../db/schema/index.js";
 
 export type VerificationPurpose = (typeof emailVerificationCodes.purpose.enumValues)[number];
 
@@ -262,4 +262,50 @@ export async function moveUserToNewTenant(userId: string, params: { name: string
       .returning();
     return { user: user!, tenant: tenant! };
   });
+}
+
+/** How many other people belong to this organization (their own space is shared with them). */
+export async function countOtherMembers(tenantId: string, exceptUserId: string): Promise<number> {
+  const [row] = await db.select({ n: sql<number>`count(*)::int` }).from(users).where(and(eq(users.tenantId, tenantId), ne(users.id, exceptUserId)));
+  return row?.n ?? 0;
+}
+
+/** Withdrawals still on their way (not finished, cancelled or rejected) for an organization. */
+export async function countOpenPayouts(tenantId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(payouts)
+    .where(and(eq(payouts.tenantId, tenantId), notInArray(payouts.status, ["completed", "cancelled", "rejected", "failed"])));
+  return row?.n ?? 0;
+}
+
+/** Removes the account for good. When it is the last person in their organization, the organization and everything in it goes too. */
+export async function deleteUserAccount(userId: string, tenantIdToDelete: string | null) {
+  await db.transaction(async (tx) => {
+    // Everything that belongs to the organization (programs, polls, businesses, payments, ...) is removed by the database along with it.
+    if (tenantIdToDelete) await tx.delete(tenants).where(eq(tenants.id, tenantIdToDelete));
+    await tx.delete(users).where(eq(users.id, userId));
+  });
+}
+
+/**
+ * The organizations (other than their own space) a person belongs to: a team they were added to, access to something
+ * inside one, or the organization they were originally invited into.
+ */
+export async function listOtherOrganizations(user: { id: string; tenantId: string | null; role: string }) {
+  const ids = new Set<string>();
+  const [teams, programRows, pollRows, businessRows] = await Promise.all([
+    db.select({ id: tenantMembers.tenantId }).from(tenantMembers).where(eq(tenantMembers.userId, user.id)),
+    db.select({ id: programs.tenantId }).from(programMembers).innerJoin(programs, eq(programs.id, programMembers.programId)).where(eq(programMembers.userId, user.id)),
+    db.select({ id: polls.tenantId }).from(pollMembers).innerJoin(polls, eq(polls.id, pollMembers.pollId)).where(eq(pollMembers.userId, user.id)),
+    db.select({ id: businesses.tenantId }).from(businessMembers).innerJoin(businesses, eq(businesses.id, businessMembers.businessId)).where(eq(businessMembers.userId, user.id)),
+  ]);
+  for (const row of [...teams, ...programRows, ...pollRows, ...businessRows]) ids.add(row.id);
+  // Someone invited into an account without a space of their own lives inside that account.
+  if (user.tenantId && user.role !== "admin" && user.role !== "super_admin") ids.add(user.tenantId);
+  // A person's own space is not "another organization".
+  if (user.tenantId && user.role === "admin") ids.delete(user.tenantId);
+  if (ids.size === 0) return [];
+  const rows = await db.select({ id: tenants.id, name: tenants.name, ownerUserId: tenants.ownerUserId }).from(tenants).where(inArray(tenants.id, [...ids]));
+  return rows.filter((t) => t.ownerUserId !== user.id).map((t) => ({ id: t.id, name: t.name }));
 }

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { env, isProduction } from "../../config/env.js";
 import { AppError } from "../../lib/errors.js";
@@ -9,6 +10,7 @@ import { issueGoogleNonce } from "../voters/google.js";
 import {
   acceptInvitationSchema,
   changePasswordSchema,
+  deleteAccountSchema,
   completeSetupSchema,
   googleSignInSchema,
   forgotPasswordSchema,
@@ -194,6 +196,39 @@ export async function changePasswordHandler(request: FastifyRequest, reply: Fast
     ipAddress: request.ip,
   });
   return sendSuccess(reply, null, "Password changed. Please log in again.");
+}
+
+export async function listMyOrganizationsHandler(request: FastifyRequest, reply: FastifyReply) {
+  if (!request.user) throw AppError.unauthorized();
+  return sendSuccess(reply, await authService.listMyOrganizations(request.user.id));
+}
+
+export async function leaveOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
+  if (!request.user) throw AppError.unauthorized();
+  const { tenantId } = z.object({ tenantId: z.string().uuid() }).parse(request.params);
+  const user = await authService.leaveOrganization(request.user.id, tenantId);
+  await recordAudit({ actorUserId: user.id, action: "account.leave_organization", label: "Left an organization", entityType: "tenant", entityId: tenantId, ipAddress: request.ip });
+  return sendSuccess(reply, { user }, "You have left the organization");
+}
+
+export async function deleteAccountHandler(request: FastifyRequest, reply: FastifyReply) {
+  if (!request.user) throw AppError.unauthorized();
+  const input = deleteAccountSchema.parse(request.body);
+  const deleted = await authService.deleteOwnAccount(request.user.id, input);
+  clearRefreshCookie(reply);
+  // The account is gone, so the record names the person instead of pointing at them.
+  await recordAudit({
+    actorType: "user",
+    actorName: deleted.name,
+    actorEmail: deleted.email,
+    action: "user.delete_account",
+    label: "Deleted their own account",
+    entityType: "user",
+    entityLabel: deleted.email,
+    metadata: { organizationDeleted: deleted.organizationDeleted },
+    ipAddress: request.ip,
+  });
+  return sendSuccess(reply, null, "Your account has been deleted.");
 }
 
 export async function verifyEmailHandler(request: FastifyRequest, reply: FastifyReply) {

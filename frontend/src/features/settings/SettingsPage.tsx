@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Camera, KeyRound, MailCheck, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Building2, Camera, KeyRound, MailCheck, ShieldCheck, Trash2, TriangleAlert, User as UserIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,178 @@ import { CodeInput } from "@/components/CodeInput";
 import { useAuth } from "@/app/AuthContext";
 import { ApiError } from "@/lib/api";
 import { confirmEmailChange, requestEmailChange } from "../auth/api";
-import { changePassword, getOrganization, updateOrganization, updateProfile, uploadAvatar } from "./api";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { changePassword, deleteOwnAccount, getOrganization, leaveOrganization, listMyOrganizations, type MyOrganization, updateOrganization, updateProfile, uploadAvatar } from "./api";
 import { usePageMeta } from "@/lib/seo";
 import { passwordProblem } from "@/lib/passwordRules";
 
 const RESEND_COOLDOWN_SECONDS = 60;
+
+/** Other organizations the person was added to, each with a way to leave it. */
+function LeaveOrganizationsCard() {
+  const { updateLocalUser } = useAuth();
+  const queryClient = useQueryClient();
+  const { data: organizations } = useQuery({ queryKey: ["my-organizations"], queryFn: listMyOrganizations });
+  const [leaving, setLeaving] = React.useState<MyOrganization | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  if (!organizations || organizations.length === 0) return null;
+
+  const leave = async () => {
+    if (!leaving) return;
+    setBusy(true);
+    try {
+      const result = await leaveOrganization(leaving.id);
+      updateLocalUser(result.user);
+      await queryClient.invalidateQueries();
+      toast.success(`You left ${leaving.name}.`);
+      setLeaving(null);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Could not leave the organization");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Building2 className="h-4 w-4 text-primary" />
+            Other organizations
+          </CardTitle>
+          <CardDescription>Organizations you were added to. Leaving removes your access to everything in them.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="flex flex-col divide-y divide-border/60">
+            {organizations.map((org) => (
+              <li key={org.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <span className="min-w-0 break-words text-sm font-medium">{org.name}</span>
+                <Button variant="outline" size="sm" className="shrink-0" onClick={() => setLeaving(org)}>
+                  Leave
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+      <Dialog open={leaving !== null} onOpenChange={(open) => !open && setLeaving(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Leave {leaving?.name}?</DialogTitle>
+            <DialogDescription>You will lose access to everything you were given in this organization. Your own space and what you made in it stay as they are. An administrator would have to add you again to give you access back.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLeaving(null)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={leave} loading={busy}>
+              Leave organization
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/** Lets someone delete their own account: asks for their password and the word DELETE first. */
+function DeleteAccountCard() {
+  const { logout } = useAuth();
+  const [open, setOpen] = React.useState(false);
+  const [password, setPassword] = React.useState("");
+  const [confirm, setConfirm] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [problem, setProblem] = React.useState<string | null>(null);
+
+  const close = (next: boolean) => {
+    setOpen(next);
+    if (!next) {
+      setPassword("");
+      setConfirm("");
+      setProblem(null);
+    }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProblem(null);
+    if (!password) return setProblem("Enter your password");
+    if (confirm !== "DELETE") return setProblem("Type DELETE to confirm");
+    setBusy(true);
+    try {
+      await deleteOwnAccount({ password });
+      toast.success("Your account has been deleted.");
+      setOpen(false);
+      await logout({ redirectTo: "/" }).catch(() => undefined);
+    } catch (err) {
+      setProblem(err instanceof ApiError ? err.message : "Could not delete your account. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <Card className="border-destructive/40 lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base text-destructive">
+            <Trash2 className="h-4 w-4" />
+            Delete account
+          </CardTitle>
+          <CardDescription>
+            Permanently delete your account. If you are the only person in your organization, its programs, polls, businesses, registrations and everything else in it are deleted too. This cannot be undone.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="destructive" onClick={() => setOpen(true)}>
+            <Trash2 className="h-4 w-4" />
+            Delete my account
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={open} onOpenChange={close}>
+        <DialogContent>
+          <form className="flex flex-col gap-4" onSubmit={submit}>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <TriangleAlert className="h-5 w-5" />
+                Delete your account?
+              </DialogTitle>
+              <DialogDescription>
+                This permanently deletes your account and, if nobody else belongs to your organization, all of its data. It cannot be undone.
+                You will not be able to delete it while money is left in your payment fund, a withdrawal is on its way, or other people still belong to your organization.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="delete-password">Your password</Label>
+              <PasswordInput id="delete-password" placeholder="Enter your password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <p className="text-xs text-muted-foreground">Signed up with Google? Use Forgot password on the sign-in page to set a password first.</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="delete-confirm">Type DELETE to confirm</Label>
+              <Input id="delete-confirm" placeholder="DELETE" autoComplete="off" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+            </div>
+            {problem && (
+              <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                {problem}
+              </p>
+            )}
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => close(false)} disabled={busy}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="destructive" loading={busy} disabled={confirm !== "DELETE" || !password}>
+                Delete my account
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 function ChangeEmailSection({ currentEmail }: { currentEmail: string }) {
   const { updateLocalUser } = useAuth();
@@ -367,6 +534,9 @@ export function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {user.role !== "super_admin" && <LeaveOrganizationsCard />}
+        {user.role !== "super_admin" && <DeleteAccountCard />}
       </div>
     </div>
   );

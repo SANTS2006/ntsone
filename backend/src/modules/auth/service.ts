@@ -15,6 +15,7 @@ import {
 } from "../email/templates.js";
 import type { AuthenticatedUser } from "../users/types.js";
 import * as authRepo from "./repository.js";
+import { balancesFor } from "../payments/wallet.js";
 import { verifyGoogleCredential } from "../voters/google.js";
 import * as usersRepo from "../users/repository.js";
 import type {
@@ -455,4 +456,72 @@ export async function createOwnSpace(userId: string): Promise<AuthenticatedUser>
     await usersRepo.ensureTeamLink(previousTenantId, user.id, previousRole);
   }
   return toAuthenticatedUser(moved);
+}
+
+/**
+ * Lets people delete their own account. Asks for the password again, and refuses while deleting would strand
+ * something: the platform administrator account, an organization other people still belong to, money still in
+ * the organization's payment fund, or a withdrawal still on its way.
+ */
+export async function deleteOwnAccount(userId: string, input: { password: string }): Promise<{ name: string; email: string; tenantId: string | null; organizationDeleted: boolean }> {
+  const user = await authRepo.findUserById(userId);
+  if (!user) throw AppError.unauthorized();
+  if (user.role === "super_admin") throw AppError.forbidden("The platform administrator account cannot be deleted here.");
+  if (!(await verifyPassword(user.passwordHash, input.password))) {
+    throw AppError.wrongPassword("That password is not correct. If you signed up with Google, use Forgot password on the sign-in page to set one first.", "password");
+  }
+
+  let tenantIdToDelete: string | null = null;
+  if (user.tenantId) {
+    const tenant = await authRepo.findTenantById(user.tenantId);
+    const others = await authRepo.countOtherMembers(user.tenantId, user.id);
+    if (others === 0) {
+      // The last person in their organization: it is deleted with them, so nothing may be left owing.
+      const { totalMinor } = await balancesFor(user.tenantId);
+      if (totalMinor !== 0) throw AppError.conflict("There is still money in your payment fund. Withdraw it first, then delete your account.");
+      if ((await authRepo.countOpenPayouts(user.tenantId)) > 0) throw AppError.conflict("A withdrawal is still on its way. Wait for it to finish, then delete your account.");
+      tenantIdToDelete = user.tenantId;
+    } else if (tenant?.ownerUserId === user.id) {
+      throw AppError.conflict("Other people still belong to your organization. Remove them (or ask them to leave) before deleting your account.");
+    }
+  }
+  await authRepo.deleteUserAccount(user.id, tenantIdToDelete);
+  return { name: user.name, email: user.email, tenantId: user.tenantId, organizationDeleted: tenantIdToDelete !== null };
+}
+
+/** The other organizations this person belongs to (so they can leave them). */
+export async function listMyOrganizations(userId: string) {
+  const user = await authRepo.findUserById(userId);
+  if (!user) throw AppError.unauthorized();
+  if (user.role === "super_admin") return [];
+  return authRepo.listOtherOrganizations(user);
+}
+
+/**
+ * Leaves an organization the person was added to: they lose their access to everything in it and drop off its team.
+ * Their own space, and anything they made in it, is untouched. Someone who lived inside that organization gets a space of
+ * their own so they still have an account to sign in to.
+ */
+export async function leaveOrganization(userId: string, tenantId: string): Promise<AuthenticatedUser> {
+  const user = await authRepo.findUserById(userId);
+  if (!user) throw AppError.unauthorized();
+  if (user.role === "super_admin") throw AppError.forbidden();
+  if (user.role === "admin" && user.tenantId === tenantId) {
+    throw AppError.conflict("That is your own organization. To close it, delete your account instead.");
+  }
+  const tenant = await authRepo.findTenantById(tenantId);
+  if (!tenant) throw AppError.notFound("Organization not found");
+  if (tenant.ownerUserId === user.id) throw AppError.conflict("You own that organization, so you cannot leave it.");
+  const member = (await authRepo.listOtherOrganizations(user)).some((o) => o.id === tenantId);
+  if (!member) throw AppError.notFound("You are not part of that organization");
+
+  await usersRepo.removeFromTeam(tenantId, user.id);
+  if (user.tenantId === tenantId) {
+    const firstName = user.name.trim().split(/\s+/)[0] || "My";
+    const name = `${firstName}'s space`;
+    const { user: moved } = await authRepo.moveUserToNewTenant(user.id, { name, slug: await generateUniqueTenantSlug(name) });
+    await authRepo.revokeAllRefreshTokensForUser(user.id);
+    return toAuthenticatedUser(moved);
+  }
+  return toAuthenticatedUser((await authRepo.findUserById(user.id))!);
 }

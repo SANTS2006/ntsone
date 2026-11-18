@@ -31,6 +31,12 @@ export const completeSetupSchema = z.object({
   }),
 });
 
+/** Deleting your own account needs your password and the word DELETE, so it cannot happen by accident or from a left-open browser. */
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, "Enter your password").max(128),
+  confirm: z.literal("DELETE", { errorMap: () => ({ message: "Type DELETE to confirm" }) }),
+});
+
 export const verificationCodeSchema = z.object({
   code: z.string().trim().min(6).max(12),
 });

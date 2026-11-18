@@ -150,6 +150,8 @@ export function registerRequestAudit(app: FastifyInstance) {
             : { actorType: "visitor", actorName: "Visitor" };
 
       const tenantId = (await resolveTenantId(request, ctx.path)) ?? user?.tenantId ?? null;
+      // A deleted account can't be pointed at any more (the log keeps their name and email instead).
+      if (ctx.path === "/api/auth/me/delete-account" && status < 400) actor.actorUserId = null;
 
       const drafts: AuditDraft[] = [...ctx.pending];
       if (drafts.length === 0) {

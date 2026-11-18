@@ -22,6 +22,26 @@ export function changePassword(input: { currentPassword: string; newPassword: st
   return apiFetch<null>("/auth/me/change-password", { method: "POST", body: input });
 }
 
+export interface MyOrganization {
+  id: string;
+  name: string;
+}
+
+/** The other organizations the signed-in person belongs to. */
+export function listMyOrganizations() {
+  return apiFetch<MyOrganization[]>("/auth/me/organizations");
+}
+
+/** Leaves an organization the person was added to. */
+export function leaveOrganization(tenantId: string) {
+  return apiFetch<{ user: import("@/types/api").AuthUser }>(`/auth/me/organizations/${encodeURIComponent(tenantId)}/leave`, { method: "POST" });
+}
+
+/** Deletes the signed-in person's own account for good. Needs their password and the word DELETE. */
+export function deleteOwnAccount(input: { password: string }) {
+  return apiFetch<null>("/auth/me/delete-account", { method: "POST", body: { password: input.password, confirm: "DELETE" } });
+}
+
 interface UploadSignature {
   cloudName: string;
   apiKey: string;

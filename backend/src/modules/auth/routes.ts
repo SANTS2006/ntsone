@@ -3,6 +3,9 @@ import { authenticate } from "../../middleware/authenticate.js";
 import {
   avatarUploadSignatureHandler,
   changePasswordHandler,
+  deleteAccountHandler,
+  leaveOrganizationHandler,
+  listMyOrganizationsHandler,
   confirmEmailChangeHandler,
   createOwnSpaceHandler,
   forgotPasswordHandler,
@@ -44,6 +47,9 @@ export async function authRoutes(app: FastifyInstance) {
   app.patch("/me/organization", { preHandler: authenticate }, updateOrganizationHandler);
   app.patch("/me", { preHandler: authenticate }, updateProfileHandler);
   app.post("/me/own-space", { preHandler: authenticate, config: strictAuthRateLimit }, createOwnSpaceHandler);
+  app.get("/me/organizations", { preHandler: authenticate }, listMyOrganizationsHandler);
+  app.post("/me/organizations/:tenantId/leave", { preHandler: authenticate, config: strictAuthRateLimit }, leaveOrganizationHandler);
+  app.post("/me/delete-account", { preHandler: authenticate, config: strictAuthRateLimit }, deleteAccountHandler);
   app.post("/me/change-password", { preHandler: authenticate, config: strictAuthRateLimit }, changePasswordHandler);
   app.post("/me/avatar-upload-signature", { preHandler: authenticate }, avatarUploadSignatureHandler);
 
