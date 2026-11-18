@@ -25,7 +25,7 @@ export async function pollExportRoutes(app: FastifyInstance) {
       rows: items,
       columns: [
         { label: "Name", value: (v) => v.name },
-        { label: "Email", value: (v) => v.email },
+        { label: "Email", value: (v) => (v.email.endsWith("@guest.voters.invalid") ? "Guest (no account)" : v.email) },
         { label: "Role", value: () => "Voter" },
         { label: "Signs in with", value: (v) => (v.signInMethod === "google" ? "Google" : "Email") },
         { label: "Joined", value: (v) => date(v.joinedAt) },

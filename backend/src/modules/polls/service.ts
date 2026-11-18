@@ -54,6 +54,7 @@ export async function createPoll(user: AuthenticatedUser, input: CreatePollInput
     name: input.name,
     slug: await uniqueSlug(input.name),
     description: input.description,
+    requireVoterAccount: input.requireVoterAccount,
   });
   // Tenant admins see every poll already; anyone else needs a membership to see what they made.
   if (user.role !== "admin" && user.role !== "super_admin") await pollsRepo.addPollMember(user.id, poll.id, "admin");
@@ -79,6 +80,11 @@ export async function getPoll(pollId: string) {
 
 export async function updatePoll(pollId: string, input: UpdatePollInput) {
   const poll = await getPoll(pollId);
+  // Without voter accounts there is no email to check, so limits that depend on one are switched off.
+  if (input.requireVoterAccount === false || (input.requireVoterAccount === undefined && !poll.requireVoterAccount)) {
+    input = { ...input, requireVoterAccount: false, restrictEmailDomain: false };
+    if (poll.verifiedVotersOnly) await pollsRepo.updatePollRow(pollId, { verifiedVotersOnly: false });
+  }
   const restrict = input.restrictEmailDomain ?? poll.restrictEmailDomain;
   const domains = input.allowedEmailDomains !== undefined ? input.allowedEmailDomains : poll.allowedEmailDomains;
   if (restrict && !domains) throw AppError.validation("Enter the email domain voters must use, e.g. example.edu");
@@ -99,7 +105,8 @@ export async function getVerifiedVoters(pollId: string) {
 
 /** Saves the setting and makes the verified list exactly the emails given. */
 export async function saveVerifiedVoters(pollId: string, input: { enabled: boolean; emails: string[] }) {
-  await getPoll(pollId);
+  const poll = await getPoll(pollId);
+  if (input.enabled && !poll.requireVoterAccount) throw AppError.validation("Verified voters need voter accounts. Turn on \"Voters must create an account\" first.");
   const unique = new Map<string, { email: string; emailKey: string }>();
   for (const email of input.emails) {
     const emailKey = canonicalEmail(email);

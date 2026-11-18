@@ -25,6 +25,8 @@ export interface VotePoll {
   state: PollState;
   closesAt: string | null;
   onePerEmail: boolean;
+  /** Voters must create an account first. When false, anyone with the link can vote straight away. */
+  requireVoterAccount?: boolean;
   allowedDomains: string[];
   /** Only emails the admin pre-registered can create an account and vote. */
   verifiedVotersOnly?: boolean;
@@ -71,6 +73,9 @@ const slugPath = (slug: string) => `/polls/${encodeURIComponent(slug)}`;
 export const getVotePoll = (slug: string) => voterFetch<VotePoll>(slugPath(slug));
 export const getVoteResults = (slug: string) => voterFetch<PollResults>(`${slugPath(slug)}/results`);
 export const getVoterSession = (slug: string) => voterFetch<VoterSession>(`${slugPath(slug)}/session`);
+
+/** Polls without voter accounts: gives this browser an anonymous guest voter so it can vote. */
+export const startGuestVoter = (slug: string) => voterFetch<AuthResult>(`${slugPath(slug)}/guest`, { method: "POST" });
 
 export const castVote = (slug: string, positionId: string, candidateId: string) =>
   voterFetch<{ votedPositionIds: string[]; results: PollResults | null }>(`${slugPath(slug)}/positions/${positionId}/vote`, {

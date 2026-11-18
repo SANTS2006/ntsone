@@ -38,6 +38,7 @@ function CreatePollDialog() {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [tenantId, setTenantId] = React.useState("");
+  const [requireVoterAccount, setRequireVoterAccount] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const navigate = useNavigate();
   const invalidate = useInvalidatePolls();
@@ -55,7 +56,7 @@ function CreatePollDialog() {
     if (choosesAccount && !tenantId) return toast.error("Choose the account this poll belongs to");
     setSaving(true);
     try {
-      const poll = await createPoll({ name: name.trim(), description: description.trim() || undefined, ...(choosesAccount ? { tenantId } : {}) });
+      const poll = await createPoll({ name: name.trim(), description: description.trim() || undefined, requireVoterAccount, ...(choosesAccount ? { tenantId } : {}) });
       await invalidate();
       toast.success("Poll created. Now add the positions people will vote for.");
       setOpen(false);
@@ -106,6 +107,24 @@ function CreatePollDialog() {
             <Label htmlFor="poll-description">Description (optional)</Label>
             <Textarea id="poll-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 text-sm font-medium">Do voters need an account to vote?</legend>
+            {[
+              { value: true, title: "Yes, voters create an account", text: "Voters sign up (and confirm their email) before voting. You can limit voting to certain email domains or a verified list." },
+              { value: false, title: "No, anyone with the link can vote", text: "Voters open the link and vote straight away, with no sign-up. Each browser counts as one voter." },
+            ].map((option) => (
+              <label
+                key={String(option.value)}
+                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition-colors ${requireVoterAccount === option.value ? "border-primary bg-primary/5" : "border-border/70 hover:bg-muted/40"}`}
+              >
+                <input type="radio" name="require-voter-account" className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]" checked={requireVoterAccount === option.value} onChange={() => setRequireVoterAccount(option.value)} />
+                <span>
+                  <span className="block font-medium">{option.title}</span>
+                  <span className="block text-xs text-muted-foreground">{option.text}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
           <DialogFooter>
             <Button type="submit" loading={saving}>
               Create poll

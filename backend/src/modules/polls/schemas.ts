@@ -34,6 +34,8 @@ export const createPollSchema = z.object({
   name: text(200).min(2, "Give the poll a name"),
   description: optionalText(2000),
   tenantId: z.string().uuid().optional(),
+  // Whether voters must create an account before voting (the default) or can just open the link and vote.
+  requireVoterAccount: z.boolean().default(true),
 });
 
 export const updatePollSchema = z
@@ -43,6 +45,7 @@ export const updatePollSchema = z
     imageUrl,
     closesAt: z.coerce.date().nullable(),
     onePerEmail: z.boolean(),
+    requireVoterAccount: z.boolean(),
     restrictEmailDomain: z.boolean(),
     allowedEmailDomains: domainList,
     showResults: z.boolean(),

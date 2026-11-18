@@ -14,7 +14,7 @@ import { usePageMeta } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import type { PollResults } from "../polls/api";
 import { PositionResults } from "../polls/ResultsView";
-import { castVote, getVoteResults, logoutVoter, type VotePoll, type VotePosition } from "./api";
+import { castVote, getVoteResults, logoutVoter, startGuestVoter, type VotePoll, type VotePosition } from "./api";
 import { PaidVoting } from "./PaidVoting";
 import { VoteMessage } from "./VoteMessage";
 import { PollLogo, useVotePoll, useVoterSession, voteKeys, VoteShell } from "./VoteShell";
@@ -176,6 +176,21 @@ function VoteFlow() {
     setQueue(poll.positions.map((p) => p.id).filter((id) => (positionId ? id === positionId : !voted.has(id))));
   }, [poll, session, sessionFresh, queue, positionId]);
 
+  // A poll that doesn't ask for an account: this browser becomes an anonymous guest voter and goes straight to voting.
+  const [guestFailed, setGuestFailed] = React.useState<string | null>(null);
+  const guestStarted = React.useRef(false);
+  const needsGuest = !!poll && poll.requireVoterAccount === false && poll.state === "open" && !!session && sessionFresh && !session.voter;
+  React.useEffect(() => {
+    if (!needsGuest || guestStarted.current) return;
+    guestStarted.current = true;
+    startGuestVoter(slug)
+      .then(() => queryClient.invalidateQueries({ queryKey: ["vote"] }))
+      .catch((err) => {
+        guestStarted.current = false;
+        setGuestFailed(err instanceof ApiError ? err.message : "Could not open the voting page. Please reload and try again.");
+      });
+  }, [needsGuest, slug, queryClient]);
+
   if (isLoading || sessionLoading || !sessionFresh) {
     return (
       <VoteShell poll={poll}>
@@ -212,6 +227,13 @@ function VoteFlow() {
           <VoteMessage tone="closed" title="Voting has been closed" message={`Voting for ${poll.name} has closed. Thank you to everyone who took part.`} />
           {poll.showResults && <AllResults results={results} />}
         </div>
+      </VoteShell>
+    );
+  }
+  if (!session?.voter && poll.requireVoterAccount === false) {
+    return (
+      <VoteShell poll={poll}>
+        {guestFailed ? <VoteMessage tone="error" title="Couldn't open the voting page" message={guestFailed} /> : <Loading label="Opening the voting page" />}
       </VoteShell>
     );
   }

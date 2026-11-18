@@ -267,6 +267,13 @@
       "when": 1793100000000,
       "tag": "0037_sync_payment_status",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793200000000,
+      "tag": "0038_poll_voter_accounts_optional",
+      "breakpoints": true
     }
   ]
 }

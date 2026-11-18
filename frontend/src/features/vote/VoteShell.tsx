@@ -49,11 +49,11 @@ export function VoteShell({ poll, children }: { poll?: VotePoll; children: React
             {poll && <PollLogo poll={poll} size="h-10 w-10" />}
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold sm:text-base">{poll?.name ?? "Voting"}</p>
-              {session?.voter && <p className="truncate text-xs text-muted-foreground">Signed in as {session.voter.name}</p>}
+              {session?.voter && poll?.requireVoterAccount !== false && <p className="truncate text-xs text-muted-foreground">Signed in as {session.voter.name}</p>}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            {session?.voter && (
+            {session?.voter && poll?.requireVoterAccount !== false && (
               <Button variant="ghost" size="sm" onClick={signOut}>
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign out</span>

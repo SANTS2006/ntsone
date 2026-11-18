@@ -16,6 +16,8 @@ export interface Poll {
   state: PollState;
   closesAt: string | null;
   onePerEmail: boolean;
+  /** Voters must create an account before voting; off lets anyone with the link vote straight away. */
+  requireVoterAccount: boolean;
   restrictEmailDomain: boolean;
   allowedEmailDomains: string | null;
   showResults: boolean;
@@ -106,7 +108,7 @@ function query(params: Record<string, string | number | undefined>) {
 
 export const listPolls = (params: ListPollsParams) => apiFetch<Paginated<Poll>>(`/polls${query({ ...params })}`);
 export const getPoll = (pollId: string) => apiFetch<Poll>(`/polls/${pollId}`);
-export const createPoll = (input: { name: string; description?: string; tenantId?: string }) => apiFetch<Poll>("/polls", { method: "POST", body: input });
+export const createPoll = (input: { name: string; description?: string; tenantId?: string; requireVoterAccount?: boolean }) => apiFetch<Poll>("/polls", { method: "POST", body: input });
 export const updatePoll = (pollId: string, input: Partial<Omit<Poll, "id" | "state" | "status">>) =>
   apiFetch<Poll>(`/polls/${pollId}`, { method: "PATCH", body: input });
 export const deletePoll = (pollId: string) => apiFetch<null>(`/polls/${pollId}`, { method: "DELETE" });

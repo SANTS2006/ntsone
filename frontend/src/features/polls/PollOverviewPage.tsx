@@ -131,6 +131,7 @@ function SettingsCard({ poll, canEdit }: { poll: Poll; canEdit: boolean }) {
         description: draft.description,
         imageUrl: draft.imageUrl,
         onePerEmail: draft.onePerEmail,
+        requireVoterAccount: draft.requireVoterAccount,
         restrictEmailDomain: draft.restrictEmailDomain,
         allowedEmailDomains: draft.allowedEmailDomains,
         showResults: draft.showResults,
@@ -217,7 +218,21 @@ function SettingsCard({ poll, canEdit }: { poll: Poll; canEdit: boolean }) {
             </div>
           ))}
 
-          <div className="flex flex-col gap-3 rounded-lg border border-border/70 p-3">
+          <div className="flex items-start justify-between gap-3 rounded-lg border border-border/70 p-3">
+            <div>
+              <Label htmlFor="requireVoterAccount" className="font-medium">
+                Voters must create an account
+              </Label>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {draft.requireVoterAccount
+                  ? "Voters sign up and confirm their email before they can vote."
+                  : "No sign-up: anyone with the link can vote straight away, and each browser counts as one voter. Email domain limits and verified voters are switched off."}
+              </p>
+            </div>
+            <Switch id="requireVoterAccount" checked={draft.requireVoterAccount} onCheckedChange={(checked) => set({ requireVoterAccount: checked, ...(checked ? {} : { restrictEmailDomain: false }) })} />
+          </div>
+
+          <div className={`flex flex-col gap-3 rounded-lg border border-border/70 p-3 ${draft.requireVoterAccount ? "" : "pointer-events-none opacity-50"}`}>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <Label htmlFor="restrictEmailDomain" className="font-medium">

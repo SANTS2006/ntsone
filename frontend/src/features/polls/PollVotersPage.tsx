@@ -72,7 +72,7 @@ export function PollVotersPage() {
                 {data.items.map((voter) => (
                   <tr key={voter.id} className="border-b border-border/50 last:border-0">
                     <td className="py-2.5 pr-3 font-medium">{voter.name}</td>
-                    <td className="py-2.5 pr-3 break-all">{voter.email}</td>
+                    <td className="py-2.5 pr-3 break-all">{voter.email.endsWith("@guest.voters.invalid") ? "Guest (no account)" : voter.email}</td>
                     <td className="py-2.5 pr-3">
                       <Badge variant="secondary">Voter</Badge>
                     </td>

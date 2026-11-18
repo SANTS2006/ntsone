@@ -85,6 +85,8 @@ export function VoterAuthPage({ mode }: { mode: "login" | "register" }) {
       </VoteShell>
     );
   }
+  // A poll that doesn't ask for an account has no sign-in: straight to the voting page.
+  if (poll.requireVoterAccount === false) return <Navigate to={`/vote/${poll.slug}`} replace />;
   if (session?.voter) return <Navigate to={next} replace />;
 
   const domains = poll.allowedDomains;

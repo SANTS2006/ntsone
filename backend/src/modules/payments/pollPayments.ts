@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { isGuestVoter } from "../voters/guest.js";
 import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../../db/client.js";
@@ -115,7 +116,7 @@ export async function createVotePayment(input: {
     .where(and(eq(payments.voterId, voter.id), eq(payments.pollId, poll.id), eq(payments.status, "pending"), gt(payments.createdAt, new Date(Date.now() - 30 * 60_000))));
   if ((open?.n ?? 0) >= 3) throw new AppError("RATE_LIMITED", "You have payments waiting to be finished. Finish or cancel them before starting another.", 429);
 
-  const actor = { ip: context.ip, email: voter.email };
+  const actor = { ip: context.ip, email: isGuestVoter(voter) ? undefined : voter.email };
   await assertPaymentAllowed(actor);
   const flags = await riskFlagsFor(actor, plan.totalMinor);
 
@@ -132,7 +133,7 @@ export async function createVotePayment(input: {
       amountMinor: plan.totalMinor,
       lineItems: lines,
       payerName: voter.name,
-      payerEmail: voter.email,
+      payerEmail: isGuestVoter(voter) ? null : voter.email,
       risk: { flags },
       ipAddress: context.ip ?? null,
       userAgent: context.userAgent?.slice(0, 300) ?? null,

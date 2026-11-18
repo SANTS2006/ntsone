@@ -53,6 +53,11 @@ export async function voterRoutes(app: FastifyInstance) {
     return sendSuccess(reply, await votersService.session(request, request.params.slug));
   });
 
+  // Polls that don't ask for an account: gives this browser an anonymous guest voter so it can vote straight away.
+  app.post<{ Params: SlugParams }>("/polls/:slug/guest", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, async (request, reply) => {
+    return sendSuccess(reply, await votersService.startGuest(request, reply, request.params.slug));
+  });
+
   app.post<{ Params: SlugParams & { positionId: string } }>(
     "/polls/:slug/positions/:positionId/vote",
     voteLimit,

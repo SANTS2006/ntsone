@@ -13,6 +13,7 @@ import { hashPassword, verifyPassword } from "../../lib/password.js";
 import { generateVerificationCode, hashToken } from "../../lib/tokens.js";
 import { queueEmail } from "../email/outbox.js";
 import { sendEmail } from "../email/service.js";
+import { isGuestVoter, GUEST_EMAIL_DOMAIN } from "./guest.js";
 import { newVoteNotificationEmail, VERIFICATION_CODE_TTL_MINUTES, voterCodeEmail } from "../email/templates.js";
 import * as pollsRepo from "../polls/repository.js";
 import { allowedDomains, buildResults, emailAllowed, pollState } from "../polls/service.js";
@@ -44,13 +45,16 @@ export function clearSession(reply: FastifyReply) {
   reply.clearCookie(SESSION_COOKIE, { path: SESSION_PATH });
 }
 
-async function currentVoter(request: FastifyRequest): Promise<Voter | null> {
+async function currentVoter(request: FastifyRequest, poll?: Poll): Promise<Voter | null> {
   const token = request.cookies[SESSION_COOKIE];
   if (!token) return null;
   try {
     const { sub } = jwt.verify(token, SESSION_KEY, { audience: "voter" }) as { sub: string };
     const [voter] = await db.select().from(voterAccounts).where(eq(voterAccounts.id, sub)).limit(1);
-    return voter?.emailVerifiedAt ? voter : null;
+    if (!voter?.emailVerifiedAt) return null;
+    // A guest session is only good for polls that don't ask for an account.
+    if (poll?.requireVoterAccount && isGuestVoter(voter)) return null;
+    return voter;
   } catch {
     return null;
   }
@@ -83,6 +87,7 @@ async function findPoll(slug: string): Promise<Poll> {
 }
 
 function assertEmailAllowed(poll: Poll, email: string) {
+  if (!poll.requireVoterAccount) return;
   if (!emailAllowed(poll, email)) {
     const domains = allowedDomains(poll).map((d) => `@${d}`).join(" or ");
     throw new AppError(
@@ -96,7 +101,7 @@ function assertEmailAllowed(poll: Poll, email: string) {
 
 /** A poll limited to verified voters only lets in emails its admin pre-registered. */
 async function assertVerifiedVoter(poll: Poll, email: string, action: "create an account" | "sign in" | "vote") {
-  if (!poll.verifiedVotersOnly) return;
+  if (!poll.verifiedVotersOnly || !poll.requireVoterAccount) return;
   if (await pollsRepo.isVerifiedVoter(poll.id, canonicalEmail(email))) return;
   throw new AppError(
     "FORBIDDEN",
@@ -112,7 +117,7 @@ async function findVoterByEmail(email: string) {
 }
 
 function publicVoter(voter: Voter) {
-  return { id: voter.id, name: voter.name, email: voter.email };
+  return { id: voter.id, name: voter.name, email: isGuestVoter(voter) ? "" : voter.email };
 }
 
 /** Signs the voter in and adds them to this poll's voters. */
@@ -164,6 +169,7 @@ export function pollForVoters(poll: Poll, ballot: Awaited<ReturnType<typeof poll
     state: pollState(poll),
     closesAt: poll.closesAt,
     onePerEmail: poll.onePerEmail,
+    requireVoterAccount: poll.requireVoterAccount,
     allowedDomains: allowedDomains(poll),
     verifiedVotersOnly: poll.verifiedVotersOnly,
     showResults: poll.showResults,
@@ -205,15 +211,16 @@ export async function getPublicResults(slug: string) {
 /** Who is signed in on this browser, and which positions of this poll they've already voted for. */
 export async function session(request: FastifyRequest, slug: string) {
   const poll = await findPoll(slug);
-  const voter = await currentVoter(request);
+  const voter = await currentVoter(request, poll);
   if (!voter) return { voter: null, votedPositionIds: [] as string[], emailAllowed: true, credits: [] as Awaited<ReturnType<typeof listCredits>> };
-  const verified = !poll.verifiedVotersOnly || (await pollsRepo.isVerifiedVoter(poll.id, canonicalEmail(voter.email)));
+  const open = !poll.requireVoterAccount;
+  const verified = open || !poll.verifiedVotersOnly || (await pollsRepo.isVerifiedVoter(poll.id, canonicalEmail(voter.email)));
   // Signing in to a new poll with an existing account makes you one of its voters (if it lets you in).
-  if (verified && emailAllowed(poll, voter.email)) await pollsRepo.addPollVoter(poll.id, voter.id);
+  if (verified && (open || emailAllowed(poll, voter.email))) await pollsRepo.addPollVoter(poll.id, voter.id);
   return {
     voter: publicVoter(voter),
     votedPositionIds: await votedPositions(poll, voter, (await pollsRepo.getBallot(poll.id)).map((p) => p.id)),
-    emailAllowed: emailAllowed(poll, voter.email) && verified,
+    emailAllowed: (open || emailAllowed(poll, voter.email)) && verified,
     notVerified: !verified,
     // Votes this person has paid for and not used yet.
     credits: await listCredits(poll.id, voter.id),
@@ -222,6 +229,22 @@ export async function session(request: FastifyRequest, slug: string) {
 
 // ---------------------------------------------------------------------------
 // Sign-up and sign-in
+
+/**
+ * Polls that don't ask for an account: the first visit gets an anonymous guest voter (one per browser), so the person
+ * can vote straight away. Refused for polls that do require an account.
+ */
+export async function startGuest(request: FastifyRequest, reply: FastifyReply, slug: string) {
+  const poll = await findPoll(slug);
+  if (poll.requireVoterAccount) throw AppError.forbidden("This poll needs a voter account. Please sign in or create one.");
+  const existing = await currentVoter(request, poll);
+  if (existing) return startSession(reply, existing, poll);
+  const [guest] = await db
+    .insert(voterAccounts)
+    .values({ name: "Guest voter", email: `guest-${randomUUID()}@${GUEST_EMAIL_DOMAIN}`, emailVerifiedAt: new Date() })
+    .returning();
+  return startSession(reply, guest!, poll);
+}
 
 export async function register(input: { pollSlug: string; name: string; email: string; password: string }) {
   const poll = await findPoll(input.pollSlug);
@@ -351,8 +374,8 @@ export async function castVote(
   input: { slug: string; positionId: string; candidateId: string },
 ) {
   const poll = await findPoll(input.slug);
-  const voter = await currentVoter(request);
-  if (!voter) throw AppError.unauthorized("Sign in to vote");
+  const voter = await currentVoter(request, poll);
+  if (!voter) throw AppError.unauthorized(poll.requireVoterAccount ? "Sign in to vote" : "Open the voting page again to vote");
 
   const state = pollState(poll);
   if (state === "closed") throw new AppError("CONFLICT", "Voting has closed for this poll.", 409, { reason: "closed" });
@@ -395,7 +418,7 @@ export async function castVote(
     action: "voter.vote",
     actorType: "voter",
     actorName: voter.name,
-    actorEmail: voter.email,
+    actorEmail: isGuestVoter(voter) ? null : voter.email,
     tenantId: poll.tenantId,
     entityType: "poll",
     entityId: poll.id,
@@ -418,7 +441,7 @@ async function notifyTeam(poll: Poll, voter: Voter, positionTitle: string, total
     const { subject, html } = newVoteNotificationEmail({
       pollName: poll.name,
       voterName: voter.name,
-      voterEmail: voter.email,
+      voterEmail: isGuestVoter(voter) ? "Anonymous guest (no account)" : voter.email,
       positionTitle,
       votedAt: new Date(),
       totalVotesForPosition,
@@ -437,8 +460,8 @@ async function notifyTeam(poll: Poll, voter: Voter, positionTitle: string, total
 /** Everything a voter must pass before paying or voting: signed in, the poll is open, and this email is allowed in. */
 async function paidVotingVoter(request: FastifyRequest, slug: string) {
   const poll = await findPoll(slug);
-  const voter = await currentVoter(request);
-  if (!voter) throw AppError.unauthorized("Sign in to vote");
+  const voter = await currentVoter(request, poll);
+  if (!voter) throw AppError.unauthorized(poll.requireVoterAccount ? "Sign in to vote" : "Open the voting page again to vote");
   const state = pollState(poll);
   if (state === "closed") throw new AppError("CONFLICT", "Voting has closed for this poll.", 409, { reason: "closed" });
   if (state === "draft") throw new AppError("CONFLICT", "Voting hasn't opened yet for this poll.", 409, { reason: "not_open" });
@@ -490,7 +513,7 @@ export async function castPaidVotes(request: FastifyRequest, input: { slug: stri
     label: "Cast paid votes",
     actorType: "voter",
     actorName: voter.name,
-    actorEmail: voter.email,
+    actorEmail: isGuestVoter(voter) ? null : voter.email,
     tenantId: poll.tenantId,
     entityType: "poll",
     entityId: poll.id,

@@ -28,6 +28,9 @@ export const polls = pgTable(
     // Voters see live results on the voting pages.
     showResults: boolean("show_results").notNull().default(true),
     notifyOnVote: boolean("notify_on_vote").notNull().default(true),
+    // Voters must create an account (and confirm their email) before voting. Off: anyone with the link can vote straight away,
+    // each browser counting as one anonymous "guest" voter.
+    requireVoterAccount: boolean("require_voter_account").notNull().default(true),
     // Only emails the admin has pre-registered as verified voters can create an account and vote.
     verifiedVotersOnly: boolean("verified_voters_only").notNull().default(false),
     // Paid voting: switched on or off, the price of one vote, and whether voters may pay any amount (see payments/pollPayments).
