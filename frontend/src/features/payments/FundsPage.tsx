@@ -528,6 +528,7 @@ export function FundsPage({ fund = organizationFund }: { fund?: FundApi }) {
                   <TableCell className="whitespace-nowrap">{new Date(p.createdAt).toLocaleString()}</TableCell>
                   <TableCell className="whitespace-nowrap">
                     {p.accountName} · {p.accountNumber}
+                    {p.automatic && <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary">Automatic</Badge>}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-right font-medium">{formatMinor(p.amountMinor, p.currency)}</TableCell>
                   <TableCell className="whitespace-nowrap">
@@ -645,6 +646,7 @@ export function FundsPage({ fund = organizationFund }: { fund?: FundApi }) {
                   <TableCell className="whitespace-nowrap">{new Date(e.createdAt).toLocaleString()}</TableCell>
                   <TableCell className="whitespace-nowrap">
                     {KIND_LABEL[e.kind] ?? e.kind}
+                    {e.kind === "payout" && e.note === "Automatic withdrawal" && <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary">Automatic</Badge>}
                     {e.kind === "payment" && new Date(e.availableAt) > new Date() && <span className="ml-2 text-xs text-amber-600">on hold</span>}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">{e.registrationNumber ?? "—"}</TableCell>

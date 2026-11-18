@@ -45,7 +45,8 @@ export async function creditPayment(tx: Tx, payment: { id: string; tenantId: str
   // automatically has chosen to have each payment available straight away.
   const terms = await termsFor(payment.tenantId, tx);
   const feeMinor = platformFee(payment.amountMinor, terms.feePercent, terms.feeFixedMinor);
-  const availableAt = terms.autoWithdraw ? new Date() : new Date(Date.now() + terms.holdMinutes * 60_000);
+  // Without a hold the entry is available at the database's own "now", so a slightly fast server clock can never make it look held.
+  const availableAt = terms.autoWithdraw || terms.holdMinutes === 0 ? sql`now()` : new Date(Date.now() + terms.holdMinutes * 60_000);
   await tx
     .insert(walletEntries)
     .values({ tenantId: payment.tenantId, kind: "payment", amountMinor: payment.amountMinor, currency: payment.currency, availableAt, paymentId: payment.id })

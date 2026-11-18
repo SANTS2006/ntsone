@@ -261,6 +261,8 @@ export async function listPayouts(tenantId: string | null, pagination: Paginatio
         accountNumber: payoutAccounts.accountNumber,
         createdAt: payouts.createdAt,
         completedAt: payouts.completedAt,
+        // Withdrawals made by the automatic-withdrawal setting rather than by pressing Withdraw.
+        automatic: sql<boolean>`coalesce((${payouts.risk}->>'automatic')::boolean, false)`,
       })
       .from(payouts)
       .innerJoin(payoutAccounts, eq(payoutAccounts.id, payouts.accountId))
@@ -459,7 +461,12 @@ export async function setAutoWithdraw(
 export async function autoWithdrawAfterPayment(tenantId: string, paymentId: string): Promise<void> {
   try {
     const terms = await termsFor(tenantId);
-    if (!terms.autoWithdraw || !terms.autoWithdrawAccountId || !isMonimeConfigured() || withdrawalsInactive(terms)) return;
+    if (!terms.autoWithdraw || !terms.autoWithdrawAccountId) return;
+    // When it can't send, the reason is on the record and the money simply stays on the balance.
+    const skip = (reason: string) =>
+      void recordAudit({ action: "payout.auto_skipped", label: "Automatic withdrawal did not send", actorType: "system", tenantId, entityType: "tenant", entityId: tenantId, outcome: "failed", metadata: { reason, paymentId } });
+    if (!isMonimeConfigured()) return skip("Payments are not connected");
+    if (withdrawalsInactive(terms)) return skip("Withdrawals are not active yet");
     const created = await db.transaction(async (tx) => {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${tenantId}))`);
       const [account] = await tx
@@ -467,9 +474,10 @@ export async function autoWithdrawAfterPayment(tenantId: string, paymentId: stri
         .from(payoutAccounts)
         .where(and(eq(payoutAccounts.id, terms.autoWithdrawAccountId!), eq(payoutAccounts.tenantId, tenantId), isNull(payoutAccounts.disabledAt)))
         .limit(1);
-      if (!account || account.usableAfter > new Date()) return null;
+      if (!account) return "The chosen withdrawal account is no longer available";
+      if (account.usableAfter > new Date()) return "The withdrawal account is still in its cooling-off time";
       const { availableMinor } = await balancesFor(tenantId, tx);
-      if (availableMinor < leonesToMinor(env.PAYOUT_MIN_AMOUNT)) return null;
+      if (availableMinor < leonesToMinor(env.PAYOUT_MIN_AMOUNT)) return "The available amount is below the smallest withdrawal";
       const needsReview = availableMinor > leonesToMinor(env.PAYOUT_REVIEW_ABOVE);
       const [row] = await tx
         .insert(payouts)
@@ -478,7 +486,7 @@ export async function autoWithdrawAfterPayment(tenantId: string, paymentId: stri
       await tx.insert(walletEntries).values({ tenantId, kind: "payout", amountMinor: -availableMinor, availableAt: new Date(), payoutId: row!.id, note: "Automatic withdrawal" });
       return { row: row!, account };
     });
-    if (!created) return;
+    if (typeof created === "string") return skip(created);
     void recordAudit({
       action: "payout.auto_request",
       label: "Withdrew a payment automatically",

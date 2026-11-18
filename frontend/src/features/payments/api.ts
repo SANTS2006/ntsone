@@ -231,6 +231,8 @@ export interface PayoutRow {
   accountNumber: string;
   createdAt: string;
   completedAt: string | null;
+  /** Made by automatic withdrawal rather than by pressing Withdraw. */
+  automatic?: boolean;
 }
 
 export interface FundRefund {
