@@ -310,7 +310,9 @@ describe("paid voting", () => {
     expect(planVotePurchase(fixed)).toEqual({ votes: 1, totalMinor: 1_000, unitMinor: 1_000 });
 
     const any = { pricePerVoteMinor: 1_000, allowAnyAmount: true, maxVotesPerPayment: 50 };
-    expect(planVotePurchase(any, 2_500)).toEqual({ votes: 2, totalMinor: 2_000, unitMinor: 1_000 });
+    expect(planVotePurchase(any, 2_000)).toEqual({ votes: 2, totalMinor: 2_000, unitMinor: 1_000 });
+    // Only exact amounts buy votes: no change is left over.
+    expect(() => planVotePurchase(any, 2_500)).toThrow(/exact amount/);
     expect(planVotePurchase(any, 50_000).votes).toBe(50);
     // Less than one vote, nothing, a fraction, or a negative: refused.
     expect(() => planVotePurchase(any, 999)).toThrow();

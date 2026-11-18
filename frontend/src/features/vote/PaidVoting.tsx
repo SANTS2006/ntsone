@@ -1,8 +1,9 @@
 import * as React from "react";
+import { CoverImage } from "@/components/CoverImage";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BarChart3, Check, Coins, Lock, ShieldCheck, Ticket } from "lucide-react";
+import { BarChart3, Check, Coins, Lock, ShieldCheck, Ticket, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,12 @@ function previewPurchase(payment: Payment, amount: string) {
   if (!payment.allowAnyAmount) return { votes: 1, totalMinor: payment.pricePerVoteMinor, error: null as string | null };
   const minor = parseLeones(amount);
   if (minor === null || minor < payment.pricePerVoteMinor) return { votes: 0, totalMinor: 0, error: `Enter at least ${formatMinor(payment.pricePerVoteMinor)}, the price of one vote.` };
+  // Only exact amounts: a payment is a whole number of votes, with nothing left over.
+  if (minor % payment.pricePerVoteMinor !== 0) {
+    const below = Math.floor(minor / payment.pricePerVoteMinor) * payment.pricePerVoteMinor;
+    const above = below + payment.pricePerVoteMinor;
+    return { votes: 0, totalMinor: 0, error: `${formatMinor(minor)} isn't an exact amount for votes. One vote costs ${formatMinor(payment.pricePerVoteMinor)}, so enter ${formatMinor(below)} or ${formatMinor(above)}.` };
+  }
   const votes = Math.floor(minor / payment.pricePerVoteMinor);
   if (votes > payment.maxVotesPerPayment) return { votes: 0, totalMinor: 0, error: `One payment can buy at most ${payment.maxVotesPerPayment} votes.` };
   return { votes, totalMinor: votes * payment.pricePerVoteMinor, error: null };
@@ -36,9 +43,9 @@ function Candidates({ position, selected, onSelect, disabled }: { position: Vote
       {position.candidates.map((c) => (
         <label key={c.id} className={cn("flex cursor-pointer items-center gap-3 rounded-xl border-2 bg-card p-3 transition-colors", selected === c.id ? "border-primary shadow-glow" : "border-border/70 hover:border-primary/40")}>
           <input type="radio" name={`paid-${position.id}`} className="sr-only" checked={selected === c.id} onChange={() => onSelect(c.id)} />
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">{c.imageUrl ? <img src={c.imageUrl} alt="" className="h-full w-full object-contain" /> : null}</span>
+          <span className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted shadow-sm sm:h-36 sm:w-36">{c.imageUrl ? <CoverImage src={c.imageUrl} alt={c.name} loading="lazy" /> : <UserRound className="h-10 w-10 text-muted-foreground" aria-hidden="true" />}</span>
           <span className="min-w-0 flex-1">
-            <span className="block font-medium leading-tight">{c.name}</span>
+            <span className="block text-base font-semibold leading-tight sm:text-lg">{c.name}</span>
             {c.description && <span className="block text-xs text-muted-foreground">{c.description}</span>}
           </span>
           <span aria-hidden="true" className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2", selected === c.id ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>

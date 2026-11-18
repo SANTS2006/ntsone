@@ -12,7 +12,7 @@ import { formatMinor, minorToInput, parseLeones } from "@/lib/money";
 import type { Poll } from "../polls/api";
 import { pollKeys } from "../polls/hooks";
 import { getPollPaymentTerms, updatePollPaymentConfig, type PollPaymentConfig } from "./api";
-import { FeeAgreement, needsFeeAgreement } from "./FeeAgreement";
+import { FeeAgreement, needsFeeAgreement, useFeeConsent } from "./FeeAgreement";
 
 const DEFAULTS: PollPaymentConfig = { enabled: false, pricePerVoteMinor: 100, allowAnyAmount: false, maxVotesPerPayment: 100 };
 
@@ -27,9 +27,9 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
   const [price, setPrice] = React.useState(minorToInput(saved.pricePerVoteMinor));
   const [anyAmount, setAnyAmount] = React.useState(saved.allowAnyAmount);
   const [maxVotes, setMaxVotes] = React.useState(String(saved.maxVotesPerPayment));
-  const [agreed, setAgreed] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const { data: terms } = useQuery({ queryKey: ["payment-terms", "poll", poll.id], queryFn: () => getPollPaymentTerms(poll.id) });
+  const consent = useFeeConsent(terms);
 
   React.useEffect(() => {
     setEnabled(saved.enabled);
@@ -45,9 +45,10 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
   const validMax = Number.isInteger(maxVotesNumber) && maxVotesNumber >= 1 && maxVotesNumber <= 10_000;
   const mustAgree = enabled && needsFeeAgreement(terms);
   const dirty = enabled !== saved.enabled || priceMinor !== saved.pricePerVoteMinor || anyAmount !== saved.allowAnyAmount || (anyAmount && maxVotesNumber !== saved.maxVotesPerPayment);
-  const canSave = canEdit && (!enabled || (validPrice && validMax)) && (!mustAgree || agreed) && (dirty || (mustAgree && agreed));
+  const canSave = canEdit && (!enabled || (validPrice && validMax)) && (dirty || mustAgree);
 
   const save = async () => {
+    if (enabled && !consent.check()) return;
     setSaving(true);
     try {
       await updatePollPaymentConfig(poll.id, {
@@ -55,11 +56,10 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
         pricePerVoteMinor: validPrice ? priceMinor! : saved.pricePerVoteMinor,
         allowAnyAmount: anyAmount,
         maxVotesPerPayment: validMax ? maxVotesNumber : saved.maxVotesPerPayment,
-        acceptFee: mustAgree && agreed ? true : undefined,
+        acceptFee: mustAgree && consent.agreed ? true : undefined,
       });
       await queryClient.invalidateQueries({ queryKey: pollKeys.detail(poll.id) });
       await queryClient.invalidateQueries({ queryKey: ["payment-terms", "poll", poll.id] });
-      setAgreed(false);
       toast.success(enabled ? "Voters now pay for their votes" : "Voting is free again");
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Could not save the payment settings");
@@ -85,7 +85,7 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
             </Label>
             <p className="text-xs text-muted-foreground">Each payment is used once. To vote again, a voter pays again.</p>
           </div>
-          <Switch id={`pv-${poll.id}`} checked={enabled} onCheckedChange={setEnabled} disabled={!canEdit} />
+          <Switch id={`pv-${poll.id}`} checked={enabled} onCheckedChange={(v) => { setEnabled(v); consent.onEdit(); }} disabled={!canEdit} />
         </div>
 
         {enabled && (
@@ -95,13 +95,13 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
                 <Label htmlFor={`pv-price-${poll.id}`}>Price of one vote</Label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">SLE</span>
-                  <Input id={`pv-price-${poll.id}`} inputMode="decimal" className="pl-12" value={price} onChange={(e) => setPrice(e.target.value)} disabled={!canEdit} aria-invalid={!validPrice || undefined} />
+                  <Input id={`pv-price-${poll.id}`} inputMode="decimal" className="pl-12" value={price} onChange={(e) => { setPrice(e.target.value); consent.onEdit(); }} disabled={!canEdit} aria-invalid={!validPrice || undefined} />
                 </div>
                 <p className={`text-xs ${validPrice ? "text-muted-foreground" : "text-destructive"}`}>{validPrice ? "At least SLE 1." : "Enter at least SLE 1."}</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`pv-max-${poll.id}`}>Most votes in one payment</Label>
-                <Input id={`pv-max-${poll.id}`} inputMode="numeric" value={maxVotes} onChange={(e) => setMaxVotes(e.target.value)} disabled={!canEdit || !anyAmount} aria-invalid={(anyAmount && !validMax) || undefined} />
+                <Input id={`pv-max-${poll.id}`} inputMode="numeric" value={maxVotes} onChange={(e) => { setMaxVotes(e.target.value); consent.onEdit(); }} disabled={!canEdit || !anyAmount} aria-invalid={(anyAmount && !validMax) || undefined} />
                 <p className="text-xs text-muted-foreground">Only used when voters can pay any amount.</p>
               </div>
             </div>
@@ -117,13 +117,10 @@ export function PollPaymentSettingsCard({ poll, canEdit }: { poll: Poll; canEdit
                     : "Off: every payment is exactly the price and buys one vote."}
                 </p>
               </div>
-              <Switch id={`pv-any-${poll.id}`} checked={anyAmount} onCheckedChange={setAnyAmount} disabled={!canEdit} />
+              <Switch id={`pv-any-${poll.id}`} checked={anyAmount} onCheckedChange={(v) => { setAnyAmount(v); consent.onEdit(); }} disabled={!canEdit} />
             </div>
 
-            {saved.enabled && needsFeeAgreement(terms) && (
-              <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">Paid voting is paused: nobody can pay until an organization admin agrees to the platform fee below and saves.</p>
-            )}
-            <FeeAgreement id={`pv-fee-${poll.id}`} terms={terms} agreed={agreed} onChange={setAgreed} />
+            <FeeAgreement id={`pv-fee-${poll.id}`} terms={terms} agreed={consent.agreed} onChange={consent.setAgreed} error={consent.error} />
           </>
         )}
 

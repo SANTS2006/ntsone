@@ -12,7 +12,7 @@ import { formatMinor, minorToInput, parseLeones } from "@/lib/money";
 import type { PaymentConfig, Program } from "@/types/api";
 import { programKeys } from "../programs/hooks";
 import { getPaymentTerms, updatePaymentConfig } from "./api";
-import { FeeAgreement, needsFeeAgreement } from "./FeeAgreement";
+import { FeeAgreement, needsFeeAgreement, useFeeConsent } from "./FeeAgreement";
 
 function PriceField({ id, label, hint, value, onChange }: { id: string; label: string; hint: string; value: string; onChange: (v: string) => void }) {
   const invalid = parseLeones(value) === null;
@@ -42,8 +42,8 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
   const [ticket, setTicket] = React.useState(minorToInput(saved.ticketPriceMinor));
   const [allowInPerson, setAllowInPerson] = React.useState(saved.allowPayInPerson !== false);
   const [saving, setSaving] = React.useState(false);
-  const [agreed, setAgreed] = React.useState(false);
   const { data: terms } = useQuery({ queryKey: ["payment-terms", program.id], queryFn: () => getPaymentTerms(program.id) });
+  const consent = useFeeConsent(terms);
   const mustAgree = enabled && needsFeeAgreement(terms);
 
   React.useEffect(() => {
@@ -70,7 +70,8 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
     next.ticketPriceMinor !== saved.ticketPriceMinor;
 
   const save = async () => {
-    if (!valid || (mustAgree && !agreed)) return;
+    if (!valid) return;
+    if (enabled && !consent.check()) return;
     setSaving(true);
     try {
       await updatePaymentConfig(program.id, {
@@ -79,10 +80,9 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
         idCardPriceMinor: next.idCardPriceMinor ?? 0,
         ticketPriceMinor: next.ticketPriceMinor ?? 0,
         allowPayInPerson: allowInPerson,
-        acceptFee: mustAgree && agreed ? true : undefined,
+        acceptFee: mustAgree && consent.agreed ? true : undefined,
       });
       await queryClient.invalidateQueries({ queryKey: ["payment-terms", program.id] });
-      setAgreed(false);
       await queryClient.invalidateQueries({ queryKey: programKeys.all });
       toast.success(enabled ? "Payments are on" : "Payments are off");
     } catch (err) {
@@ -113,25 +113,25 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
             </Label>
             <p className="text-xs text-muted-foreground">Money goes to your payment fund, which you can withdraw to your mobile money or bank.</p>
           </div>
-          <Switch id={`pay-${program.id}`} checked={enabled} onCheckedChange={setEnabled} />
+          <Switch id={`pay-${program.id}`} checked={enabled} onCheckedChange={(v) => { setEnabled(v); consent.onEdit(); }} />
         </div>
 
         {enabled && !isOrder && (
           <div className="grid gap-4 sm:grid-cols-3">
-            <PriceField id="fee" label="Registration fee" hint="Charged to everyone who registers." value={fee} onChange={setFee} />
+            <PriceField id="fee" label="Registration fee" hint="Charged to everyone who registers." value={fee} onChange={(v) => { setFee(v); consent.onEdit(); }} />
             <PriceField
               id="idcard"
               label="ID card price"
               hint={program.idCardEnabled ? "Added when the program issues ID cards." : "Turn on ID cards to charge for them."}
               value={idCard}
-              onChange={setIdCard}
+              onChange={(v) => { setIdCard(v); consent.onEdit(); }}
             />
             <PriceField
               id="ticket"
               label="Ticket price"
               hint={program.ticketEnabled ? "Added when the program issues tickets." : "Turn on tickets to charge for them."}
               value={ticket}
-              onChange={setTicket}
+              onChange={(v) => { setTicket(v); consent.onEdit(); }}
             />
           </div>
         )}
@@ -145,7 +145,7 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
                 They can register now and pay for the ID card or ticket at the program instead. Those stay locked until you confirm the payment on their registration.
               </p>
             </div>
-            <Switch id={`inperson-${program.id}`} checked={allowInPerson} onCheckedChange={setAllowInPerson} />
+            <Switch id={`inperson-${program.id}`} checked={allowInPerson} onCheckedChange={(v) => { setAllowInPerson(v); consent.onEdit(); }} />
           </div>
         )}
         {enabled && !isOrder && (
@@ -155,12 +155,9 @@ export function PaymentSettingsCard({ program }: { program: Program }) {
         )}
         {enabled && isOrder && <p className="text-sm text-muted-foreground">Add the items you sell and their prices under &ldquo;Items for sale&rdquo; below. The customer&apos;s total is worked out from them.</p>}
 
-        {saved.enabled && needsFeeAgreement(terms) && (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">Payments are paused: nobody can pay until an organization admin agrees to the platform fee below and saves.</p>
-        )}
-        {enabled && <FeeAgreement id={`fee-${program.id}`} terms={terms} agreed={agreed} onChange={setAgreed} />}
+        {enabled && <FeeAgreement id={`fee-${program.id}`} terms={terms} agreed={consent.agreed} onChange={consent.setAgreed} error={consent.error} />}
 
-        <Button className="w-fit" onClick={save} loading={saving} disabled={(!dirty && !(mustAgree && agreed)) || !valid || (mustAgree && !agreed)}>
+        <Button className="w-fit" onClick={save} loading={saving} disabled={(!dirty && !mustAgree) || !valid}>
           Save payment settings
         </Button>
       </CardContent>

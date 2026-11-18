@@ -1,4 +1,5 @@
 import { withSignOutOverlay } from "@/components/SignOutOverlay";
+import { CoverImage } from "@/components/CoverImage";
 import { Loading } from "@/components/Loading";
 import * as React from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -72,15 +73,15 @@ function Ballot({
                 onChange={() => onSelect(candidate.id)}
                 className="sr-only"
               />
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted sm:h-20 sm:w-20">
+              <span className="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted shadow-sm sm:h-44 sm:w-44">
                 {candidate.imageUrl ? (
-                  <img src={candidate.imageUrl} alt="" className="h-full w-full object-contain" />
+                  <CoverImage src={candidate.imageUrl} alt={candidate.name} loading="lazy" />
                 ) : (
-                  <UserRound className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+                  <UserRound className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
                 )}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-semibold leading-tight">{candidate.name}</span>
+                <span className="block text-lg font-semibold leading-tight sm:text-xl">{candidate.name}</span>
                 {candidate.description && <span className="mt-1 block text-sm text-muted-foreground">{candidate.description}</span>}
               </span>
               <span

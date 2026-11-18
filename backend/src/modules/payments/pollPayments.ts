@@ -63,6 +63,11 @@ export function planVotePurchase(config: Pick<PollPaymentConfig, "pricePerVoteMi
   if (amountMinor === undefined || !Number.isSafeInteger(amountMinor) || amountMinor < unit) {
     throw AppError.validation(`Enter at least ${formatMinor(unit)}, the price of one vote.`);
   }
+  // Only exact amounts buy votes, so a payment never has change left over.
+  if (amountMinor % unit !== 0) {
+    const below = Math.floor(amountMinor / unit) * unit;
+    throw AppError.validation(`${formatMinor(amountMinor)} isn't an exact amount for votes. One vote costs ${formatMinor(unit)}, so pay ${formatMinor(below)} or ${formatMinor(below + unit)}.`);
+  }
   const votes = Math.floor(amountMinor / unit);
   if (votes > config.maxVotesPerPayment) {
     throw AppError.validation(`One payment can buy at most ${config.maxVotesPerPayment} votes (${formatMinor(config.maxVotesPerPayment * unit)}).`);
