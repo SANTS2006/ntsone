@@ -121,9 +121,23 @@ export async function waivePaymentHandler(request: FastifyRequest, reply: Fastif
 export async function fundsSummaryHandler(request: FastifyRequest, reply: FastifyReply) {
   const { tenantId } = actorOf(request);
   noStore(reply);
-  const [balances, providers, accounts, terms] = await Promise.all([wallet.balancesFor(tenantId), payoutsService.payoutProviders(), payoutsService.listPayoutAccounts(tenantId), termsFor(tenantId)]);
+  const [balances, providers, accounts, terms, [received]] = await Promise.all([
+    wallet.balancesFor(tenantId),
+    payoutsService.payoutProviders(),
+    payoutsService.listPayoutAccounts(tenantId),
+    termsFor(tenantId),
+    // Everything this organization has ever been paid, however long ago.
+    db
+      .select({
+        total: sql<string>`coalesce(sum(${payments.amountMinor}), 0)`,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(payments)
+      .where(and(eq(payments.tenantId, tenantId!), eq(payments.status, "completed"))),
+  ]);
   return sendSuccess(reply, {
     configured: isMonimeConfigured(),
+    receivedAllTime: { totalMinor: Number(received?.total ?? 0), paymentCount: received?.count ?? 0 },
     balances,
     accounts,
     providers,
@@ -337,7 +351,51 @@ export async function platformPaymentsOverviewHandler(_request: FastifyRequest, 
     }
   }
   const t = totals[0];
+  // One line per organization: what it has been paid in all time, the fees taken, refunds, withdrawals and what is left.
+  const perOrganization = await db.execute<{
+    id: string;
+    name: string;
+    payment_count: number;
+    paid: string;
+    fees: string;
+    refunded: string;
+    withdrawn: string;
+    balance: string;
+    last_paid_at: Date | null;
+  }>(sql`
+    select t.id, t.name,
+      coalesce(p.payment_count, 0)::int as payment_count,
+      coalesce(p.paid, 0) as paid,
+      coalesce(p.fees, 0) as fees,
+      coalesce(p.refunded, 0) as refunded,
+      coalesce(w.withdrawn, 0) as withdrawn,
+      coalesce(b.balance, 0) as balance,
+      p.last_paid_at
+    from tenants t
+    left join (
+      select tenant_id, count(*) as payment_count, sum(amount_minor) as paid, sum(fee_minor) as fees, sum(refunded_minor) as refunded, max(paid_at) as last_paid_at
+      from payments where status = 'completed' group by tenant_id
+    ) p on p.tenant_id = t.id
+    left join (
+      select tenant_id, sum(amount_minor) as withdrawn from payouts where status = 'completed' group by tenant_id
+    ) w on w.tenant_id = t.id
+    left join (
+      select tenant_id, sum(amount_minor) as balance from wallet_entries group by tenant_id
+    ) b on b.tenant_id = t.id
+    order by coalesce(p.paid, 0) desc, t.name
+  `);
   return sendSuccess(reply, {
+    organizations: perOrganization.rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      paymentCount: Number(r.payment_count),
+      paidMinor: Number(r.paid),
+      feesMinor: Number(r.fees),
+      refundedMinor: Number(r.refunded),
+      withdrawnMinor: Number(r.withdrawn),
+      balanceMinor: Number(r.balance),
+      lastPaidAt: r.last_paid_at,
+    })),
     awaitingReview: awaiting,
     refundsAwaitingReview: awaitingRefunds,
     paymentsInReview: flagged,

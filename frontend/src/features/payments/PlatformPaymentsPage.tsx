@@ -115,6 +115,62 @@ export function PlatformPaymentsPage() {
       </div>
 
       <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Paid in by each organization, all time</CardTitle>
+          <CardDescription>What every organization has received, the platform fee taken, refunds, what it has withdrawn, and what is left in its fund.</CardDescription>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Organization</TableHead>
+                <TableHead className="text-right">Payments</TableHead>
+                <TableHead className="text-right">Paid in</TableHead>
+                <TableHead className="text-right">Platform fee</TableHead>
+                <TableHead className="text-right">Refunded</TableHead>
+                <TableHead className="text-right">Withdrawn</TableHead>
+                <TableHead className="text-right">In fund</TableHead>
+                <TableHead>Last payment</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.organizations.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} className="py-6 text-center text-muted-foreground">
+                    No organizations yet.
+                  </TableCell>
+                </TableRow>
+              )}
+              {data.organizations.map((o) => (
+                <TableRow key={o.id}>
+                  <TableCell className="font-medium">{o.name}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{o.paymentCount}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right font-semibold">{formatMinor(o.paidMinor)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(o.feesMinor)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(o.refundedMinor)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(o.withdrawnMinor)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(o.balanceMinor)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-sm text-muted-foreground">{o.lastPaidAt ? new Date(o.lastPaidAt).toLocaleString() : "Never"}</TableCell>
+                </TableRow>
+              ))}
+              {data.organizations.length > 1 && (
+                <TableRow className="bg-muted/40 font-semibold">
+                  <TableCell>All organizations</TableCell>
+                  <TableCell className="text-right">{data.organizations.reduce((s, o) => s + o.paymentCount, 0)}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(data.organizations.reduce((s, o) => s + o.paidMinor, 0))}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(data.organizations.reduce((s, o) => s + o.feesMinor, 0))}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(data.organizations.reduce((s, o) => s + o.refundedMinor, 0))}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(data.organizations.reduce((s, o) => s + o.withdrawnMinor, 0))}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right">{formatMinor(data.organizations.reduce((s, o) => s + o.balanceMinor, 0))}</TableCell>
+                  <TableCell />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
           <div>
             <CardTitle className="text-base">Withdrawals waiting for approval</CardTitle>

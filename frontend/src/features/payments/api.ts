@@ -193,6 +193,8 @@ export interface FundsSummary {
   providers: { momo: Provider[]; banks: Provider[] };
   /** Whether each payment is sent to a withdrawal account at once, and which one (organizations only). */
   autoWithdraw?: { enabled: boolean; accountId: string | null };
+  /** Everything the organization has ever been paid (completed payments, before fees and refunds). */
+  receivedAllTime?: { totalMinor: number; paymentCount: number };
   /** Withdrawals are off until this moment (empty: on). */
   withdrawalsActiveFrom?: string | null;
   limits: {
@@ -309,7 +311,21 @@ export const platformFund: FundApi = {
 
 // ---- the platform team ----
 
+export interface OrganizationPaymentSummary {
+  id: string;
+  name: string;
+  paymentCount: number;
+  paidMinor: number;
+  feesMinor: number;
+  refundedMinor: number;
+  withdrawnMinor: number;
+  balanceMinor: number;
+  lastPaidAt: string | null;
+}
+
 export interface PlatformPayments {
+  /** Every organization with what it has been paid in all time, fees, refunds, withdrawals and balance. */
+  organizations: OrganizationPaymentSummary[];
   awaitingReview: { id: string; tenantName: string; amountMinor: number; accountName: string; providerId: string; accountNumber: string; createdAt: string }[];
   refundsAwaitingReview: { id: string; paymentId: string; tenantName: string; amountMinor: number; reason: string; providerId: string; phoneNumber: string; createdAt: string }[];
   paymentsInReview: { id: string; amountMinor: number; failureReason: string | null; createdAt: string; tenantName: string; payerEmail: string | null }[];

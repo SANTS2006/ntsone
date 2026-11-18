@@ -462,6 +462,21 @@ export function FundsPage({ fund = organizationFund }: { fund?: FundApi }) {
         </p>
       )}
 
+      {!platform && funds.receivedAllTime && (
+        <Card>
+          <CardContent className="flex items-center gap-3 py-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-white shadow-glow">
+              <Banknote className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Total received, all time</p>
+              <p className="text-2xl font-bold">{formatMinor(funds.receivedAllTime.totalMinor)}</p>
+              <p className="text-xs text-muted-foreground">From {funds.receivedAllTime.paymentCount} {funds.receivedAllTime.paymentCount === 1 ? "payment" : "payments"}, before the platform fee and any refunds.</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {!platform && <AutoWithdrawCard funds={funds} />}
 
       <Card>
