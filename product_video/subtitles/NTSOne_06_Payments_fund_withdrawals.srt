@@ -1,0 +1,60 @@
+1
+00:00:00,200 --> 00:00:13,237
+In this video you will learn how payments work in NTSOne: how to switch them on, how
+the payment fund works, and how to withdraw your money. The amounts you will see are
+sample demonstration data.
+
+2
+00:00:13,837 --> 00:00:29,499
+Open a program, an order form or a poll, and find the Payments section. Switch on Take
+payments and set what each thing costs, such as a registration fee. People then pay
+with Orange Money, Africell Money or QMoney.
+
+3
+00:00:30,099 --> 00:00:50,435
+The platform keeps a small fee from every payment, and an organization admin must
+agree to it first. If you try to save without ticking the box, you are asked to agree.
+Tick it and save, and payments are on. If you change a setting later, the box clears,
+and you tick it again before saving.
+
+4
+00:00:51,035 --> 00:01:01,673
+The Payments tab of the program lists every payment, who paid, how they paid, and its
+status. Paid, cancelled and waiting payments are all recorded.
+
+5
+00:01:02,273 --> 00:01:20,140
+All the money goes to your payment fund. Available is what you can withdraw now. On
+hold is money still inside the short waiting time after a payment. Below, you can see
+the total received all time, the total after the platform fee, and the total after
+refunds.
+
+6
+00:01:20,740 --> 00:01:42,286
+To withdraw, first add a withdrawal account, a mobile money number or a bank account,
+and confirm with your password. A new account can be used after a short waiting time.
+Then press Withdraw, choose the account and the amount, and confirm with your
+password. Large withdrawals wait for approval from the platform team.
+
+7
+00:01:42,886 --> 00:01:59,063
+If you want your money sent on straight away, turn on Automatic withdrawal. Choose an
+account and confirm with your password. From then on, each successful payment is sent
+to that account with no waiting time, and the platform fee is still taken.
+
+8
+00:01:59,663 --> 00:02:11,891
+Everything is recorded. The Withdrawals table shows each withdrawal and its status,
+and Money in and out lists every payment received, every fee and every withdrawal,
+newest first.
+
+9
+00:02:12,491 --> 00:02:31,152
+The platform team sees every organization's totals: money paid in, fees, refunds,
+withdrawals, and what is left in each fund. For each organization they can also set
+the platform fee, the waiting time before money can be withdrawn, and when withdrawals
+switch on.
+
+10
+00:02:31,752 --> 00:02:37,411
+That is how payments work in NTSOne. Use this video as your guide.

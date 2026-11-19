@@ -1,0 +1,15 @@
+1
+00:00:00,200 --> 00:00:04,658
+Accept mobile money for registrations, orders and votes.
+
+2
+00:00:05,258 --> 00:00:09,987
+Follow your money in the payment fund, and withdraw to your own account.
+
+3
+00:00:10,587 --> 00:00:14,276
+Turn on automatic withdrawal to be paid straight away.
+
+4
+00:00:14,876 --> 00:00:19,200
+NTSOne. Get paid, simply.

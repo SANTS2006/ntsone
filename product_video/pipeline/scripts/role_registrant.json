@@ -1,0 +1,63 @@
+{
+ "title": "Guide for registrants and customers",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "intro",
+   "card": "Registrants and customers|No account needed",
+   "logo": true,
+   "text": "This guide is for people who register for a program or order from a business. You do not need an account."
+  },
+  {
+   "id": "a",
+   "title": "Registering",
+   "images": [
+    [
+     "video_registrations/public_errors",
+     1
+    ],
+    [
+     "video_registrations/public_filled",
+     1
+    ]
+   ],
+   "text": "Open the link or scan the QR code, and fill in the form. If an answer is missing or wrong, the problem is shown right under that question."
+  },
+  {
+   "id": "b",
+   "title": "Ordering",
+   "images": [
+    [
+     "video_business/store_cart",
+     1
+    ],
+    [
+     "video_business/store_review",
+     1
+    ]
+   ],
+   "text": "When you order, add items to your cart, check the total, and confirm your order."
+  },
+  {
+   "id": "c",
+   "title": "Your confirmation",
+   "images": [
+    [
+     "video_registrations/public_done",
+     1
+    ],
+    [
+     "video_business/store_done",
+     1
+    ]
+   ],
+   "text": "You then get a registration or order number, and a copy you can preview, print or download."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. One platform. Endless possibilities."
+  }
+ ]
+}

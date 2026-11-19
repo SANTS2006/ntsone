@@ -1,0 +1,67 @@
+{
+ "title": "Guide for the platform team",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "intro",
+   "card": "The platform team|What you can do",
+   "logo": true,
+   "text": "This guide is for the platform team, the super admins."
+  },
+  {
+   "id": "a",
+   "title": "All organizations",
+   "images": [
+    [
+     "video_platform/tenants_list",
+     1
+    ],
+    [
+     "video_platform/tenant_terms",
+     1
+    ]
+   ],
+   "text": "You see every organization, its users and programs, and set its payment terms."
+  },
+  {
+   "id": "b",
+   "title": "Money",
+   "images": [
+    [
+     "video_platform/payments_summary",
+     1
+    ],
+    [
+     "video_platform/platform_fund",
+     1
+    ]
+   ],
+   "text": "You approve large withdrawals and refunds, see what every organization has been paid, and look after the platform fund."
+  },
+  {
+   "id": "c",
+   "title": "Care and oversight",
+   "images": [
+    [
+     "video_platform/inbox_open",
+     1
+    ],
+    [
+     "video_platform/maintenance",
+     1
+    ],
+    [
+     "video_platform/audit",
+     1
+    ]
+   ],
+   "text": "You read the inbox, switch maintenance mode on when needed, check backups, and review the audit log."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. One platform. Endless possibilities."
+  }
+ ]
+}

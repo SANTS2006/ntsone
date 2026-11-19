@@ -1,0 +1,26 @@
+{
+  "title": "NTSOne: Businesses, orders and invoices",
+  "steps_dir": "out/video_business/steps",
+  "scenes": [
+    { "id": "intro", "card": "Businesses|Orders, invoices, receipts and more", "logo": true,
+      "text": "In this video you will learn how to run a business with NTSOne. Create a business, put your products online, take an order from a customer, and send an invoice." },
+    { "id": "create", "title": "1. Add your business", "images": [["list", 1], ["create_dialog", 1.4], ["overview", 1.1]],
+      "text": "Open Businesses and choose New Business. Enter its name, email, phone, address and a short description. Your business gets its own workspace, with tabs for the order form, orders, quotations, invoices, receipts, business cards, bookkeeping and analytics." },
+    { "id": "items", "title": "2. Add your products", "images": [["order_items", 1.4], ["order_fields", 1.3]],
+      "text": "Open the Order Form tab and add the items you sell, each with a name and a price. You can also add pictures and videos. Then add the questions customers must answer, such as their name, phone number and delivery address." },
+    { "id": "publish", "title": "3. Publish and share", "images": [["order_publish", 1.4]],
+      "text": "Save and publish the form, then choose Start taking orders. Your order page now has its own link and a QR code, so customers can open it from a message, a poster or a social media post." },
+    { "id": "store", "title": "4. The customer's order page", "images": [["store_open", 1], ["store_products", 1.2], ["store_cart", 1]],
+      "text": "This is your online shop. Customers see your business details, browse your products, and add what they want to their order. The total updates as they go." },
+    { "id": "checkout", "title": "5. Checkout", "images": [["store_checkout", 1.2], ["store_review", 1.2], ["store_done", 1.2]],
+      "text": "At checkout the customer enters their details, reviews the order, and confirms it. When payments are turned on, they pay with mobile money at this point. They then get an order number and a copy of their order to keep." },
+    { "id": "orders", "title": "6. Manage orders", "images": [["orders_list", 1], ["order_detail", 1.4]],
+      "text": "Back in your workspace, the Orders tab lists every order. Open one to see the items, the customer's answers and its history. Choose a new status, add a note, and update it, and the customer can be emailed at each step." },
+    { "id": "invoice", "title": "7. Create an invoice", "images": [["invoice_form", 1.2], ["invoice_saved", 1.3]],
+      "text": "To bill a client, open Invoices and choose New invoice. Enter the client, the items, quantities and prices. Save it, and you can print it, download it as a PDF, or send it by email. Receipts and quotations work the same way." },
+    { "id": "more", "title": "8. Receipts, quotations, cards and analytics", "images": [["receipts", 1], ["quotations", 1], ["cards", 1], ["analytics", 1]],
+      "text": "The same tabs let you create receipts and quotations, design business cards with a QR code, and follow your orders, money invoiced and money received in Analytics." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how you run a business with NTSOne. Use this video as your guide, and watch the next video to learn about payments." }
+  ]
+}

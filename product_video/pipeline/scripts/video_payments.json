@@ -1,0 +1,26 @@
+{
+  "title": "NTSOne: Payments, the payment fund and withdrawals",
+  "steps_dir": "out/video_payments/steps",
+  "scenes": [
+    { "id": "intro", "card": "Payments and the payment fund|Take payments and withdraw your money", "logo": true,
+      "text": "In this video you will learn how payments work in NTSOne: how to switch them on, how the payment fund works, and how to withdraw your money. The amounts you will see are sample demonstration data." },
+    { "id": "turnon", "title": "1. Turn on payments", "images": [["pay_card", 1.2], ["pay_prices", 1.2]],
+      "text": "Open a program, an order form or a poll, and find the Payments section. Switch on Take payments and set what each thing costs, such as a registration fee. People then pay with Orange Money, Africell Money or QMoney." },
+    { "id": "fee", "title": "2. Agree to the platform fee", "images": [["pay_fee_error", 1.3], ["pay_fee", 1], ["pay_saved", 1]],
+      "text": "The platform keeps a small fee from every payment, and an organization admin must agree to it first. If you try to save without ticking the box, you are asked to agree. Tick it and save, and payments are on. If you change a setting later, the box clears, and you tick it again before saving." },
+    { "id": "list", "title": "3. See the payments", "images": [["prog_payments", 1.4]],
+      "text": "The Payments tab of the program lists every payment, who paid, how they paid, and its status. Paid, cancelled and waiting payments are all recorded." },
+    { "id": "fund", "title": "4. Your payment fund", "images": [["fund_top", 1.2], ["fund_totals", 1.4]],
+      "text": "All the money goes to your payment fund. Available is what you can withdraw now. On hold is money still inside the short waiting time after a payment. Below, you can see the total received all time, the total after the platform fee, and the total after refunds." },
+    { "id": "withdraw", "title": "5. Withdraw your money", "images": [["fund_accounts", 1.2], ["add_account", 1.2], ["withdraw_dialog", 1.2]],
+      "text": "To withdraw, first add a withdrawal account, a mobile money number or a bank account, and confirm with your password. A new account can be used after a short waiting time. Then press Withdraw, choose the account and the amount, and confirm with your password. Large withdrawals wait for approval from the platform team." },
+    { "id": "auto", "title": "6. Automatic withdrawal", "images": [["fund_auto", 1.4]],
+      "text": "If you want your money sent on straight away, turn on Automatic withdrawal. Choose an account and confirm with your password. From then on, each successful payment is sent to that account with no waiting time, and the platform fee is still taken." },
+    { "id": "records", "title": "7. Everything is recorded", "images": [["fund_withdrawals", 1.1], ["fund_ledger", 1.4]],
+      "text": "Everything is recorded. The Withdrawals table shows each withdrawal and its status, and Money in and out lists every payment received, every fee and every withdrawal, newest first." },
+    { "id": "platform", "title": "8. For the platform team", "images": [["platform_summary", 1.3], ["platform_terms", 1.4]],
+      "text": "The platform team sees every organization's totals: money paid in, fees, refunds, withdrawals, and what is left in each fund. For each organization they can also set the platform fee, the waiting time before money can be withdrawn, and when withdrawals switch on." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how payments work in NTSOne. Use this video as your guide." }
+  ]
+}

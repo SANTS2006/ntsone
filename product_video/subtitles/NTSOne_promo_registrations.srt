@@ -1,0 +1,16 @@
+1
+00:00:00,200 --> 00:00:08,128
+Create a registration form in minutes. Drag and drop questions, add rules, and preview
+it on any screen.
+
+2
+00:00:08,728 --> 00:00:14,776
+Share a link or a QR code. Registrants see mistakes right under each question.
+
+3
+00:00:15,376 --> 00:00:20,445
+Then search, filter, approve and export every registration.
+
+4
+00:00:21,045 --> 00:00:25,364
+NTSOne. Registrations made simple.

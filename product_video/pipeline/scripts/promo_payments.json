@@ -1,0 +1,53 @@
+{
+ "title": "Payments promo",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "a",
+   "title": "Payments",
+   "images": [
+    [
+     "video_payments/pay_fee",
+     1
+    ],
+    [
+     "video_payments/prog_payments",
+     1
+    ]
+   ],
+   "text": "Accept mobile money for registrations, orders and votes."
+  },
+  {
+   "id": "b",
+   "title": "Payment fund",
+   "images": [
+    [
+     "video_payments/fund_top",
+     1
+    ],
+    [
+     "video_payments/fund_ledger",
+     1
+    ]
+   ],
+   "text": "Follow your money in the payment fund, and withdraw to your own account."
+  },
+  {
+   "id": "c",
+   "title": "Automatic withdrawal",
+   "images": [
+    [
+     "video_payments/fund_auto",
+     1
+    ]
+   ],
+   "text": "Turn on automatic withdrawal to be paid straight away."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. Get paid, simply."
+  }
+ ]
+}

@@ -1,0 +1,72 @@
+1
+00:00:00,200 --> 00:00:11,947
+In this video you will learn how to run a registration from
+start to finish with NTSOne. Create a program, build and
+publish its form, collect registrations, and manage them.
+
+2
+00:00:12,547 --> 00:00:27,763
+Open Programs and choose New Program. Give it a name and a
+short description, then select Create program. Your program
+starts as a draft, with tabs for its form, registrations,
+analytics and verifications.
+
+3
+00:00:28,363 --> 00:00:44,031
+Next, open the Form Builder. Choose a type of question, such
+as Short Text, press Add field, and give it a label. You can
+mark a question as required. There are twenty three question
+types to choose from.
+
+4
+00:00:44,631 --> 00:00:56,998
+Add the rest of your questions: email, phone number, date of
+birth, or a yes or no question. Use Preview to see exactly how
+the form will look to the people who register.
+
+5
+00:00:57,598 --> 00:01:10,585
+When you are happy with it, choose Save Draft, then Publish.
+Then publish the program itself and open registration. Your
+program now has a public link and a QR code that you can
+share.
+
+6
+00:01:11,185 --> 00:01:22,693
+This is what a registrant sees. If they miss a required
+answer, the problem is shown right under that question, with a
+red outline, so they know exactly what to fix.
+
+7
+00:01:23,293 --> 00:01:36,185
+As they fill in the form, each answer turns green when it is
+correct. After they submit, they receive a registration
+number, and they can preview, print or download a copy of
+their registration.
+
+8
+00:01:36,785 --> 00:01:52,956
+Back in your workspace, the Registrations tab lists everyone
+who has registered. You can search, filter by status or date,
+import from Excel, and export to Excel or CSV. Open a
+registration to read every answer.
+
+9
+00:01:53,556 --> 00:02:04,744
+To update a registration, choose a new status, such as
+Approved, add an optional note, and press Update status. Every
+change is saved in the history.
+
+10
+00:02:05,344 --> 00:02:23,600
+NTSOne can also issue ID cards and tickets with a QR code.
+Turn them on from the program page, pick a design, and each
+registrant gets their own. When a code is scanned at the door,
+the Verifications tab records who it was, whether it was
+valid, and when.
+
+11
+00:02:24,200 --> 00:02:33,543
+That is how you run a registration with NTSOne. Use this video
+as your guide, and watch the next video to learn about voting
+polls.

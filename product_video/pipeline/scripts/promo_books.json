@@ -1,0 +1,42 @@
+{
+ "title": "Bookkeeping promo",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "a",
+   "title": "Bookkeeping",
+   "images": [
+    [
+     "video_books/entry_dialog",
+     1
+    ],
+    [
+     "video_books/books_summary",
+     1
+    ]
+   ],
+   "text": "Write down sales and spending with big, simple buttons."
+  },
+  {
+   "id": "b",
+   "title": "Reports",
+   "images": [
+    [
+     "video_books/reports",
+     1
+    ],
+    [
+     "video_books/reports_owe",
+     1
+    ]
+   ],
+   "text": "See your profit, your loans, and who owes you."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. Know your numbers."
+  }
+ ]
+}

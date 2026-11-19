@@ -1,0 +1,28 @@
+{
+  "title": "NTSOne: Contributions and wish lists",
+  "steps_dir": "out/video_groups/steps",
+  "scenes": [
+    { "id": "intro", "card": "Contributions and wish lists|Track who paid, and plan what you want", "logo": true,
+      "text": "In this video you will learn two simple tools in NTSOne: Contributions, to track money that a group collects, and Wish lists, to plan what you want to get. The names and amounts shown are sample data." },
+    { "id": "clist", "title": "1. Contributions", "images": [["c_list", 1.2], ["c_new", 1.4]],
+      "text": "Open Contributions and choose New contribution. Give it a name and say what the money is for. Choose Monthly, for dues that people pay every month, or One time. Add the columns you want to keep for each contributor, such as their name and phone number, and the expected monthly amount." },
+    { "id": "overview", "title": "2. The overview", "images": [["c_overview", 1.3]],
+      "text": "Each contribution shows the money collected, the money taken out, and the money still held. The Overview tab also shows the totals year by year and who is behind." },
+    { "id": "tracker", "title": "3. The monthly tracker", "images": [["c_tracker", 1.8]],
+      "text": "The Monthly tracker has a row for every contributor and a column for every month. Paid months are green, a month paid less than expected is orange, and a month not paid is red. Click a month to record a payment. Once a month has passed, a recorded payment is locked, but months that were never filled in can still be filled in later." },
+    { "id": "people", "title": "4. Contributors and money taken", "images": [["c_contributors", 1.2], ["c_taken", 1.3], ["c_history", 1.2]],
+      "text": "The Contributors tab is where you add and edit the people. Money taken records every amount the group takes out, with a note saying why, so the balance held is always clear. History keeps a record of every change, and you can export any table to Excel or CSV." },
+    { "id": "wlist", "title": "5. Wish lists", "images": [["w_list", 1.1], ["w_items", 1.2]],
+      "text": "Wish lists are private lists of things you want to buy or have. Choose New wish list, give it a name, and optionally a budget and a target date. Then choose Add items, and add what you wish for, one by one or many at once." },
+    { "id": "add", "title": "6. Adding items", "images": [["w_add", 1.5]],
+      "text": "Type each item with an optional quantity and price each, or paste a whole list. The priority and category you choose apply to all the items you add together. You can edit an item later to add more details. You can search the list, filter it by priority or category, and sort it." },
+    { "id": "got", "title": "7. Marking something as gotten", "images": [["w_got", 1.3], ["w_gotten", 1.5]],
+      "text": "When you get something, press Got it. Enter the total price you paid, the date you got it, and where it came from, with an optional note. It moves to the Gotten tab, which shows how much you saved compared with the price you expected, and the progress bar shows how much of your budget is spent." },
+    { "id": "summary", "title": "8. Summary and activity", "images": [["w_summary", 1.3], ["w_activity", 1.2]],
+      "text": "The Summary tab shows your budget, and your items by category, by month and by priority. The Activity tab is a record that cannot be changed. Nothing is ever deleted: removed items stay in the records." },
+    { "id": "share", "title": "9. Share a list", "images": [["w_sharing", 1.5]],
+      "text": "You can share a list with family or friends. Choose Invite someone, and they get their own private link and QR code. You decide whether they can only look, or also add and change items. They do not need an account, and they can only see that one list." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how you use contributions and wish lists in NTSOne. Use this video as your guide." }
+  ]
+}

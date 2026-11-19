@@ -1,0 +1,55 @@
+{
+ "title": "Guide for voters",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "intro",
+   "card": "Voters|How to vote",
+   "logo": true,
+   "text": "This guide is for voters. You open the voting link you were given."
+  },
+  {
+   "id": "a",
+   "title": "Sign in, if asked",
+   "images": [
+    [
+     "video_voting/account_login",
+     1
+    ]
+   ],
+   "text": "If the poll asks for an account, you sign in or create one. Some polls let anyone with the link vote straight away."
+  },
+  {
+   "id": "b",
+   "title": "Choose and vote",
+   "images": [
+    [
+     "video_voting/vote_open",
+     1
+    ],
+    [
+     "video_voting/vote_selected",
+     1
+    ]
+   ],
+   "text": "Choose one candidate for each position and press Vote. Your vote is secret."
+  },
+  {
+   "id": "c",
+   "title": "Done",
+   "images": [
+    [
+     "video_voting/vote_done",
+     1
+    ]
+   ],
+   "text": "You are thanked straight away, and if the organizer allows it, you can watch the live results."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. Secure voting."
+  }
+ ]
+}

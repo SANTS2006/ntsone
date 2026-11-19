@@ -1,0 +1,63 @@
+{
+ "title": "Guide for organization admins",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "intro",
+   "card": "Organization admins|What you can do",
+   "logo": true,
+   "text": "This guide is for organization admins. You own your organization's workspace."
+  },
+  {
+   "id": "a",
+   "title": "Everything in your workspace",
+   "images": [
+    [
+     "video_started/dash_top",
+     1
+    ],
+    [
+     "video_started/dash_sidebar",
+     1
+    ]
+   ],
+   "text": "You see and manage everything: programs, voting polls, businesses, wish lists and contributions."
+  },
+  {
+   "id": "b",
+   "title": "Your team",
+   "images": [
+    [
+     "video_team/users_list",
+     1
+    ],
+    [
+     "video_team/access_dialog",
+     1
+    ]
+   ],
+   "text": "You manage your team, giving each person access to the items they need, as a viewer or a program admin."
+  },
+  {
+   "id": "c",
+   "title": "Money",
+   "images": [
+    [
+     "video_payments/pay_fee",
+     1
+    ],
+    [
+     "video_payments/fund_top",
+     1
+    ]
+   ],
+   "text": "You are the only one who manages the payment fund, withdrawals and refunds, and agrees to the platform fee."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. One platform. Endless possibilities."
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+1
+00:00:00,200 --> 00:00:06,218
+This guide is for organization admins. You own your organization's workspace.
+
+2
+00:00:06,818 --> 00:00:14,046
+You see and manage everything: programs, voting polls, businesses, wish lists and
+contributions.
+
+3
+00:00:14,646 --> 00:00:21,714
+You manage your team, giving each person access to the items they need, as a viewer or
+a program admin.
+
+4
+00:00:22,314 --> 00:00:29,538
+You are the only one who manages the payment fund, withdrawals and refunds, and agrees
+to the platform fee.
+
+5
+00:00:30,138 --> 00:00:36,066
+NTSOne. One platform. Endless possibilities.

@@ -1,0 +1,28 @@
+{
+  "title": "NTSOne: Getting started",
+  "steps_dir": "out/video_started/steps",
+  "scenes": [
+    { "id": "intro", "card": "Getting started|Create your account and find your way around", "logo": true,
+      "text": "In this video you will learn how to get started with NTSOne. Create your account, sign in, find your way around the dashboard, and manage your settings." },
+    { "id": "home", "title": "1. The NTSOne website", "images": [["home_top", 1.2], ["home_modules", 1.2]],
+      "text": "Start on the NTSOne home page. It shows everything the platform can do, from registrations and voting to orders, payments and bookkeeping. To begin, choose Get started or Create your account." },
+    { "id": "signup", "title": "2. Create your account", "images": [["register_form", 1.4], ["register_submit", 1.4]],
+      "text": "Enter your organization's name, your name, your email address, and a strong password, then agree to the terms and press Create account. We email you a six character code. Enter it to confirm your email address, and your workspace is ready. You can also sign up with Google." },
+    { "id": "signin", "title": "3. Sign in and reset a password", "images": [["login_page", 1.1], ["forgot_page", 1.1]],
+      "text": "Next time, sign in with your email and password. If you forget your password, choose Forgot password, and we will email you a link to choose a new one." },
+    { "id": "dashboard", "title": "4. Your dashboard", "images": [["dash_top", 1.3], ["dash_scroll", 1.1]],
+      "text": "After you sign in, you land on your dashboard. It summarizes your programs and registrations, then your voting polls, your businesses, your payments, and your books, so you can see how everything is going at a glance." },
+    { "id": "sidebar", "title": "5. Finding your way around", "images": [["dash_sidebar", 1.5]],
+      "text": "The menu on the left takes you to each part of NTSOne: Programs, Voting Polls, Businesses, your Wish List, Contributions, Users, your Payment fund, and Settings." },
+    { "id": "theme", "title": "6. Light and dark mode", "images": [["dark_mode", 1.3], ["profile_menu", 1.2]],
+      "text": "Use the moon button at the top to switch between light and dark mode. The round button with your initials opens your profile menu, where you can open Settings or log out." },
+    { "id": "settings", "title": "7. Your settings", "images": [["settings_profile", 1.2], ["settings_security", 1.2]],
+      "text": "In Settings you can change your name and photo, your organization's name, your email address and your password. Any other organizations you belong to are listed there, with a button to leave them." },
+    { "id": "delete", "title": "8. Deleting your account", "images": [["settings_delete", 1.4]],
+      "text": "At the bottom of Settings you can delete your account. You need your password, and you must type the word DELETE. If you are the only person in your organization, its data is deleted too, so this cannot be undone." },
+    { "id": "help", "title": "9. Getting help", "images": [["contact_page", 1.4]],
+      "text": "If you need help, use the Contact page, or the Send feedback button inside the app. You can also report a concern from the footer of any public page." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how to get started with NTSOne. Use this video as your guide, and watch the next videos to learn each part in detail." }
+  ]
+}

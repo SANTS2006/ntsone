@@ -1,0 +1,51 @@
+1
+00:00:00,200 --> 00:00:14,891
+In this video you will learn how to keep simple books for your business with NTSOne.
+Write down sales, spending and loans, and see your profit and who owes what. The
+amounts you will see are sample demonstration data.
+
+2
+00:00:15,491 --> 00:00:31,778
+Open a business and choose Bookkeeping. My book shows your profit this month, the
+money you have, what people owe you, and what you owe. Below are big buttons for
+everything that can happen in a business. Nothing is ever deleted from your book.
+
+3
+00:00:32,378 --> 00:00:51,965
+To record a sale, press I sold something. Enter how much, say whether it was paid now
+or on credit, who bought it, what it was for, and how it was paid. Then press Write it
+in the book. If the customer will pay later, choose On credit, and the book remembers
+that they owe you.
+
+4
+00:00:52,565 --> 00:01:05,363
+Do the same for money you spent, stock you bought, money you received, and money you
+put in or took out. Your summary updates straight away, showing your profit and how
+much people owe you.
+
+5
+00:01:05,963 --> 00:01:20,885
+All entries lists everything written in the book, with the date, what it was, who it
+was with, how it was paid, and how much is still not paid. You can search, filter by
+date, and export to Excel or CSV.
+
+6
+00:01:21,485 --> 00:01:33,877
+To record a loan, press I lent money or I borrowed money. Enter the person, the
+amount, and when it should be paid back. The Loans tab then shows each loan and how
+much is left to pay.
+
+7
+00:01:34,477 --> 00:01:48,450
+Reports show your profit and loss, your cash flow, and who owes what, for this month,
+last month, this year, or any dates you choose. You can export them, and the Listen
+button reads a report aloud.
+
+8
+00:01:49,050 --> 00:02:00,492
+If writing is hard, use Voice notes. Press the microphone, say what happened, and the
+recording is kept in your book. You can write it into the book later.
+
+9
+00:02:01,092 --> 00:02:06,981
+That is how you keep your books with NTSOne. Use this video as your guide.

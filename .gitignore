@@ -11,3 +11,15 @@ coverage/
 .vscode/
 .idea/
 .backups/
+
+# demo recording settings (contain a database URL)
+product_video/.demo.env
+product_video/pipeline/out/
+
+# product video outputs (large; keep scripts and docs only)
+product_video/master_product_tutorial/*.mp4
+product_video/feature_tutorials/**/*.mp4
+product_video/promotional_video/*.mp4
+product_video/tools/node_modules/
+product_video/tools/_*.png
+product_video/pipeline/_*.png

@@ -1,0 +1,65 @@
+1
+00:00:00,200 --> 00:00:11,782
+In this video you will learn how to run a business with
+NTSOne. Create a business, put your products online, take an
+order from a customer, and send an invoice.
+
+2
+00:00:12,382 --> 00:00:31,493
+Open Businesses and choose New Business. Enter its name,
+email, phone, address and a short description. Your business
+gets its own workspace, with tabs for the order form, orders,
+quotations, invoices, receipts, business cards, bookkeeping
+and analytics.
+
+3
+00:00:32,093 --> 00:00:47,185
+Open the Order Form tab and add the items you sell, each with
+a name and a price. You can also add pictures and videos. Then
+add the questions customers must answer, such as their name,
+phone number and delivery address.
+
+4
+00:00:47,785 --> 00:01:01,117
+Save and publish the form, then choose Start taking orders.
+Your order page now has its own link and a QR code, so
+customers can open it from a message, a poster or a social
+media post.
+
+5
+00:01:01,717 --> 00:01:12,920
+This is your online shop. Customers see your business details,
+browse your products, and add what they want to their order.
+The total updates as they go.
+
+6
+00:01:13,520 --> 00:01:27,977
+At checkout the customer enters their details, reviews the
+order, and confirms it. When payments are turned on, they pay
+with mobile money at this point. They then get an order number
+and a copy of their order to keep.
+
+7
+00:01:28,577 --> 00:01:44,479
+Back in your workspace, the Orders tab lists every order. Open
+one to see the items, the customer's answers and its history.
+Choose a new status, add a note, and update it, and the
+customer can be emailed at each step.
+
+8
+00:01:45,079 --> 00:02:03,031
+To bill a client, open Invoices and choose New invoice. Enter
+the client, the items, quantities and prices. Save it, and you
+can print it, download it as a PDF, or send it by email.
+Receipts and quotations work the same way.
+
+9
+00:02:03,631 --> 00:02:14,538
+The same tabs let you create receipts and quotations, design
+business cards with a QR code, and follow your orders, money
+invoiced and money received in Analytics.
+
+10
+00:02:15,138 --> 00:02:23,876
+That is how you run a business with NTSOne. Use this video as
+your guide, and watch the next video to learn about payments.

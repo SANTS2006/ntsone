@@ -1,0 +1,53 @@
+{
+ "title": "Business promo",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "a",
+   "title": "Your shop online",
+   "images": [
+    [
+     "video_business/store_open",
+     1
+    ],
+    [
+     "video_business/store_products",
+     1
+    ]
+   ],
+   "text": "Give your business its own online order page."
+  },
+  {
+   "id": "b",
+   "title": "Orders",
+   "images": [
+    [
+     "video_business/store_checkout",
+     1
+    ],
+    [
+     "video_business/order_detail",
+     1
+    ]
+   ],
+   "text": "Customers order in a few taps, and you manage every order in one place."
+  },
+  {
+   "id": "c",
+   "title": "Documents",
+   "images": [
+    [
+     "video_business/invoice_form",
+     1
+    ]
+   ],
+   "text": "Create invoices, receipts and quotations in minutes."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. Your business, online."
+  }
+ ]
+}

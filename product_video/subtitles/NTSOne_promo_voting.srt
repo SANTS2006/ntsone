@@ -1,0 +1,15 @@
+1
+00:00:00,200 --> 00:00:06,423
+Run an election in minutes. Add positions and candidates, then open voting.
+
+2
+00:00:07,023 --> 00:00:12,867
+Voters choose a candidate and the ballot stays secret. Results update live.
+
+3
+00:00:13,467 --> 00:00:17,895
+Ask voters to sign up, or let anyone with the link vote.
+
+4
+00:00:18,495 --> 00:00:22,339
+NTSOne. Voting made simple.

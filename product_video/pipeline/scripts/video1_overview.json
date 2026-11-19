@@ -1,0 +1,14 @@
+{
+  "title": "NTSOne: Main product overview",
+  "scenes": [
+    { "id": "intro", "card": "NTSOne|One platform. Endless possibilities.", "text": "This is NTSOne, from NTS Digital Solutions. One platform for registrations, voting, orders, payments and bookkeeping." },
+    { "id": "problem", "card": "Too many tools. Too much paperwork.", "text": "Running events, elections, orders and money across paper forms, spreadsheets and notebooks is slow, and mistakes are easy to make." },
+    { "id": "workspace", "card": "One private workspace for your organization", "text": "NTSOne gives your organization one private workspace, with a dashboard that shows everything at a glance." },
+    { "id": "registrations", "card": "Registrations, ID cards and tickets", "text": "Build registration forms with drag and drop, share a link or a QR code, and issue ID cards and tickets that can be checked at the door." },
+    { "id": "voting", "card": "Voting polls with live results", "text": "Run secret-ballot elections, with optional paid votes and live results that update as people vote." },
+    { "id": "businesses", "card": "Orders, invoices, receipts and quotations", "text": "Give your business an online order page, and create invoices, receipts, quotations and business cards in minutes." },
+    { "id": "payments", "card": "Mobile money payments and a payment fund", "text": "Accept Orange Money, Africell Money and QMoney, and follow every payment, refund and withdrawal in your payment fund." },
+    { "id": "books", "card": "Bookkeeping, contributions and wish lists", "text": "Keep simple books, track monthly contributions, and manage wish lists, all in the same place." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "text": "NTSOne. One platform. Endless possibilities." }
+  ]
+}

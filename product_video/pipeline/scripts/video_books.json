@@ -1,0 +1,24 @@
+{
+  "title": "NTSOne: Bookkeeping",
+  "steps_dir": "out/video_books/steps",
+  "scenes": [
+    { "id": "intro", "card": "Bookkeeping|Know your profit, your cash and who owes you", "logo": true,
+      "text": "In this video you will learn how to keep simple books for your business with NTSOne. Write down sales, spending and loans, and see your profit and who owes what. The amounts you will see are sample demonstration data." },
+    { "id": "home", "title": "1. Your book", "images": [["books_home", 1.6]],
+      "text": "Open a business and choose Bookkeeping. My book shows your profit this month, the money you have, what people owe you, and what you owe. Below are big buttons for everything that can happen in a business. Nothing is ever deleted from your book." },
+    { "id": "sale", "title": "2. Write a sale", "images": [["entry_dialog", 1.4], ["entry_credit", 1.2]],
+      "text": "To record a sale, press I sold something. Enter how much, say whether it was paid now or on credit, who bought it, what it was for, and how it was paid. Then press Write it in the book. If the customer will pay later, choose On credit, and the book remembers that they owe you." },
+    { "id": "more", "title": "3. Spending and stock", "images": [["books_summary", 1.4]],
+      "text": "Do the same for money you spent, stock you bought, money you received, and money you put in or took out. Your summary updates straight away, showing your profit and how much people owe you." },
+    { "id": "entries", "title": "4. All entries", "images": [["entries_list", 1.5]],
+      "text": "All entries lists everything written in the book, with the date, what it was, who it was with, how it was paid, and how much is still not paid. You can search, filter by date, and export to Excel or CSV." },
+    { "id": "loans", "title": "5. Loans", "images": [["loan_dialog", 1.3], ["loans", 1.3]],
+      "text": "To record a loan, press I lent money or I borrowed money. Enter the person, the amount, and when it should be paid back. The Loans tab then shows each loan and how much is left to pay." },
+    { "id": "reports", "title": "6. Reports", "images": [["reports", 1.3], ["reports_cash", 1], ["reports_owe", 1.2]],
+      "text": "Reports show your profit and loss, your cash flow, and who owes what, for this month, last month, this year, or any dates you choose. You can export them, and the Listen button reads a report aloud." },
+    { "id": "voice", "title": "7. Voice notes", "images": [["voice", 1.4]],
+      "text": "If writing is hard, use Voice notes. Press the microphone, say what happened, and the recording is kept in your book. You can write it into the book later." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how you keep your books with NTSOne. Use this video as your guide." }
+  ]
+}

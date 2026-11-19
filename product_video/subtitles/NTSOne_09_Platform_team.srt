@@ -1,0 +1,62 @@
+1
+00:00:00,200 --> 00:00:18,411
+This video is for the platform team, the super admins who look after every
+organization on NTSOne. You will see accounts, the inbox, payments, the platform fund,
+maintenance, backups and the audit log. The data shown is demonstration data.
+
+2
+00:00:19,011 --> 00:00:32,494
+A super admin has extra items in the menu: Accounts, Inbox, Payments, Platform fund,
+Backup and Recovery, Maintenance and Audit log. These are only visible to the platform
+team.
+
+3
+00:00:33,094 --> 00:00:56,794
+Accounts lists every organization, its owner, and how many users, programs, polls and
+businesses it has. Open one to see its users, which you can suspend or reactivate, and
+its programs. Here you also set that organization's payment terms: the platform fee,
+the waiting time before money can be withdrawn, and when withdrawals switch on.
+
+4
+00:00:57,394 --> 00:01:12,876
+The inbox gathers everything people send to the platform team: feedback from inside
+the app, messages from the contact form, and reports of concerns. Open a message to
+read it, reply by email, and mark it resolved.
+
+5
+00:01:13,476 --> 00:01:32,747
+The Payments page shows what every organization has been paid, the fees taken,
+refunds, withdrawals and what is left in each fund. Below, you approve or decline
+large withdrawals and refunds, and look at payments that need a check. A request can't
+be approved by the person who made it.
+
+6
+00:01:33,347 --> 00:01:51,439
+The platform fund is the platform's own money: the fees it keeps from every payment.
+You can see the balance, add a withdrawal account, withdraw, and follow every fee in
+Money in and out. In this demo, Monime is not connected, so withdrawing is switched
+off.
+
+7
+00:01:52,039 --> 00:02:13,450
+When you need to work on the system, turn on Maintenance mode. Write the message
+people will see, give an expected time back, and choose to show a message at the top
+of the page or replace the page. You can show it everywhere or only on some parts, and
+email team members and voters once. The platform team is never locked out.
+
+8
+00:02:14,050 --> 00:02:33,721
+A full, encrypted copy of the database is made every day and checked before it counts.
+You can back up now, verify a backup, download it, or restore from it, and every
+restore is recorded with a safety copy taken first. The retention settings decide how
+long old backups are kept.
+
+9
+00:02:34,321 --> 00:02:51,473
+The audit log records every action in the system, grouped by account: who did it, what
+they did, when, and whether it worked. Search it, filter by date, result or person,
+and export it. Records cannot be changed or removed.
+
+10
+00:02:52,073 --> 00:02:58,546
+That is how the platform team looks after NTSOne. Use this video as your guide.

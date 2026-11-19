@@ -1,0 +1,28 @@
+{
+  "title": "NTSOne: Registrations, ID cards and tickets",
+  "steps_dir": "out/video_registrations/steps",
+  "scenes": [
+    { "id": "intro", "card": "Registrations, ID cards and tickets|Run a registration from start to finish", "logo": true,
+      "text": "In this video you will learn how to run a registration from start to finish with NTSOne. Create a program, build and publish its form, collect registrations, and manage them." },
+    { "id": "create", "title": "1. Create a program", "images": [["create_list", 1], ["create_dialog", 1.3], ["create_done", 1]],
+      "text": "Open Programs and choose New Program. Give it a name and a short description, then select Create program. Your program starts as a draft, with tabs for its form, registrations, analytics and verifications." },
+    { "id": "form", "title": "2. Build the form", "images": [["form_open", 1], ["field_dialog", 1.4]],
+      "text": "Next, open the Form Builder. Choose a type of question, such as Short Text, press Add field, and give it a label. You can mark a question as required. There are twenty three question types to choose from." },
+    { "id": "fields", "title": "3. Add your questions and preview", "images": [["field_more", 1.2], ["form_preview", 1.4]],
+      "text": "Add the rest of your questions: email, phone number, date of birth, or a yes or no question. Use Preview to see exactly how the form will look to the people who register." },
+    { "id": "publish", "title": "4. Publish and share", "images": [["form_publish", 1], ["program_publish", 1.2]],
+      "text": "When you are happy with it, choose Save Draft, then Publish. Then publish the program itself and open registration. Your program now has a public link and a QR code that you can share." },
+    { "id": "registrant", "title": "5. What registrants see", "images": [["public_open", 1], ["public_errors", 1.3]],
+      "text": "This is what a registrant sees. If they miss a required answer, the problem is shown right under that question, with a red outline, so they know exactly what to fix." },
+    { "id": "submit", "title": "6. Submitting", "images": [["public_filled", 1.2], ["public_done", 1.3]],
+      "text": "As they fill in the form, each answer turns green when it is correct. After they submit, they receive a registration number, and they can preview, print or download a copy of their registration." },
+    { "id": "manage", "title": "7. Manage registrations", "images": [["regs_list", 1], ["regs_detail", 1.3]],
+      "text": "Back in your workspace, the Registrations tab lists everyone who has registered. You can search, filter by status or date, import from Excel, and export to Excel or CSV. Open a registration to read every answer." },
+    { "id": "status", "title": "8. Update a status", "images": [["status_options", 1], ["status_ready", 1], ["status_done", 1.2]],
+      "text": "To update a registration, choose a new status, such as Approved, add an optional note, and press Update status. Every change is saved in the history." },
+    { "id": "cards", "title": "9. ID cards, tickets and check-in", "images": [["idcard_settings", 1.3], ["verifications", 1.3]],
+      "text": "NTSOne can also issue ID cards and tickets with a QR code. Turn them on from the program page, pick a design, and each registrant gets their own. When a code is scanned at the door, the Verifications tab records who it was, whether it was valid, and when." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how you run a registration with NTSOne. Use this video as your guide, and watch the next video to learn about voting polls." }
+  ]
+}

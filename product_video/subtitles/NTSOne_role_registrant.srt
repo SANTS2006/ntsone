@@ -1,0 +1,22 @@
+1
+00:00:00,200 --> 00:00:07,223
+This guide is for people who register for a program or order from a business. You do
+not need an account.
+
+2
+00:00:07,823 --> 00:00:17,375
+Open the link or scan the QR code, and fill in the form. If an answer is missing or
+wrong, the problem is shown right under that question.
+
+3
+00:00:17,975 --> 00:00:24,024
+When you order, add items to your cart, check the total, and confirm your order.
+
+4
+00:00:24,624 --> 00:00:31,022
+You then get a registration or order number, and a copy you can preview, print or
+download.
+
+5
+00:00:31,622 --> 00:00:37,551
+NTSOne. One platform. Endless possibilities.

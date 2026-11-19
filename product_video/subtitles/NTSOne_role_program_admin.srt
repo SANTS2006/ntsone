@@ -1,0 +1,22 @@
+1
+00:00:00,200 --> 00:00:06,063
+This guide is for team members who were given access to programs, polls or businesses.
+
+2
+00:00:06,663 --> 00:00:13,156
+A program admin can manage only the items they were given. A viewer can only look at
+them.
+
+3
+00:00:13,756 --> 00:00:21,574
+A program admin cannot agree to the platform fee or make refunds. Those belong to an
+organization admin.
+
+4
+00:00:22,174 --> 00:00:31,597
+You can start a space of your own, where you are the admin, without losing the access
+you were invited to, and you can leave an organization at any time.
+
+5
+00:00:32,197 --> 00:00:38,125
+NTSOne. One platform. Endless possibilities.

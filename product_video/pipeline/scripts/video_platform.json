@@ -1,0 +1,26 @@
+{
+  "title": "NTSOne: The platform team",
+  "steps_dir": "out/video_platform/steps",
+  "scenes": [
+    { "id": "intro", "card": "The platform team|Look after every organization on NTSOne", "logo": true,
+      "text": "This video is for the platform team, the super admins who look after every organization on NTSOne. You will see accounts, the inbox, payments, the platform fund, maintenance, backups and the audit log. The data shown is demonstration data." },
+    { "id": "menu", "title": "1. Your menu", "images": [["sidebar", 1.5]],
+      "text": "A super admin has extra items in the menu: Accounts, Inbox, Payments, Platform fund, Backup and Recovery, Maintenance and Audit log. These are only visible to the platform team." },
+    { "id": "accounts", "title": "2. Accounts", "images": [["tenants_list", 1.2], ["tenant_detail", 1.2], ["tenant_terms", 1.3]],
+      "text": "Accounts lists every organization, its owner, and how many users, programs, polls and businesses it has. Open one to see its users, which you can suspend or reactivate, and its programs. Here you also set that organization's payment terms: the platform fee, the waiting time before money can be withdrawn, and when withdrawals switch on." },
+    { "id": "inbox", "title": "3. The inbox", "images": [["inbox_tabs", 1.1], ["inbox", 1.2], ["inbox_open", 1.4]],
+      "text": "The inbox gathers everything people send to the platform team: feedback from inside the app, messages from the contact form, and reports of concerns. Open a message to read it, reply by email, and mark it resolved." },
+    { "id": "payments", "title": "4. Payments", "images": [["payments_summary", 1.3], ["payments_review", 1.2]],
+      "text": "The Payments page shows what every organization has been paid, the fees taken, refunds, withdrawals and what is left in each fund. Below, you approve or decline large withdrawals and refunds, and look at payments that need a check. A request can't be approved by the person who made it." },
+    { "id": "fund", "title": "5. The platform fund", "images": [["platform_fund", 1.4]],
+      "text": "The platform fund is the platform's own money: the fees it keeps from every payment. You can see the balance, add a withdrawal account, withdraw, and follow every fee in Money in and out. In this demo, Monime is not connected, so withdrawing is switched off." },
+    { "id": "maintenance", "title": "6. Maintenance mode", "images": [["maintenance", 1.2], ["maintenance_where", 1.3]],
+      "text": "When you need to work on the system, turn on Maintenance mode. Write the message people will see, give an expected time back, and choose to show a message at the top of the page or replace the page. You can show it everywhere or only on some parts, and email team members and voters once. The platform team is never locked out." },
+    { "id": "backups", "title": "7. Backup and recovery", "images": [["backups", 1.5]],
+      "text": "A full, encrypted copy of the database is made every day and checked before it counts. You can back up now, verify a backup, download it, or restore from it, and every restore is recorded with a safety copy taken first. The retention settings decide how long old backups are kept." },
+    { "id": "audit", "title": "8. The audit log", "images": [["audit", 1.2], ["audit_rows", 1.3]],
+      "text": "The audit log records every action in the system, grouped by account: who did it, what they did, when, and whether it worked. Search it, filter by date, result or person, and export it. Records cannot be changed or removed." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how the platform team looks after NTSOne. Use this video as your guide." }
+  ]
+}

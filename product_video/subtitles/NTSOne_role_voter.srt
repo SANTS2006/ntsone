@@ -1,0 +1,21 @@
+1
+00:00:00,200 --> 00:00:05,083
+This guide is for voters. You open the voting link you were given.
+
+2
+00:00:05,683 --> 00:00:13,756
+If the poll asks for an account, you sign in or create one. Some polls let anyone with
+the link vote straight away.
+
+3
+00:00:14,356 --> 00:00:20,095
+Choose one candidate for each position and press Vote. Your vote is secret.
+
+4
+00:00:20,695 --> 00:00:26,873
+You are thanked straight away, and if the organizer allows it, you can watch the live
+results.
+
+5
+00:00:27,473 --> 00:00:31,197
+NTSOne. Secure voting.

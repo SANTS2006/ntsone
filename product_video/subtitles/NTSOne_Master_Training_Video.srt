@@ -1,0 +1,603 @@
+1
+00:00:00,200 --> 00:00:10,367
+This is NTSOne, from NTS Digital Solutions. One platform for
+registrations, voting, orders, payments and bookkeeping.
+
+2
+00:00:10,867 --> 00:00:19,940
+Running events, elections, orders and money across paper
+forms, spreadsheets and notebooks is slow, and mistakes are
+easy to make.
+
+3
+00:00:20,440 --> 00:00:27,658
+NTSOne gives your organization one private workspace, with a
+dashboard that shows everything at a glance.
+
+4
+00:00:28,158 --> 00:00:37,201
+Build registration forms with drag and drop, share a link or
+a QR code, and issue ID cards and tickets that can be
+checked at the door.
+
+5
+00:00:37,701 --> 00:00:44,259
+Run secret-ballot elections, with optional paid votes and
+live results that update as people vote.
+
+6
+00:00:44,759 --> 00:00:52,762
+Give your business an online order page, and create
+invoices, receipts, quotations and business cards in
+minutes.
+
+7
+00:00:53,262 --> 00:01:01,496
+Accept Orange Money, Africell Money and QMoney, and follow
+every payment, refund and withdrawal in your payment fund.
+
+8
+00:01:01,996 --> 00:01:09,309
+Keep simple books, track monthly contributions, and manage
+wish lists, all in the same place.
+
+9
+00:01:09,809 --> 00:01:15,738
+NTSOne. One platform. Endless possibilities.
+
+10
+00:01:14,460 --> 00:01:25,462
+In this video you will learn how to get started with NTSOne. Create your account, sign
+in, find your way around the dashboard, and manage your settings.
+
+11
+00:01:26,062 --> 00:01:40,325
+Start on the NTSOne home page. It shows everything the platform can do, from
+registrations and voting to orders, payments and bookkeeping. To begin, choose Get
+started or Create your account.
+
+12
+00:01:40,925 --> 00:02:00,716
+Enter your organization's name, your name, your email address, and a strong password,
+then agree to the terms and press Create account. We email you a six character code.
+Enter it to confirm your email address, and your workspace is ready. You can also sign
+up with Google.
+
+13
+00:02:01,316 --> 00:02:12,169
+Next time, sign in with your email and password. If you forget your password, choose
+Forgot password, and we will email you a link to choose a new one.
+
+14
+00:02:12,769 --> 00:02:27,366
+After you sign in, you land on your dashboard. It summarizes your programs and
+registrations, then your voting polls, your businesses, your payments, and your books,
+so you can see how everything is going at a glance.
+
+15
+00:02:27,966 --> 00:02:41,363
+The menu on the left takes you to each part of NTSOne: Programs, Voting Polls,
+Businesses, your Wish List, Contributions, Users, your Payment fund, and Settings.
+
+16
+00:02:41,963 --> 00:02:52,591
+Use the moon button at the top to switch between light and dark mode. The round button
+with your initials opens your profile menu, where you can open Settings or log out.
+
+17
+00:02:53,191 --> 00:03:05,833
+In Settings you can change your name and photo, your organization's name, your email
+address and your password. Any other organizations you belong to are listed there,
+with a button to leave them.
+
+18
+00:03:06,433 --> 00:03:20,745
+At the bottom of Settings you can delete your account. You need your password, and you
+must type the word DELETE. If you are the only person in your organization, its data
+is deleted too, so this cannot be undone.
+
+19
+00:03:21,345 --> 00:03:31,787
+If you need help, use the Contact page, or the Send feedback button inside the app.
+You can also report a concern from the footer of any public page.
+
+20
+00:03:32,387 --> 00:03:41,330
+That is how to get started with NTSOne. Use this video as your guide, and watch the
+next videos to learn each part in detail.
+
+21
+00:03:41,960 --> 00:03:53,707
+In this video you will learn how to run a registration from
+start to finish with NTSOne. Create a program, build and
+publish its form, collect registrations, and manage them.
+
+22
+00:03:54,307 --> 00:04:09,523
+Open Programs and choose New Program. Give it a name and a
+short description, then select Create program. Your program
+starts as a draft, with tabs for its form, registrations,
+analytics and verifications.
+
+23
+00:04:10,123 --> 00:04:25,791
+Next, open the Form Builder. Choose a type of question, such
+as Short Text, press Add field, and give it a label. You can
+mark a question as required. There are twenty three question
+types to choose from.
+
+24
+00:04:26,391 --> 00:04:38,758
+Add the rest of your questions: email, phone number, date of
+birth, or a yes or no question. Use Preview to see exactly how
+the form will look to the people who register.
+
+25
+00:04:39,358 --> 00:04:52,345
+When you are happy with it, choose Save Draft, then Publish.
+Then publish the program itself and open registration. Your
+program now has a public link and a QR code that you can
+share.
+
+26
+00:04:52,945 --> 00:05:04,453
+This is what a registrant sees. If they miss a required
+answer, the problem is shown right under that question, with a
+red outline, so they know exactly what to fix.
+
+27
+00:05:05,053 --> 00:05:17,945
+As they fill in the form, each answer turns green when it is
+correct. After they submit, they receive a registration
+number, and they can preview, print or download a copy of
+their registration.
+
+28
+00:05:18,545 --> 00:05:34,716
+Back in your workspace, the Registrations tab lists everyone
+who has registered. You can search, filter by status or date,
+import from Excel, and export to Excel or CSV. Open a
+registration to read every answer.
+
+29
+00:05:35,316 --> 00:05:46,504
+To update a registration, choose a new status, such as
+Approved, add an optional note, and press Update status. Every
+change is saved in the history.
+
+30
+00:05:47,104 --> 00:06:05,360
+NTSOne can also issue ID cards and tickets with a QR code.
+Turn them on from the program page, pick a design, and each
+registrant gets their own. When a code is scanned at the door,
+the Verifications tab records who it was, whether it was
+valid, and when.
+
+31
+00:06:05,960 --> 00:06:15,303
+That is how you run a registration with NTSOne. Use this video
+as your guide, and watch the next video to learn about voting
+polls.
+
+32
+00:06:15,860 --> 00:06:26,042
+In this video you will learn how to run a voting poll with
+NTSOne. Create a poll, build its ballot, open voting, and
+watch the results arrive live.
+
+33
+00:06:26,642 --> 00:06:44,813
+Open Voting Polls and choose New Poll. Give it a name and a
+description. Then decide whether voters need an account. If
+they do, they sign up and confirm their email. If not, anyone
+with the link can vote straight away, and each browser counts
+as one voter.
+
+34
+00:06:45,413 --> 00:06:58,236
+Next, open the Ballot tab and add a position, such as
+President. Add a candidate for each person on the ballot, with
+an optional photo and short description. Then save the ballot.
+
+35
+00:06:58,836 --> 00:07:11,293
+On the Overview tab you choose the rules. You can allow one
+vote per email, show live results to voters, be emailed about
+each vote, and decide whether voters must create an account.
+
+36
+00:07:11,893 --> 00:07:27,770
+When everything is ready, press Open voting. You can also set
+a time for the poll to close by itself. Voting can be free, or
+you can ask voters to pay for their votes with the paid voting
+settings, and agree to the platform fee first.
+
+37
+00:07:28,370 --> 00:07:41,992
+This is what a voter sees. They open the link, choose one
+candidate for each position, and press Vote. They are thanked
+straight away, and if you allow it, the live results update as
+people vote.
+
+38
+00:07:42,592 --> 00:07:53,815
+When a poll asks for accounts, voters first sign in or create
+an account. You can also limit voting to certain email
+domains, or to a list of verified voters.
+
+39
+00:07:54,415 --> 00:08:07,392
+The Results tab shows each candidate's votes, percentage and
+place, and you can export them. The Voters tab shows who
+voted, but never who they voted for, because the ballot stays
+secret.
+
+40
+00:08:07,992 --> 00:08:17,050
+That is how you run a voting poll with NTSOne. Use this video
+as your guide, and watch the next video to learn about
+businesses.
+
+41
+00:08:17,670 --> 00:08:29,252
+In this video you will learn how to run a business with
+NTSOne. Create a business, put your products online, take an
+order from a customer, and send an invoice.
+
+42
+00:08:29,852 --> 00:08:48,963
+Open Businesses and choose New Business. Enter its name,
+email, phone, address and a short description. Your business
+gets its own workspace, with tabs for the order form, orders,
+quotations, invoices, receipts, business cards, bookkeeping
+and analytics.
+
+43
+00:08:49,563 --> 00:09:04,655
+Open the Order Form tab and add the items you sell, each with
+a name and a price. You can also add pictures and videos. Then
+add the questions customers must answer, such as their name,
+phone number and delivery address.
+
+44
+00:09:05,255 --> 00:09:18,587
+Save and publish the form, then choose Start taking orders.
+Your order page now has its own link and a QR code, so
+customers can open it from a message, a poster or a social
+media post.
+
+45
+00:09:19,187 --> 00:09:30,390
+This is your online shop. Customers see your business details,
+browse your products, and add what they want to their order.
+The total updates as they go.
+
+46
+00:09:30,990 --> 00:09:45,447
+At checkout the customer enters their details, reviews the
+order, and confirms it. When payments are turned on, they pay
+with mobile money at this point. They then get an order number
+and a copy of their order to keep.
+
+47
+00:09:46,047 --> 00:10:01,949
+Back in your workspace, the Orders tab lists every order. Open
+one to see the items, the customer's answers and its history.
+Choose a new status, add a note, and update it, and the
+customer can be emailed at each step.
+
+48
+00:10:02,549 --> 00:10:20,501
+To bill a client, open Invoices and choose New invoice. Enter
+the client, the items, quantities and prices. Save it, and you
+can print it, download it as a PDF, or send it by email.
+Receipts and quotations work the same way.
+
+49
+00:10:21,101 --> 00:10:32,008
+The same tabs let you create receipts and quotations, design
+business cards with a QR code, and follow your orders, money
+invoiced and money received in Analytics.
+
+50
+00:10:32,608 --> 00:10:41,346
+That is how you run a business with NTSOne. Use this video as
+your guide, and watch the next video to learn about payments.
+
+51
+00:10:41,940 --> 00:10:54,977
+In this video you will learn how payments work in NTSOne: how to switch them on, how
+the payment fund works, and how to withdraw your money. The amounts you will see are
+sample demonstration data.
+
+52
+00:10:55,577 --> 00:11:11,239
+Open a program, an order form or a poll, and find the Payments section. Switch on Take
+payments and set what each thing costs, such as a registration fee. People then pay
+with Orange Money, Africell Money or QMoney.
+
+53
+00:11:11,839 --> 00:11:32,175
+The platform keeps a small fee from every payment, and an organization admin must
+agree to it first. If you try to save without ticking the box, you are asked to agree.
+Tick it and save, and payments are on. If you change a setting later, the box clears,
+and you tick it again before saving.
+
+54
+00:11:32,775 --> 00:11:43,413
+The Payments tab of the program lists every payment, who paid, how they paid, and its
+status. Paid, cancelled and waiting payments are all recorded.
+
+55
+00:11:44,013 --> 00:12:01,880
+All the money goes to your payment fund. Available is what you can withdraw now. On
+hold is money still inside the short waiting time after a payment. Below, you can see
+the total received all time, the total after the platform fee, and the total after
+refunds.
+
+56
+00:12:02,480 --> 00:12:24,026
+To withdraw, first add a withdrawal account, a mobile money number or a bank account,
+and confirm with your password. A new account can be used after a short waiting time.
+Then press Withdraw, choose the account and the amount, and confirm with your
+password. Large withdrawals wait for approval from the platform team.
+
+57
+00:12:24,626 --> 00:12:40,803
+If you want your money sent on straight away, turn on Automatic withdrawal. Choose an
+account and confirm with your password. From then on, each successful payment is sent
+to that account with no waiting time, and the platform fee is still taken.
+
+58
+00:12:41,403 --> 00:12:53,631
+Everything is recorded. The Withdrawals table shows each withdrawal and its status,
+and Money in and out lists every payment received, every fee and every withdrawal,
+newest first.
+
+59
+00:12:54,231 --> 00:13:12,892
+The platform team sees every organization's totals: money paid in, fees, refunds,
+withdrawals, and what is left in each fund. For each organization they can also set
+the platform fee, the waiting time before money can be withdrawn, and when withdrawals
+switch on.
+
+60
+00:13:13,492 --> 00:13:19,151
+That is how payments work in NTSOne. Use this video as your guide.
+
+61
+00:13:19,700 --> 00:13:34,391
+In this video you will learn how to keep simple books for your business with NTSOne.
+Write down sales, spending and loans, and see your profit and who owes what. The
+amounts you will see are sample demonstration data.
+
+62
+00:13:34,991 --> 00:13:51,278
+Open a business and choose Bookkeeping. My book shows your profit this month, the
+money you have, what people owe you, and what you owe. Below are big buttons for
+everything that can happen in a business. Nothing is ever deleted from your book.
+
+63
+00:13:51,878 --> 00:14:11,465
+To record a sale, press I sold something. Enter how much, say whether it was paid now
+or on credit, who bought it, what it was for, and how it was paid. Then press Write it
+in the book. If the customer will pay later, choose On credit, and the book remembers
+that they owe you.
+
+64
+00:14:12,065 --> 00:14:24,863
+Do the same for money you spent, stock you bought, money you received, and money you
+put in or took out. Your summary updates straight away, showing your profit and how
+much people owe you.
+
+65
+00:14:25,463 --> 00:14:40,385
+All entries lists everything written in the book, with the date, what it was, who it
+was with, how it was paid, and how much is still not paid. You can search, filter by
+date, and export to Excel or CSV.
+
+66
+00:14:40,985 --> 00:14:53,377
+To record a loan, press I lent money or I borrowed money. Enter the person, the
+amount, and when it should be paid back. The Loans tab then shows each loan and how
+much is left to pay.
+
+67
+00:14:53,977 --> 00:15:07,950
+Reports show your profit and loss, your cash flow, and who owes what, for this month,
+last month, this year, or any dates you choose. You can export them, and the Listen
+button reads a report aloud.
+
+68
+00:15:08,550 --> 00:15:19,992
+If writing is hard, use Voice notes. Press the microphone, say what happened, and the
+recording is kept in your book. You can write it into the book later.
+
+69
+00:15:20,592 --> 00:15:26,481
+That is how you keep your books with NTSOne. Use this video as your guide.
+
+70
+00:15:27,070 --> 00:15:41,176
+In this video you will learn two simple tools in NTSOne: Contributions, to track money
+that a group collects, and Wish lists, to plan what you want to get. The names and
+amounts shown are sample data.
+
+71
+00:15:41,776 --> 00:16:01,213
+Open Contributions and choose New contribution. Give it a name and say what the money
+is for. Choose Monthly, for dues that people pay every month, or One time. Add the
+columns you want to keep for each contributor, such as their name and phone number,
+and the expected monthly amount.
+
+72
+00:16:01,813 --> 00:16:12,630
+Each contribution shows the money collected, the money taken out, and the money still
+held. The Overview tab also shows the totals year by year and who is behind.
+
+73
+00:16:13,230 --> 00:16:34,846
+The Monthly tracker has a row for every contributor and a column for every month. Paid
+months are green, a month paid less than expected is orange, and a month not paid is
+red. Click a month to record a payment. Once a month has passed, a recorded payment is
+locked, but months that were never filled in can still be filled in later.
+
+74
+00:16:35,446 --> 00:16:52,892
+The Contributors tab is where you add and edit the people. Money taken records every
+amount the group takes out, with a note saying why, so the balance held is always
+clear. History keeps a record of every change, and you can export any table to Excel
+or CSV.
+
+75
+00:16:53,492 --> 00:17:08,959
+Wish lists are private lists of things you want to buy or have. Choose New wish list,
+give it a name, and optionally a budget and a target date. Then choose Add items, and
+add what you wish for, one by one or many at once.
+
+76
+00:17:09,559 --> 00:17:29,049
+Type each item with an optional quantity and price each, or paste a whole list. The
+priority and category you choose apply to all the items you add together. You can edit
+an item later to add more details. You can search the list, filter it by priority or
+category, and sort it.
+
+77
+00:17:29,650 --> 00:17:48,866
+When you get something, press Got it. Enter the total price you paid, the date you got
+it, and where it came from, with an optional note. It moves to the Gotten tab, which
+shows how much you saved compared with the price you expected, and the progress bar
+shows how much of your budget is spent.
+
+78
+00:17:49,466 --> 00:18:03,843
+The Summary tab shows your budget, and your items by category, by month and by
+priority. The Activity tab is a record that cannot be changed. Nothing is ever
+deleted: removed items stay in the records.
+
+79
+00:18:04,443 --> 00:18:21,744
+You can share a list with family or friends. Choose Invite someone, and they get their
+own private link and QR code. You decide whether they can only look, or also add and
+change items. They do not need an account, and they can only see that one list.
+
+80
+00:18:22,344 --> 00:18:29,302
+That is how you use contributions and wish lists in NTSOne. Use this video as your
+guide.
+
+81
+00:18:29,910 --> 00:18:38,352
+In this video you will learn how to build your team in NTSOne, give each person the
+right access, and keep your account secure.
+
+82
+00:18:38,952 --> 00:18:54,225
+Open Users to see your team. Each person has a name, an email address, a role and a
+status. As an organization admin, you can search, filter by date, and export the list
+to Excel or CSV.
+
+83
+00:18:54,825 --> 00:19:13,746
+To add someone, choose Invite teammate. Enter their name and email address, and pick a
+role: Viewer or Program admin. They receive an email with a link to accept the
+invitation and choose their own password. If they already have an account, they are
+simply added to your team.
+
+84
+00:19:14,346 --> 00:19:32,387
+A viewer can only look at what they are given. A program admin can manage it. Only an
+organization admin can manage the team, the payment fund, withdrawals and refunds, and
+agree to the platform fee. You can change a person's role from this list at any time.
+
+85
+00:19:32,987 --> 00:19:49,604
+Access is given item by item. Press the access button next to a person to see which
+programs, voting polls and businesses they can open. Grant a new one with a role, or
+remove it with the bin. Someone only ever sees what you have given them.
+
+86
+00:19:50,204 --> 00:20:03,141
+This is what a viewer sees. Their dashboard and lists only show what they were given.
+They can also start a space of their own, where they are the admin, without losing the
+access they were invited to.
+
+87
+00:20:03,741 --> 00:20:17,508
+People can always leave. In their Settings, other organizations they belong to are
+listed, and pressing Leave removes their access to everything in that organization. An
+owner cannot leave their own organization.
+
+88
+00:20:18,108 --> 00:20:34,909
+Sign-in attempts are limited, so guessing passwords is slow. Passwords must be strong,
+and you can change yours at any time in Settings. New accounts confirm their email
+address with a code, and everything done in the system is recorded in the audit log.
+
+89
+00:20:35,509 --> 00:20:41,903
+That is how you manage your team and keep your account secure. Use this video as your
+guide.
+
+90
+00:20:42,520 --> 00:21:00,731
+This video is for the platform team, the super admins who look after every
+organization on NTSOne. You will see accounts, the inbox, payments, the platform fund,
+maintenance, backups and the audit log. The data shown is demonstration data.
+
+91
+00:21:01,331 --> 00:21:14,814
+A super admin has extra items in the menu: Accounts, Inbox, Payments, Platform fund,
+Backup and Recovery, Maintenance and Audit log. These are only visible to the platform
+team.
+
+92
+00:21:15,414 --> 00:21:39,114
+Accounts lists every organization, its owner, and how many users, programs, polls and
+businesses it has. Open one to see its users, which you can suspend or reactivate, and
+its programs. Here you also set that organization's payment terms: the platform fee,
+the waiting time before money can be withdrawn, and when withdrawals switch on.
+
+93
+00:21:39,714 --> 00:21:55,196
+The inbox gathers everything people send to the platform team: feedback from inside
+the app, messages from the contact form, and reports of concerns. Open a message to
+read it, reply by email, and mark it resolved.
+
+94
+00:21:55,796 --> 00:22:15,067
+The Payments page shows what every organization has been paid, the fees taken,
+refunds, withdrawals and what is left in each fund. Below, you approve or decline
+large withdrawals and refunds, and look at payments that need a check. A request can't
+be approved by the person who made it.
+
+95
+00:22:15,667 --> 00:22:33,759
+The platform fund is the platform's own money: the fees it keeps from every payment.
+You can see the balance, add a withdrawal account, withdraw, and follow every fee in
+Money in and out. In this demo, Monime is not connected, so withdrawing is switched
+off.
+
+96
+00:22:34,359 --> 00:22:55,770
+When you need to work on the system, turn on Maintenance mode. Write the message
+people will see, give an expected time back, and choose to show a message at the top
+of the page or replace the page. You can show it everywhere or only on some parts, and
+email team members and voters once. The platform team is never locked out.
+
+97
+00:22:56,370 --> 00:23:16,041
+A full, encrypted copy of the database is made every day and checked before it counts.
+You can back up now, verify a backup, download it, or restore from it, and every
+restore is recorded with a safety copy taken first. The retention settings decide how
+long old backups are kept.
+
+98
+00:23:16,641 --> 00:23:33,793
+The audit log records every action in the system, grouped by account: who did it, what
+they did, when, and whether it worked. Search it, filter by date, result or person,
+and export it. Records cannot be changed or removed.
+
+99
+00:23:34,393 --> 00:23:40,866
+That is how the platform team looks after NTSOne. Use this video as your guide.

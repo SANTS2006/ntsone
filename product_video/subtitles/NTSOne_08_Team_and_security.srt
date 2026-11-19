@@ -1,0 +1,52 @@
+1
+00:00:00,200 --> 00:00:08,642
+In this video you will learn how to build your team in NTSOne, give each person the
+right access, and keep your account secure.
+
+2
+00:00:09,242 --> 00:00:24,515
+Open Users to see your team. Each person has a name, an email address, a role and a
+status. As an organization admin, you can search, filter by date, and export the list
+to Excel or CSV.
+
+3
+00:00:25,115 --> 00:00:44,036
+To add someone, choose Invite teammate. Enter their name and email address, and pick a
+role: Viewer or Program admin. They receive an email with a link to accept the
+invitation and choose their own password. If they already have an account, they are
+simply added to your team.
+
+4
+00:00:44,636 --> 00:01:02,677
+A viewer can only look at what they are given. A program admin can manage it. Only an
+organization admin can manage the team, the payment fund, withdrawals and refunds, and
+agree to the platform fee. You can change a person's role from this list at any time.
+
+5
+00:01:03,277 --> 00:01:19,894
+Access is given item by item. Press the access button next to a person to see which
+programs, voting polls and businesses they can open. Grant a new one with a role, or
+remove it with the bin. Someone only ever sees what you have given them.
+
+6
+00:01:20,494 --> 00:01:33,431
+This is what a viewer sees. Their dashboard and lists only show what they were given.
+They can also start a space of their own, where they are the admin, without losing the
+access they were invited to.
+
+7
+00:01:34,031 --> 00:01:47,798
+People can always leave. In their Settings, other organizations they belong to are
+listed, and pressing Leave removes their access to everything in that organization. An
+owner cannot leave their own organization.
+
+8
+00:01:48,398 --> 00:02:05,199
+Sign-in attempts are limited, so guessing passwords is slow. Passwords must be strong,
+and you can change yours at any time in Settings. New accounts confirm their email
+address with a code, and everything done in the system is recorded in the audit log.
+
+9
+00:02:05,799 --> 00:02:12,193
+That is how you manage your team and keep your account secure. Use this video as your
+guide.

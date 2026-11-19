@@ -1,0 +1,24 @@
+{
+  "title": "NTSOne: Your team and account security",
+  "steps_dir": "out/video_team/steps",
+  "scenes": [
+    { "id": "intro", "card": "Your team and security|Give people the right access", "logo": true,
+      "text": "In this video you will learn how to build your team in NTSOne, give each person the right access, and keep your account secure." },
+    { "id": "team", "title": "1. Your team", "images": [["users_list", 1.4]],
+      "text": "Open Users to see your team. Each person has a name, an email address, a role and a status. As an organization admin, you can search, filter by date, and export the list to Excel or CSV." },
+    { "id": "invite", "title": "2. Invite a teammate", "images": [["invite_dialog", 1.3], ["invite_role", 1], ["invite_sent", 1.2]],
+      "text": "To add someone, choose Invite teammate. Enter their name and email address, and pick a role: Viewer or Program admin. They receive an email with a link to accept the invitation and choose their own password. If they already have an account, they are simply added to your team." },
+    { "id": "roles", "title": "3. Roles", "images": [["role_menu", 1.4]],
+      "text": "A viewer can only look at what they are given. A program admin can manage it. Only an organization admin can manage the team, the payment fund, withdrawals and refunds, and agree to the platform fee. You can change a person's role from this list at any time." },
+    { "id": "access", "title": "4. Access to each item", "images": [["access_dialog", 1.5]],
+      "text": "Access is given item by item. Press the access button next to a person to see which programs, voting polls and businesses they can open. Grant a new one with a role, or remove it with the bin. Someone only ever sees what you have given them." },
+    { "id": "viewer", "title": "5. What a team member sees", "images": [["viewer_dashboard", 1.3], ["viewer_programs", 1.2]],
+      "text": "This is what a viewer sees. Their dashboard and lists only show what they were given. They can also start a space of their own, where they are the admin, without losing the access they were invited to." },
+    { "id": "leave", "title": "6. Leaving an organization", "images": [["leave_org", 1.5]],
+      "text": "People can always leave. In their Settings, other organizations they belong to are listed, and pressing Leave removes their access to everything in that organization. An owner cannot leave their own organization." },
+    { "id": "security", "title": "7. Keeping accounts safe", "images": [["login_error", 1.3], ["password_card", 1.3]],
+      "text": "Sign-in attempts are limited, so guessing passwords is slow. Passwords must be strong, and you can change yours at any time in Settings. New accounts confirm their email address with a code, and everything done in the system is recorded in the audit log." },
+    { "id": "outro", "card": "NTSOne|One platform. Endless possibilities.", "logo": true,
+      "text": "That is how you manage your team and keep your account secure. Use this video as your guide." }
+  ]
+}

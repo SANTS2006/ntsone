@@ -1,0 +1,60 @@
+1
+00:00:00,200 --> 00:00:11,202
+In this video you will learn how to get started with NTSOne. Create your account, sign
+in, find your way around the dashboard, and manage your settings.
+
+2
+00:00:11,802 --> 00:00:26,065
+Start on the NTSOne home page. It shows everything the platform can do, from
+registrations and voting to orders, payments and bookkeeping. To begin, choose Get
+started or Create your account.
+
+3
+00:00:26,665 --> 00:00:46,456
+Enter your organization's name, your name, your email address, and a strong password,
+then agree to the terms and press Create account. We email you a six character code.
+Enter it to confirm your email address, and your workspace is ready. You can also sign
+up with Google.
+
+4
+00:00:47,056 --> 00:00:57,909
+Next time, sign in with your email and password. If you forget your password, choose
+Forgot password, and we will email you a link to choose a new one.
+
+5
+00:00:58,509 --> 00:01:13,106
+After you sign in, you land on your dashboard. It summarizes your programs and
+registrations, then your voting polls, your businesses, your payments, and your books,
+so you can see how everything is going at a glance.
+
+6
+00:01:13,706 --> 00:01:27,103
+The menu on the left takes you to each part of NTSOne: Programs, Voting Polls,
+Businesses, your Wish List, Contributions, Users, your Payment fund, and Settings.
+
+7
+00:01:27,703 --> 00:01:38,331
+Use the moon button at the top to switch between light and dark mode. The round button
+with your initials opens your profile menu, where you can open Settings or log out.
+
+8
+00:01:38,931 --> 00:01:51,573
+In Settings you can change your name and photo, your organization's name, your email
+address and your password. Any other organizations you belong to are listed there,
+with a button to leave them.
+
+9
+00:01:52,173 --> 00:02:06,485
+At the bottom of Settings you can delete your account. You need your password, and you
+must type the word DELETE. If you are the only person in your organization, its data
+is deleted too, so this cannot be undone.
+
+10
+00:02:07,085 --> 00:02:17,527
+If you need help, use the Contact page, or the Send feedback button inside the app.
+You can also report a concern from the footer of any public page.
+
+11
+00:02:18,127 --> 00:02:27,070
+That is how to get started with NTSOne. Use this video as your guide, and watch the
+next videos to learn each part in detail.

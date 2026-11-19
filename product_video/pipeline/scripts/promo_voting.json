@@ -1,0 +1,53 @@
+{
+ "title": "Voting promo",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "a",
+   "title": "Voting polls",
+   "images": [
+    [
+     "video_voting/ballot_filled",
+     1
+    ],
+    [
+     "video_voting/open_voting",
+     1
+    ]
+   ],
+   "text": "Run an election in minutes. Add positions and candidates, then open voting."
+  },
+  {
+   "id": "b",
+   "title": "Secret and live",
+   "images": [
+    [
+     "video_voting/vote_selected",
+     1
+    ],
+    [
+     "video_voting/vote_done",
+     1
+    ]
+   ],
+   "text": "Voters choose a candidate and the ballot stays secret. Results update live."
+  },
+  {
+   "id": "c",
+   "title": "Your choice",
+   "images": [
+    [
+     "video_voting/create_dialog",
+     1
+    ]
+   ],
+   "text": "Ask voters to sign up, or let anyone with the link vote."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. Voting made simple."
+  }
+ ]
+}

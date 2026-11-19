@@ -1,0 +1,93 @@
+{
+ "title": "Main promo",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "intro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. One platform for everything you run."
+  },
+  {
+   "id": "a",
+   "title": "Registrations",
+   "images": [
+    [
+     "video_registrations/form_open",
+     1
+    ],
+    [
+     "video_registrations/public_filled",
+     1
+    ]
+   ],
+   "text": "Build registration forms, share a link or a QR code, and manage every registration."
+  },
+  {
+   "id": "b",
+   "title": "Voting polls",
+   "images": [
+    [
+     "video_voting/vote_selected",
+     1
+    ],
+    [
+     "video_voting/results",
+     1
+    ]
+   ],
+   "text": "Run secret ballot elections with live results."
+  },
+  {
+   "id": "c",
+   "title": "Orders and invoices",
+   "images": [
+    [
+     "video_business/store_products",
+     1
+    ],
+    [
+     "video_business/invoice_form",
+     1
+    ]
+   ],
+   "text": "Put your business online, take orders, and send invoices."
+  },
+  {
+   "id": "d",
+   "title": "Payments",
+   "images": [
+    [
+     "video_payments/fund_top",
+     1.2
+    ],
+    [
+     "video_payments/fund_ledger",
+     1
+    ]
+   ],
+   "text": "Accept mobile money and follow every payment and withdrawal."
+  },
+  {
+   "id": "e",
+   "title": "Bookkeeping and more",
+   "images": [
+    [
+     "video_books/books_home",
+     1
+    ],
+    [
+     "video_groups/c_tracker",
+     1
+    ]
+   ],
+   "text": "Keep your books, track contributions, and plan with wish lists."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. One platform. Endless possibilities."
+  }
+ ]
+}

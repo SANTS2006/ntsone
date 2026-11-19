@@ -1,0 +1,21 @@
+1
+00:00:00,200 --> 00:00:04,508
+This guide is for the platform team, the super admins.
+
+2
+00:00:05,108 --> 00:00:11,237
+You see every organization, its users and programs, and set its payment terms.
+
+3
+00:00:11,837 --> 00:00:19,865
+You approve large withdrawals and refunds, see what every organization has been paid,
+and look after the platform fund.
+
+4
+00:00:20,465 --> 00:00:27,853
+You read the inbox, switch maintenance mode on when needed, check backups, and review
+the audit log.
+
+5
+00:00:28,453 --> 00:00:34,382
+NTSOne. One platform. Endless possibilities.

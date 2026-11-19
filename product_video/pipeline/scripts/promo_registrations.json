@@ -1,0 +1,57 @@
+{
+ "title": "Registrations promo",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "a",
+   "title": "Registrations",
+   "images": [
+    [
+     "video_registrations/form_open",
+     1
+    ],
+    [
+     "video_registrations/field_more",
+     1
+    ]
+   ],
+   "text": "Create a registration form in minutes. Drag and drop questions, add rules, and preview it on any screen."
+  },
+  {
+   "id": "b",
+   "title": "Easy for registrants",
+   "images": [
+    [
+     "video_registrations/public_errors",
+     1
+    ],
+    [
+     "video_registrations/public_filled",
+     1
+    ]
+   ],
+   "text": "Share a link or a QR code. Registrants see mistakes right under each question."
+  },
+  {
+   "id": "c",
+   "title": "Easy for you",
+   "images": [
+    [
+     "video_registrations/regs_list",
+     1
+    ],
+    [
+     "video_registrations/status_done",
+     1
+    ]
+   ],
+   "text": "Then search, filter, approve and export every registration."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. Registrations made simple."
+  }
+ ]
+}

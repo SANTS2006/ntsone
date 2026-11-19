@@ -1,0 +1,59 @@
+{
+ "title": "Guide for program admins",
+ "steps_dir": "out/none",
+ "scenes": [
+  {
+   "id": "intro",
+   "card": "Program admins and viewers|What you can do",
+   "logo": true,
+   "text": "This guide is for team members who were given access to programs, polls or businesses."
+  },
+  {
+   "id": "a",
+   "title": "Access to what you were given",
+   "images": [
+    [
+     "video_team/access_dialog",
+     1
+    ],
+    [
+     "video_team/viewer_programs",
+     1
+    ]
+   ],
+   "text": "A program admin can manage only the items they were given. A viewer can only look at them."
+  },
+  {
+   "id": "b",
+   "title": "What stays with admins",
+   "images": [
+    [
+     "video_team/role_menu",
+     1
+    ]
+   ],
+   "text": "A program admin cannot agree to the platform fee or make refunds. Those belong to an organization admin."
+  },
+  {
+   "id": "c",
+   "title": "Your own space",
+   "images": [
+    [
+     "video_team/viewer_dashboard",
+     1
+    ],
+    [
+     "video_team/leave_org",
+     1
+    ]
+   ],
+   "text": "You can start a space of your own, where you are the admin, without losing the access you were invited to, and you can leave an organization at any time."
+  },
+  {
+   "id": "outro",
+   "card": "NTSOne|One platform. Endless possibilities.",
+   "logo": true,
+   "text": "NTSOne. One platform. Endless possibilities."
+  }
+ ]
+}

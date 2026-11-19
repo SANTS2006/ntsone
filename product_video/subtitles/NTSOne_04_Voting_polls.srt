@@ -1,0 +1,58 @@
+1
+00:00:00,200 --> 00:00:10,382
+In this video you will learn how to run a voting poll with
+NTSOne. Create a poll, build its ballot, open voting, and
+watch the results arrive live.
+
+2
+00:00:10,982 --> 00:00:29,153
+Open Voting Polls and choose New Poll. Give it a name and a
+description. Then decide whether voters need an account. If
+they do, they sign up and confirm their email. If not, anyone
+with the link can vote straight away, and each browser counts
+as one voter.
+
+3
+00:00:29,753 --> 00:00:42,576
+Next, open the Ballot tab and add a position, such as
+President. Add a candidate for each person on the ballot, with
+an optional photo and short description. Then save the ballot.
+
+4
+00:00:43,176 --> 00:00:55,633
+On the Overview tab you choose the rules. You can allow one
+vote per email, show live results to voters, be emailed about
+each vote, and decide whether voters must create an account.
+
+5
+00:00:56,233 --> 00:01:12,110
+When everything is ready, press Open voting. You can also set
+a time for the poll to close by itself. Voting can be free, or
+you can ask voters to pay for their votes with the paid voting
+settings, and agree to the platform fee first.
+
+6
+00:01:12,710 --> 00:01:26,332
+This is what a voter sees. They open the link, choose one
+candidate for each position, and press Vote. They are thanked
+straight away, and if you allow it, the live results update as
+people vote.
+
+7
+00:01:26,932 --> 00:01:38,155
+When a poll asks for accounts, voters first sign in or create
+an account. You can also limit voting to certain email
+domains, or to a list of verified voters.
+
+8
+00:01:38,755 --> 00:01:51,732
+The Results tab shows each candidate's votes, percentage and
+place, and you can export them. The Voters tab shows who
+voted, but never who they voted for, because the ballot stays
+secret.
+
+9
+00:01:52,332 --> 00:02:01,390
+That is how you run a voting poll with NTSOne. Use this video
+as your guide, and watch the next video to learn about
+businesses.
