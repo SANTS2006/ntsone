@@ -94,7 +94,7 @@ The database change (migration 0024) runs on the next deploy.
 ## Card payments
 - Cards use the same Monime hosted checkout: the payer picks card on Monime's page and the card details never reach NTSOne. Switch them on with `MONIME_ALLOW_CARDS=true`, or per organization in the platform admin's Payment terms (default / offer cards / mobile money only).
 - A card payment is settled exactly like mobile money (the server asks Monime directly before marking it paid) and the Payments tables show "Card ending 1234".
-- **Card and bank payments can't be refunded from NTSOne** (a refund here is a transfer to a mobile money number); the Refund action refuses them with a clear message.
+- **Card refunds:** Monime's API has no card-reversal call, so a refund of a card (or bank) payment is sent as a transfer to a mobile money number the payer gives, the same way as for mobile money payments. It does not go back onto the card itself.
 
 ## Protecting payments from repeats and floods
 - **Idempotency:** the retry-payment, pay-for-votes, withdrawal and refund requests accept an `Idempotency-Key` header (the app sends one on each). A repeat of the same request (double click, dropped connection) returns the first answer with `Idempotent-Replay: true`; the same key with different details is refused (422); a request still running answers 409.

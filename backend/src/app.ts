@@ -6,6 +6,7 @@ import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
+import { Redis } from "ioredis";
 import fastifyStatic from "@fastify/static";
 import Fastify from "fastify";
 import { env, isProduction } from "./config/env.js";
@@ -105,7 +106,16 @@ export function buildApp() {
   });
   app.register(cors, { origin: env.APP_URL, credentials: true });
   app.register(cookie);
+  // With a shared Redis store every server counts the same requests, so the limit holds however many servers sit behind the load balancer.
+  const rateLimitRedis = env.REDIS_URL
+    ? new Redis(env.REDIS_URL, { connectTimeout: 500, maxRetriesPerRequest: 1, enableOfflineQueue: false, lazyConnect: false })
+    : undefined;
+  rateLimitRedis?.on("error", (err) => app.log.error({ err }, "Rate limit store unreachable"));
+  app.addHook("onClose", async () => {
+    rateLimitRedis?.disconnect();
+  });
   app.register(rateLimit, {
+    ...(rateLimitRedis ? { redis: rateLimitRedis, skipOnError: true, nameSpace: "ntsone-rl:" } : {}),
     max: env.RATE_LIMIT_MAX,
     timeWindow: env.RATE_LIMIT_WINDOW,
     // Page assets aren't worth rate limiting and would eat into the API budget.

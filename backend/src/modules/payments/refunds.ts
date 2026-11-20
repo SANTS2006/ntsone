@@ -70,9 +70,7 @@ export async function requestRefund(
     if (!payment) throw AppError.notFound("Payment not found");
     if (actor.role === "admin" && payment.tenantId !== actor.tenantId) throw AppError.notFound("Payment not found");
     if (payment.status !== "completed" || !payment.paidAt) throw AppError.conflict("Only a payment that was received can be refunded.");
-    // A refund here is a transfer to a mobile money number. A payment made by card or bank has no phone to send it back to, so it must be refunded outside the platform.
-    const method = (payment.channel as { type?: string } | null)?.type;
-    if (method && method !== "momo") throw AppError.conflict("This payment was made by card or bank, so it can't be refunded from here. Please arrange the refund with the payer directly.");
+    // Monime has no card-reversal call, so a refund of a card or bank payment is sent as a transfer to a mobile money number the payer gives (same as mobile money payments).
     // Votes that were already cast can't be taken back, so their payment can't be given back either.
     if (payment.redeemedAt) throw AppError.conflict("These votes have already been used, so the payment can't be refunded.");
     const opens = refundableAt(payment.paidAt)!;

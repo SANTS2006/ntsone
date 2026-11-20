@@ -83,7 +83,7 @@ export function RefundDialog({ programId, pollId, payment, onClose }: { programI
           <DialogTitle>Refund this payment</DialogTitle>
           <DialogDescription>
             {payment && `${payment.registrationNumber ?? (payment.votes ? `${payment.votes} ${payment.votes === 1 ? "vote" : "votes"}` : "This payment")} paid ${formatMinor(payment.amountMinor, payment.currency)}`}
-            {payment && payment.refundedMinor > 0 ? `, ${formatMinor(payment.refundedMinor, payment.currency)} already refunded` : ""}. The money is taken from your payment fund and sent to the mobile money number below. The platform fee is returned in proportion.
+            {payment && payment.refundedMinor > 0 ? `, ${formatMinor(payment.refundedMinor, payment.currency)} already refunded` : ""}. The money is taken from your payment fund and sent to the mobile money number below (for a card payment, ask the payer for the number to send it to). The platform fee is returned in proportion.
           </DialogDescription>
         </DialogHeader>
         <form

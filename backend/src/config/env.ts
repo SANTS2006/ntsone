@@ -111,6 +111,10 @@ const envSchema = z.object({
   PAYMENTS_RECONCILE_CONCURRENCY: z.coerce.number().int().min(1).max(50).default(8),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
   RATE_LIMIT_WINDOW: z.string().default("1 minute"),
+  // Shared store for the rate limit when several servers run behind a load balancer (e.g. redis://host:6379). Empty keeps counts in each server's memory.
+  REDIS_URL: z.string().optional(),
+  // API processes per machine: a number, or "auto" for one per CPU core (see src/cluster.ts).
+  CLUSTER_WORKERS: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

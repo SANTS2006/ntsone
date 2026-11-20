@@ -42,6 +42,8 @@ Set secrets only in the hosting dashboard. Variables marked **secret** must neve
 | `MONIME_WEBHOOK_SECRET` (**secret**), `MONIME_WEBHOOK_STRICT` | none, `false` | Webhooks are hints; strict mode refuses unverified ones |
 | `MONIME_REDIRECT_HOSTS` | `monime.io,monime.app` | Payers are only sent to these hosts |
 | `MONIME_ALLOW_CARDS`, `MONIME_ALLOW_BANKS` | `false` | Mobile money is always on; cards can be set per organization by the platform team |
+| `CLUSTER_WORKERS` | empty (1) | API processes per machine; a number or `auto` (one per CPU core). Only the first runs background jobs |
+| `REDIS_URL` | empty | Shared rate-limit store, needed when more than one server runs behind a load balancer |
 | `WEBHOOK_RATE_LIMIT_PER_MINUTE` | `6000` | Webhook requests per minute per address |
 | `PAYMENTS_RECONCILE_BATCH`, `PAYMENTS_RECONCILE_CONCURRENCY` | `200`, `8` | Background payment checks per round, and how many run at once |
 | `PAYMENTS_FEE_PERCENT`, `PAYMENTS_FEE_FIXED` | `5`, `0` | The platform fee |
@@ -95,3 +97,11 @@ Set secrets only in the hosting dashboard. Variables marked **secret** must neve
 
 ## 8. Backups and recovery
 The platform now makes its own encrypted daily backups (super admin, **Backup & Recovery**); see [BACKUP_RECOVERY.md](BACKUP_RECOVERY.md) for setup, restore and the variables. Neon point-in-time restore stays on as a second layer. The ledger and audit log are append-only, so a restore point just before a problem keeps the record consistent. After any restore, run the Monime reconciliation (the worker does it automatically) to settle payments whose state changed.
+
+
+## Scaling and load balancing
+- **One machine, many cores:** set `CLUSTER_WORKERS=auto`. `npm start` then runs one API process per core on the same port.
+- **Many machines:** run the same image on each and put a load balancer in front. `deploy/nginx.conf` and `deploy/docker-compose.scale.yml` give a ready setup (nginx, `--scale api=4`, Redis). Managed hosts (Render, Fly, a cloud load balancer) do the balancing for you when you raise the instance count; set `REDIS_URL` so the rate limit is shared.
+- Every server is stateless (sessions are tokens, data is in Postgres), so any server can answer any request. Background payment checks run on one server at a time (a database lock), and money movements are protected by database locks and idempotency keys, so repeats and races across servers are safe.
+- **Database connections** = servers x `CLUSTER_WORKERS` x `DB_POOL_MAX`. Keep it below your Postgres limit (use Neon's pooled connection string, or lower `DB_POOL_MAX`).
+- Use `loadtest/` (k6) against the balanced address to find your real capacity before promising a number.

@@ -71,10 +71,13 @@ checkDatabase()
   .then(() => app.listen({ port: env.API_PORT, host: "0.0.0.0", backlog: 1024 }))
   .then((address) => {
     app.log.info(`Server listening at ${address}`);
-    stopWorker = startOutboxWorker(app.log);
-    stopPayments = startPaymentsWorker(app.log);
-    stopBackups = startBackupWorker(app.log);
-    stopMaintenance = startMaintenance(app.log);
+    // With several processes (CLUSTER_WORKERS) only one of them runs the background jobs.
+    if (process.env.NTS_BACKGROUND_JOBS !== "0") {
+      stopWorker = startOutboxWorker(app.log);
+      stopPayments = startPaymentsWorker(app.log);
+      stopBackups = startBackupWorker(app.log);
+      stopMaintenance = startMaintenance(app.log);
+    }
   })
   .catch((err) => {
     app.log.error(err);

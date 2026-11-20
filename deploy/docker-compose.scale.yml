@@ -1,0 +1,26 @@
+# Several API servers behind one load balancer, sharing one rate-limit store.
+#   docker compose -f deploy/docker-compose.scale.yml --env-file backend/.env up --build --scale api=4
+# Each `api` container runs CLUSTER_WORKERS processes, so total capacity = replicas x workers.
+# Database connections = replicas x workers x DB_POOL_MAX: keep it under your Postgres/Neon limit.
+services:
+  api:
+    build: ..
+    env_file: ../backend/.env
+    environment:
+      API_PORT: "10000"
+      CLUSTER_WORKERS: "${CLUSTER_WORKERS:-2}"
+      DB_POOL_MAX: "${DB_POOL_MAX:-5}"
+      REDIS_URL: redis://redis:6379
+    depends_on: [redis]
+    restart: unless-stopped
+    expose: ["10000"]
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    restart: unless-stopped
+  lb:
+    image: nginx:1.27-alpine
+    volumes: ["./nginx.conf:/etc/nginx/nginx.conf:ro"]
+    ports: ["80:80"]
+    depends_on: [api]
+    restart: unless-stopped

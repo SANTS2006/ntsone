@@ -115,7 +115,7 @@ export function PaymentTermsCard({ tenantId }: { tenantId: string }) {
               <option value="on">Offer cards</option>
               <option value="off">Mobile money only</option>
             </select>
-            <p className="text-xs text-muted-foreground">Card payments cannot be refunded from NTSOne; refunds for them are arranged with the payer directly.</p>
+            <p className="text-xs text-muted-foreground">Card payments are refunded as a transfer to a mobile money number the payer gives (Monime has no card reversal).</p>
           </div>
           <div className="sm:col-span-2">
             <Button type="submit" loading={saving}>
