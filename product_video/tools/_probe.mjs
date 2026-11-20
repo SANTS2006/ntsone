@@ -1,0 +1,17 @@
+import { chromium } from "playwright-core";
+const browser = await chromium.launch({ channel: "chrome", headless: true, args: ["--disable-gpu", "--disable-dev-shm-usage"] });
+const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, colorScheme: "light" });
+const page = await ctx.newPage();
+page.on("crash", () => console.log("CRASH"));
+page.on("console", (m) => m.type() === "error" && console.log("console error:", m.text().slice(0, 150)));
+await page.goto("http://localhost:5188/login", { waitUntil: "domcontentloaded" });
+await page.waitForTimeout(2000);
+console.log("login page ok", await page.title());
+await page.fill('input[type="email"]', "bootcamp.admin@example.com");
+await page.fill('input[type="password"]', "ProgramAdmin123!");
+await page.click('button[type="submit"]');
+await page.waitForURL("**/admin**");
+await page.waitForTimeout(3000);
+console.log("dashboard ok", await page.title());
+await page.screenshot({ path: "_probe.png" });
+await browser.close();

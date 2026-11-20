@@ -1,0 +1,28 @@
+import { chromium } from "playwright-core";
+const WEB = "http://localhost:5188", API = "http://localhost:4000/api";
+const login = await (await fetch(`${API}/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: "bootcamp.admin@example.com", password: "ProgramAdmin123!" }) })).json();
+const h = { Authorization: `Bearer ${login.data.accessToken}` };
+const cs = (await (await fetch(`${API}/contributions`, { headers: h })).json()).data;
+const ws = (await (await fetch(`${API}/wishlists`, { headers: h })).json()).data;
+const c = (cs.items ?? cs)[0], w = (ws.items ?? ws)[0];
+console.log("c", c.id, "w", w.id);
+const browser = await chromium.launch({ channel: "chrome", headless: true, args: ["--disable-gpu", "--disable-dev-shm-usage"] });
+const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, colorScheme: "light" });
+const page = await ctx.newPage();
+await page.addInitScript(() => localStorage.setItem("ntsone-theme", "light"));
+await page.goto(`${WEB}/login`);
+await page.fill('input[type="email"]', "bootcamp.admin@example.com");
+await page.fill('input[type="password"]', "ProgramAdmin123!");
+await page.click('button[type="submit"]');
+await page.waitForURL("**/admin**");
+const dump = async (label, route) => {
+  await page.goto(`${WEB}${route}`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(6000);
+  const items = await page.evaluate(() => [...document.querySelectorAll("h1,h2,h3,button,a,input,th,[role=tab]")].filter((e) => e.offsetParent).map((e) => `${e.tagName.toLowerCase()}[${(e.getAttribute("aria-label") || e.getAttribute("placeholder") || e.innerText || "").trim().replace(/\s+/g, " ").slice(0, 30)}]`));
+  console.log("==", label, "\n", [...new Set(items)].slice(14, 60).join(" | "));
+};
+await dump("contrib list", "/admin/contributions");
+await dump("contrib", `/admin/contributions/${c.id}`);
+await dump("wish list index", "/admin/wishlists");
+await dump("wish", `/admin/wishlists/${w.id}`);
+await browser.close();
