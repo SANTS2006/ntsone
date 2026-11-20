@@ -61,7 +61,7 @@ const envSchema = z.object({
   // Payers may only be sent to pages on these hosts (and their subdomains).
   MONIME_REDIRECT_HOSTS: z.string().default("monime.io,monime.app"),
   // Card and bank payments are off unless switched on; mobile money (Orange, Africell, QMoney) is always on.
-  MONIME_ALLOW_CARDS: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
+  MONIME_ALLOW_CARDS: z.enum(["true", "false"]).default("true").transform((v) => v === "true"),
   MONIME_ALLOW_BANKS: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
   // What the platform keeps from each payment: a percentage plus a fixed amount in Leones.
   PAYMENTS_FEE_PERCENT: z.coerce.number().min(0).max(30).default(5),

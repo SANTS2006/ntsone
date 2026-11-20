@@ -67,6 +67,9 @@ projects:
               - key: MONIME_WEBHOOK_SECRET
                 sync: false
               # Turn on ("true") once a real webhook from Monime has been seen to verify, so unsigned ones are refused.
+              # Offer card payments on the checkout (the platform team can switch it per organization). Cards must also be enabled on your Monime account.
+              - key: MONIME_ALLOW_CARDS
+                value: "true"
               - key: MONIME_WEBHOOK_STRICT
                 value: "false"
               # What the platform keeps from each payment (percent, plus a fixed amount in Leones), and how long money is held before it can be withdrawn.

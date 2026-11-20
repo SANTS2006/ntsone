@@ -112,17 +112,27 @@ async function openCheckoutUnchecked(payment: PaymentRow, programName: string): 
   const base = env.APP_URL.replace(/\/$/, "");
   const lines = payment.lineItems as LineItem[];
   const { allowCards } = await termsFor(payment.tenantId);
-  const session = await createCheckoutSession({
-    allowCards,
-    // The payment's own id: asking twice for the same payment can never create a second checkout.
-    idempotencyKey: payment.id,
-    name: programName,
-    description: lines.map((l) => (l.quantity > 1 ? `${l.quantity} x ${l.name}` : l.name)).join(", "),
-    reference: payment.id,
-    successUrl: `${base}/payment/${token}?result=success`,
-    cancelUrl: `${base}/payment/${token}?result=cancelled`,
-    lineItems: lines.map((l) => ({ name: l.name, unitMinor: l.unitMinor, quantity: l.quantity, reference: l.id })),
-    metadata: { paymentId: payment.id, ...(payment.programId ? { programId: payment.programId } : {}), ...(payment.pollId ? { pollId: payment.pollId } : {}) },
+  const open = (cards: boolean) =>
+    createCheckoutSession({
+      allowCards: cards,
+      // The payment's own id: asking twice for the same payment can never create a second checkout.
+      idempotencyKey: cards ? payment.id : `${payment.id}-nocard`,
+      name: programName,
+      description: lines.map((l) => (l.quantity > 1 ? `${l.quantity} x ${l.name}` : l.name)).join(", "),
+      reference: payment.id,
+      successUrl: `${base}/payment/${token}?result=success`,
+      cancelUrl: `${base}/payment/${token}?result=cancelled`,
+      lineItems: lines.map((l) => ({ name: l.name, unitMinor: l.unitMinor, quantity: l.quantity, reference: l.id })),
+      metadata: { paymentId: payment.id, ...(payment.programId ? { programId: payment.programId } : {}), ...(payment.pollId ? { pollId: payment.pollId } : {}) },
+    });
+  // If Monime refuses a checkout that offers cards (for example cards are not enabled on the account yet), offer mobile money
+  // only instead of leaving the payer with no way to pay.
+  const session = await open(allowCards).catch((err: unknown) => {
+    if (allowCards && err instanceof MonimeError && err.status >= 400 && err.status < 500 && err.status !== 401 && err.status !== 403 && err.status !== 429) {
+      console.error("Monime refused a checkout with cards; retrying without them:", err.reason ?? err.message);
+      return open(false);
+    }
+    throw err;
   });
   // Only ever send a payer to Monime's own pages.
   if (!isTrustedCheckoutUrl(session.redirectUrl)) {

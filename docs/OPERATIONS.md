@@ -41,7 +41,7 @@ Set secrets only in the hosting dashboard. Variables marked **secret** must neve
 | `MONIME_API_BASE`, `MONIME_API_VERSION` | `https://api.monime.io/v1`, `caph.2025-08-23` | |
 | `MONIME_WEBHOOK_SECRET` (**secret**), `MONIME_WEBHOOK_STRICT` | none, `false` | Webhooks are hints; strict mode refuses unverified ones |
 | `MONIME_REDIRECT_HOSTS` | `monime.io,monime.app` | Payers are only sent to these hosts |
-| `MONIME_ALLOW_CARDS`, `MONIME_ALLOW_BANKS` | `false` | Mobile money is always on; cards can be set per organization by the platform team |
+| `MONIME_ALLOW_CARDS`, `MONIME_ALLOW_BANKS` | `true`, `false` | Mobile money is always on; cards can be set per organization by the platform team |
 | `CLUSTER_WORKERS` | empty (1) | API processes per machine; a number or `auto` (one per CPU core). Only the first runs background jobs |
 | `REDIS_URL` | empty | Shared rate-limit store, needed when more than one server runs behind a load balancer |
 | `WEBHOOK_RATE_LIMIT_PER_MINUTE` | `6000` | Webhook requests per minute per address |

@@ -33,7 +33,7 @@ Set these in the hosting settings (Render). Without the first two, every payment
 | `MONIME_WEBHOOK_SECRET` | The secret you set on the webhook (32+ characters). |
 | `MONIME_WEBHOOK_STRICT` | `false` at first; `true` once a real webhook has been seen to verify. |
 | `MONIME_REDIRECT_HOSTS` | Hosts a payer may be sent to. Default `monime.io,monime.app`. |
-| `MONIME_ALLOW_CARDS` / `MONIME_ALLOW_BANKS` | Off by default; mobile money is always offered. `MONIME_ALLOW_CARDS` is the platform default for card payments; the platform team can override it per organization (Payment terms, "Card payments at checkout"). Card availability also depends on Monime enabling cards on your account. |
+| `MONIME_ALLOW_CARDS` / `MONIME_ALLOW_BANKS` | Cards are offered by default (`MONIME_ALLOW_CARDS=true`; set `false` to turn them off); mobile money is always offered. `MONIME_ALLOW_CARDS` is the platform default for card payments; the platform team can override it per organization (Payment terms, "Card payments at checkout"). Card availability also depends on Monime enabling cards on your account. |
 | `WEBHOOK_RATE_LIMIT_PER_MINUTE` | Webhook requests accepted per minute per address. Default 6000. |
 | `PAYMENTS_RECONCILE_BATCH`, `PAYMENTS_RECONCILE_CONCURRENCY` | Open payments the background check settles each round (default 200) and how many it checks with Monime at once (default 8). |
 | `PAYMENTS_FEE_PERCENT`, `PAYMENTS_FEE_FIXED` | What the platform keeps from each payment (percent, and Leones). Monime's own fees are charged to your Monime account, so set this to cover them. |

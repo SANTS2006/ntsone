@@ -168,7 +168,7 @@ describe("the Monime client", () => {
     const body = JSON.parse(String(init.body));
     expect(body.lineItems[0].price).toEqual({ currency: "SLE", value: 15000 });
     expect(body.paymentOptions.momo.disable).toBe(false);
-    expect(body.paymentOptions.card.disable).toBe(true);
+    expect(body.paymentOptions.card.disable).toBe(false); // cards are offered by default
   });
 
   it("retries a server error with the same key, and gives up on a client error", async () => {
