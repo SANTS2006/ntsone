@@ -88,6 +88,9 @@ export function buildApp() {
     crossOriginResourcePolicy: { policy: "cross-origin" },
     // Google's sign-in window reports back to this page; the default "same-origin" would cut that link.
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+    // Google's sign-in window inherits this page's referrer policy. With the helmet default ("no-referrer") the browser hides this
+    // site's address from Google, which then leaves the window blank after you pick an account. Send the site address (origin) only.
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     // The same server also serves the web app in production, so the CSP must
     // allow what the frontend loads: Cloudinary-hosted images and direct
     // browser-to-Cloudinary uploads.
