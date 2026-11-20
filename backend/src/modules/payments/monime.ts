@@ -142,7 +142,10 @@ export function createCheckoutSession(input: {
   cancelUrl: string;
   lineItems: { name: string; unitMinor: number; quantity: number; reference: string }[];
   metadata?: Record<string, string>;
+  /** Offer card payments on this checkout (the platform decides this per organization). */
+  allowCards?: boolean;
 }) {
+  const cards = input.allowCards ?? env.MONIME_ALLOW_CARDS;
   return call<MonimeCheckoutSession>("POST", "/checkout-sessions", {
     idempotencyKey: input.idempotencyKey,
     body: {
@@ -160,7 +163,7 @@ export function createCheckoutSession(input: {
       })),
       // Mobile money (Orange Money, Africell Money, QMoney, ...) is always offered. Cards, banks and wallets only when switched on.
       paymentOptions: {
-        card: { disable: !env.MONIME_ALLOW_CARDS },
+        card: { disable: !cards },
         bank: { disable: !env.MONIME_ALLOW_BANKS },
         wallet: { disable: true },
         momo: { disable: false },

@@ -1,3 +1,4 @@
+import { env } from "../../config/env.js";
 import { eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -20,11 +21,13 @@ const bodySchema = z.object({
   holdMinutes: z.number().int().min(0, "The hold time can't be negative").max(60 * 24 * 90, "The hold time can be at most 90 days").nullable(),
   /** When withdrawals switch on; empty means they are on now. */
   withdrawalsActiveFrom: z.coerce.date().nullable(),
+  /** Card payments on the checkout for this organization; null follows the platform default. */
+  allowCards: z.boolean().nullable().default(null),
 });
 
 async function view(tenantId: string) {
   const terms = await termsFor(tenantId);
-  return { ...terms, defaults: defaultTerms() };
+  return { ...terms, defaults: { ...defaultTerms(), allowCards: env.MONIME_ALLOW_CARDS } };
 }
 
 async function assertTenant(tenantId: string) {
@@ -43,11 +46,12 @@ export async function updatePaymentTerms(actor: { id: string }, tenantId: string
       feeFixedMinor: input.feeFixedMinor,
       holdMinutes: input.holdMinutes,
       withdrawalsActiveFrom: input.withdrawalsActiveFrom,
+      allowCards: input.allowCards,
       updatedAt: new Date(),
     })
     .where(eq(tenants.id, tenantId));
   const after = await termsFor(tenantId);
-  const snapshot = (t: typeof before) => ({ feePercent: t.feePercent, feeFixedMinor: t.feeFixedMinor, holdMinutes: t.holdMinutes, withdrawalsActiveFrom: t.withdrawalsActiveFrom?.toISOString() ?? null });
+  const snapshot = (t: typeof before) => ({ feePercent: t.feePercent, feeFixedMinor: t.feeFixedMinor, holdMinutes: t.holdMinutes, withdrawalsActiveFrom: t.withdrawalsActiveFrom?.toISOString() ?? null, allowCards: t.allowCards });
   // Everything that changes how an organization is charged or paid is on the record, with the old and the new value.
   await recordAudit({
     actorUserId: actor.id,
@@ -65,6 +69,7 @@ export async function updatePaymentTerms(actor: { id: string }, tenantId: string
     details: [
       { label: "Platform fee", value: `${after.feePercent}%${after.feeFixedMinor > 0 ? ` + ${formatMinor(after.feeFixedMinor)}` : ""}` },
       { label: "Hold before withdrawal", value: after.holdMinutes === 0 ? "None" : `${after.holdMinutes} minutes` },
+      { label: "Card payments", value: after.allowCards ? "Offered at checkout" : "Not offered" },
       { label: "Withdrawals", value: after.withdrawalsActiveFrom && after.withdrawalsActiveFrom.getTime() > Date.now() ? `Active from ${after.withdrawalsActiveFrom.toUTCString()}` : "Active" },
     ],
   });

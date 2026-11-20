@@ -64,15 +64,16 @@ export interface PaymentTerms {
   holdMinutes: number;
   withdrawalsActiveFrom: string | null;
   autoWithdraw: boolean;
-  custom: { feePercent: boolean; feeFixed: boolean; hold: boolean };
-  defaults: { feePercent: number; feeFixedMinor: number; holdMinutes: number };
+  allowCards: boolean;
+  custom: { feePercent: boolean; feeFixed: boolean; hold: boolean; cards: boolean };
+  defaults: { feePercent: number; feeFixedMinor: number; holdMinutes: number; allowCards: boolean };
 }
 
 export const getPaymentTerms = (tenantId: string) => apiFetch<PaymentTerms>(`/platform/tenants/${tenantId}/payment-terms`);
 
 export const savePaymentTerms = (
   tenantId: string,
-  input: { feePercent: number | null; feeFixedMinor: number | null; holdMinutes: number | null; withdrawalsActiveFrom: string | null },
+  input: { feePercent: number | null; feeFixedMinor: number | null; holdMinutes: number | null; withdrawalsActiveFrom: string | null; allowCards: boolean | null },
 ) => apiFetch<PaymentTerms>(`/platform/tenants/${tenantId}/payment-terms`, { method: "PUT", body: input });
 
 export function getTenant(tenantId: string) {

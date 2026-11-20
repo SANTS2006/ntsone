@@ -21,15 +21,17 @@ export interface PaymentTerms {
   /** The organization's own choice: send each payment to its withdrawal account the moment it succeeds. */
   autoWithdraw: boolean;
   autoWithdrawAccountId: string | null;
+  /** Whether the hosted checkout offers card payments for this organization. */
+  allowCards: boolean;
   /** Which values the platform set for this organization (the rest are the platform defaults). */
-  custom: { feePercent: boolean; feeFixed: boolean; hold: boolean };
+  custom: { feePercent: boolean; feeFixed: boolean; hold: boolean; cards: boolean };
 }
 
 export const defaultTerms = () => ({ feePercent: env.PAYMENTS_FEE_PERCENT, feeFixedMinor: leonesToMinor(env.PAYMENTS_FEE_FIXED), holdMinutes: env.PAYMENTS_HOLD_MINUTES });
 
 export async function termsFor(tenantId: string | null, executor: Pick<typeof db, "select"> = database): Promise<PaymentTerms> {
   const base = defaultTerms();
-  const none: PaymentTerms = { ...base, withdrawalsActiveFrom: null, autoWithdraw: false, autoWithdrawAccountId: null, custom: { feePercent: false, feeFixed: false, hold: false } };
+  const none: PaymentTerms = { ...base, withdrawalsActiveFrom: null, autoWithdraw: false, autoWithdrawAccountId: null, allowCards: env.MONIME_ALLOW_CARDS, custom: { feePercent: false, feeFixed: false, hold: false, cards: false } };
   if (!tenantId) return none;
   const [row] = await executor
     .select({
@@ -39,6 +41,7 @@ export async function termsFor(tenantId: string | null, executor: Pick<typeof db
       withdrawalsActiveFrom: tenants.withdrawalsActiveFrom,
       autoWithdraw: tenants.autoWithdraw,
       autoWithdrawAccountId: tenants.autoWithdrawAccountId,
+      allowCards: tenants.allowCards,
     })
     .from(tenants)
     .where(eq(tenants.id, tenantId))
@@ -52,7 +55,8 @@ export async function termsFor(tenantId: string | null, executor: Pick<typeof db
     withdrawalsActiveFrom: row.withdrawalsActiveFrom,
     autoWithdraw: row.autoWithdraw,
     autoWithdrawAccountId: row.autoWithdrawAccountId,
-    custom: { feePercent: feePercent !== null, feeFixed: row.feeFixedMinor !== null, hold: row.holdMinutes !== null },
+    allowCards: row.allowCards ?? env.MONIME_ALLOW_CARDS,
+    custom: { feePercent: feePercent !== null, feeFixed: row.feeFixedMinor !== null, hold: row.holdMinutes !== null, cards: row.allowCards !== null },
   };
 }
 

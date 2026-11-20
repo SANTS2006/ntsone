@@ -33,7 +33,9 @@ Set these in the hosting settings (Render). Without the first two, every payment
 | `MONIME_WEBHOOK_SECRET` | The secret you set on the webhook (32+ characters). |
 | `MONIME_WEBHOOK_STRICT` | `false` at first; `true` once a real webhook has been seen to verify. |
 | `MONIME_REDIRECT_HOSTS` | Hosts a payer may be sent to. Default `monime.io,monime.app`. |
-| `MONIME_ALLOW_CARDS` / `MONIME_ALLOW_BANKS` | Off by default; mobile money is always offered. |
+| `MONIME_ALLOW_CARDS` / `MONIME_ALLOW_BANKS` | Off by default; mobile money is always offered. `MONIME_ALLOW_CARDS` is the platform default for card payments; the platform team can override it per organization (Payment terms, "Card payments at checkout"). Card availability also depends on Monime enabling cards on your account. |
+| `WEBHOOK_RATE_LIMIT_PER_MINUTE` | Webhook requests accepted per minute per address. Default 6000. |
+| `PAYMENTS_RECONCILE_BATCH`, `PAYMENTS_RECONCILE_CONCURRENCY` | Open payments the background check settles each round (default 200) and how many it checks with Monime at once (default 8). |
 | `PAYMENTS_FEE_PERCENT`, `PAYMENTS_FEE_FIXED` | What the platform keeps from each payment (percent, and Leones). Monime's own fees are charged to your Monime account, so set this to cover them. |
 | `PAYMENTS_HOLD_MINUTES` | Money can't be withdrawn until this many minutes after the payment (default 5). |
 | `PAYMENTS_MAX_AMOUNT` | Largest single payment, in Leones (default 10,000,000). |
@@ -88,6 +90,17 @@ The database change (migration 0024) runs on the next deploy.
 - Every payment keeps `PAYMENTS_FEE_PERCENT` (default **5%**) for the platform. Whoever switches payments on for a program, order form or poll must tick that they agree; the agreement (percent, time, person) is stored with the settings and must be given again if the fee goes up.
 - Each completed payment also credits the platform's own ledger (wallet entries with no organization). **Platform → Platform fund** (super admin) shows it and lets the super admin add a withdrawal account and withdraw, with the same password check, cooling-off period, daily limit and background sending as an organization's fund. There is no second approver for the platform's own money.
 - `PAYMENTS_HOLD_MINUTES` (default 5) and `PAYOUT_NEW_ACCOUNT_MINUTES` (default 3) set the hold and the wait for a new withdrawal account.
+
+## Card payments
+- Cards use the same Monime hosted checkout: the payer picks card on Monime's page and the card details never reach NTSOne. Switch them on with `MONIME_ALLOW_CARDS=true`, or per organization in the platform admin's Payment terms (default / offer cards / mobile money only).
+- A card payment is settled exactly like mobile money (the server asks Monime directly before marking it paid) and the Payments tables show "Card ending 1234".
+- **Card and bank payments can't be refunded from NTSOne** (a refund here is a transfer to a mobile money number); the Refund action refuses them with a clear message.
+
+## Protecting payments from repeats and floods
+- **Idempotency:** the retry-payment, pay-for-votes, withdrawal and refund requests accept an `Idempotency-Key` header (the app sends one on each). A repeat of the same request (double click, dropped connection) returns the first answer with `Idempotent-Replay: true`; the same key with different details is refused (422); a request still running answers 409.
+- **Webhooks** are verified with Monime's documented `t=<unix>,v1=<base64>` HMAC over `<t>_<body>`, refusing anything older than 5 minutes or more than 1 minute in the future, and each event is processed once.
+- **Limits:** per-address, per-email and per-phone payment limits, the general API rate limit, and a high webhook limit.
+- **Scale:** the background job settles open payments in parallel batches, and money movements are protected by database row locks and unique ledger entries. The API rate limit is held in each server's memory; running several servers needs a shared (Redis) store. No load test has been run, so a figure for simultaneous transactions can't be promised yet.
 
 ## Refunds
 - An organization admin (or the platform team) refunds a **completed** payment from its Payments page, fully or in part, within `REFUND_WINDOW_DAYS` (default 180). They give a reason, the provider and number to send to (Orange Money or Africell Money), and their password.

@@ -1,3 +1,4 @@
+import { env } from "../../config/env.js";
 import type { FastifyInstance } from "fastify";
 import { requireProgramAccess, requireRole } from "../../middleware/authorize.js";
 import {
@@ -50,7 +51,7 @@ export async function webhookRoutes(app: FastifyInstance) {
       done(Object.assign(new Error("Invalid JSON"), { statusCode: 400 }), undefined);
     }
   });
-  app.post("/monime", { config: { rateLimit: { max: 300, timeWindow: "1 minute" } } }, monimeWebhookHandler);
+  app.post("/monime", { config: { rateLimit: { max: env.WEBHOOK_RATE_LIMIT_PER_MINUTE, timeWindow: "1 minute" } } }, monimeWebhookHandler);
 }
 
 /** A program's payment settings and its payments table. */

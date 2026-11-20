@@ -42,9 +42,10 @@ export function verifyWebhookSignature(params: {
   const signatures = keyed.filter(([key]) => /^v\d+$/.test(key)).map(([, value]) => value ?? "");
   if (signatures.length === 0) signatures.push(header);
 
-  if (timestamp && /^\d+$/.test(timestamp) && Math.abs(now - Number(timestamp)) > TOLERANCE_SECONDS) return "invalid";
+  // Monime's rule: refuse anything older than 5 minutes or more than a minute ahead of our clock.
+  if (timestamp && /^\d+$/.test(timestamp) && (now - Number(timestamp) > TOLERANCE_SECONDS || Number(timestamp) - now > 60)) return "invalid";
 
-  const signedStrings = timestamp ? [`${timestamp}.${rawBody}`, `${timestamp}${rawBody}`, rawBody] : [rawBody];
+  const signedStrings = timestamp ? [`${timestamp}_${rawBody}`, `${timestamp}.${rawBody}`, `${timestamp}${rawBody}`, rawBody] : [rawBody];
   for (const signed of signedStrings) {
     const expected = createHmac("sha256", secret).update(signed).digest();
     if (signatures.some((candidate) => digestMatches(candidate, expected))) return "valid";

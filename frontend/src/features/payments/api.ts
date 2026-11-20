@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, newIdempotencyKey } from "@/lib/api";
 import type { PaginatedResult, PaymentConfig } from "@/types/api";
 
 /** What the admin sends when saving: the settings, and whether they agree to the platform's fee. */
@@ -109,7 +109,7 @@ export function listPollPayments(pollId: string, params: { page?: number; pageSi
 export const listPollPaymentRefunds = (pollId: string, paymentId: string) => apiFetch<RefundRow[]>(`/polls/${pollId}/payments/${paymentId}/refunds`);
 
 export const requestPollRefund = (pollId: string, paymentId: string, input: { amountMinor: number; reason: string; providerId: string; phoneNumber: string; password: string }) =>
-  apiFetch<{ id: string; status: string }>(`/polls/${pollId}/payments/${paymentId}/refund`, { method: "POST", body: input });
+  apiFetch<{ id: string; status: string }>(`/polls/${pollId}/payments/${paymentId}/refund`, { method: "POST", body: input, headers: { "Idempotency-Key": newIdempotencyKey() } });
 
 export const listPaymentRefunds = (programId: string, paymentId: string) => apiFetch<RefundRow[]>(`/programs/${programId}/payments/${paymentId}/refunds`);
 
@@ -117,7 +117,7 @@ export const requestRefund = (
   programId: string,
   paymentId: string,
   input: { amountMinor: number; reason: string; providerId: string; phoneNumber: string; password: string },
-) => apiFetch<{ id: string; status: string }>(`/programs/${programId}/payments/${paymentId}/refund`, { method: "POST", body: input });
+) => apiFetch<{ id: string; status: string }>(`/programs/${programId}/payments/${paymentId}/refund`, { method: "POST", body: input, headers: { "Idempotency-Key": newIdempotencyKey() } });
 
 // ---- what a payer sees ----
 
@@ -165,7 +165,7 @@ export function cancelPayment(token: string) {
 }
 
 export function retryPayment(token: string) {
-  return apiFetch<PaymentStartView>(`/public/payments/${encodeURIComponent(token)}/retry`, { method: "POST" });
+  return apiFetch<PaymentStartView>(`/public/payments/${encodeURIComponent(token)}/retry`, { method: "POST", headers: { "Idempotency-Key": newIdempotencyKey() } });
 }
 
 // ---- the payment fund ----
@@ -267,7 +267,7 @@ export const removePayoutAccount = (accountId: string, password: string) =>
   apiFetch<PayoutAccount[]>(`/funds/accounts/${accountId}/remove`, { method: "POST", body: { password } });
 
 export const requestPayout = (input: { accountId: string; amountMinor: number; password: string }) =>
-  apiFetch<{ id: string; status: string }>("/funds/payouts", { method: "POST", body: input });
+  apiFetch<{ id: string; status: string }>("/funds/payouts", { method: "POST", body: input, headers: { "Idempotency-Key": newIdempotencyKey() } });
 
 export const cancelPayout = (payoutId: string) => apiFetch<null>(`/funds/payouts/${payoutId}/cancel`, { method: "POST" });
 
@@ -305,7 +305,7 @@ export const platformFund: FundApi = {
   getPayouts: (page, range = {}) => apiFetch<PaginatedResult<PayoutRow>>(`/platform/fund/payouts?page=${page}&pageSize=10${dates(range)}`),
   addAccount: (input) => apiFetch<PayoutAccount[]>("/platform/fund/accounts", { method: "POST", body: input }),
   removeAccount: (accountId, password) => apiFetch<PayoutAccount[]>(`/platform/fund/accounts/${accountId}/remove`, { method: "POST", body: { password } }),
-  requestPayout: (input) => apiFetch<{ id: string; status: string }>("/platform/fund/payouts", { method: "POST", body: input }),
+  requestPayout: (input) => apiFetch<{ id: string; status: string }>("/platform/fund/payouts", { method: "POST", body: input, headers: { "Idempotency-Key": newIdempotencyKey() } }),
   cancelPayout: (payoutId) => apiFetch<null>(`/platform/fund/payouts/${payoutId}/cancel`, { method: "POST" }),
 };
 

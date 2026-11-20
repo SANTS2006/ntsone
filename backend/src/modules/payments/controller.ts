@@ -9,6 +9,7 @@ import { leonesToMinor } from "../../lib/money.js";
 import { paginationSchema } from "../../lib/pagination.js";
 import { dateRangeQuery } from "../../lib/dateRange.js";
 import { sendSuccess } from "../../lib/response.js";
+import { runIdempotent } from "../../lib/paymentIdempotency.js";
 import { recordAudit } from "../audit/recorder.js";
 import * as programsRepo from "../programs/repository.js";
 import { getProgramPaymentAnalytics } from "./insights.js";
@@ -48,7 +49,10 @@ export async function cancelPaymentHandler(request: FastifyRequest, reply: Fasti
 export async function retryPaymentHandler(request: FastifyRequest, reply: FastifyReply) {
   const { token } = request.params as { token: string };
   noStore(reply);
-  return sendSuccess(reply, await paymentsService.retryPaymentForToken(token, { ip: request.ip, userAgent: request.headers["user-agent"] }));
+  return runIdempotent(request, reply, `payment-retry:${token}`, null, async () => ({
+    status: 200,
+    body: { success: true, data: await paymentsService.retryPaymentForToken(token, { ip: request.ip, userAgent: request.headers["user-agent"] }) },
+  }));
 }
 
 // ---------------------------------------------------------------- a program's payments
@@ -221,8 +225,11 @@ const payoutBodySchema = z.object({
 export async function requestPayoutHandler(request: FastifyRequest, reply: FastifyReply) {
   const actor = actorOf(request);
   const body = payoutBodySchema.parse(request.body);
-  const payout = await payoutsService.requestPayout(actor, body, request.ip);
-  return sendSuccess(reply, { id: payout.id, status: payout.status }, "Withdrawal requested", 201);
+  const { password: _password, ...hashable } = body as typeof body & { password?: string };
+  return runIdempotent(request, reply, `payout:${actor.tenantId}:${actor.id}`, hashable, async () => {
+    const payout = await payoutsService.requestPayout(actor, body, request.ip);
+    return { status: 201, body: { success: true, data: { id: payout.id, status: payout.status }, message: "Withdrawal requested" } };
+  });
 }
 
 export async function cancelPayoutHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -246,8 +253,12 @@ export async function refundPaymentHandler(request: FastifyRequest, reply: Fasti
   if (!request.user) throw AppError.unauthorized();
   const { programId, paymentId } = request.params as { programId: string; paymentId: string };
   const body = refundBodySchema.parse(request.body);
-  const refund = await refundsService.requestRefund({ id: request.user.id, role: request.user.role, tenantId: request.user.tenantId }, { ...body, paymentId, programId }, request.ip);
-  return sendSuccess(reply, { id: refund.id, status: refund.status }, refund.status === "pending_review" ? "Refund requested. It needs approval first." : "Refund requested. The money is on its way.", 201);
+  const user = request.user;
+  const { password: _password, ...hashable } = body;
+  return runIdempotent(request, reply, `refund:${user.id}:${paymentId}`, hashable, async () => {
+    const refund = await refundsService.requestRefund({ id: user.id, role: user.role, tenantId: user.tenantId }, { ...body, paymentId, programId }, request.ip);
+    return { status: 201, body: { success: true, data: { id: refund.id, status: refund.status }, message: refund.status === "pending_review" ? "Refund requested. It needs approval first." : "Refund requested. The money is on its way." } };
+  });
 }
 
 export async function listPaymentRefundsHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -266,8 +277,12 @@ export async function refundPollPaymentHandler(request: FastifyRequest, reply: F
   if (!request.user) throw AppError.unauthorized();
   const { pollId, paymentId } = request.params as { pollId: string; paymentId: string };
   const body = refundBodySchema.parse(request.body);
-  const refund = await refundsService.requestRefund({ id: request.user.id, role: request.user.role, tenantId: request.user.tenantId }, { ...body, paymentId, pollId }, request.ip);
-  return sendSuccess(reply, { id: refund.id, status: refund.status }, refund.status === "pending_review" ? "Refund requested. It needs approval first." : "Refund requested. The money is on its way.", 201);
+  const user = request.user;
+  const { password: _password, ...hashable } = body;
+  return runIdempotent(request, reply, `refund:${user.id}:${paymentId}`, hashable, async () => {
+    const refund = await refundsService.requestRefund({ id: user.id, role: user.role, tenantId: user.tenantId }, { ...body, paymentId, pollId }, request.ip);
+    return { status: 201, body: { success: true, data: { id: refund.id, status: refund.status }, message: refund.status === "pending_review" ? "Refund requested. It needs approval first." : "Refund requested. The money is on its way." } };
+  });
 }
 
 export async function listPollPaymentRefundsHandler(request: FastifyRequest, reply: FastifyReply) {

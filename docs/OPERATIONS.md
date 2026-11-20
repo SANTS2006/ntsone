@@ -41,7 +41,9 @@ Set secrets only in the hosting dashboard. Variables marked **secret** must neve
 | `MONIME_API_BASE`, `MONIME_API_VERSION` | `https://api.monime.io/v1`, `caph.2025-08-23` | |
 | `MONIME_WEBHOOK_SECRET` (**secret**), `MONIME_WEBHOOK_STRICT` | none, `false` | Webhooks are hints; strict mode refuses unverified ones |
 | `MONIME_REDIRECT_HOSTS` | `monime.io,monime.app` | Payers are only sent to these hosts |
-| `MONIME_ALLOW_CARDS`, `MONIME_ALLOW_BANKS` | `false` | Mobile money is always on |
+| `MONIME_ALLOW_CARDS`, `MONIME_ALLOW_BANKS` | `false` | Mobile money is always on; cards can be set per organization by the platform team |
+| `WEBHOOK_RATE_LIMIT_PER_MINUTE` | `6000` | Webhook requests per minute per address |
+| `PAYMENTS_RECONCILE_BATCH`, `PAYMENTS_RECONCILE_CONCURRENCY` | `200`, `8` | Background payment checks per round, and how many run at once |
 | `PAYMENTS_FEE_PERCENT`, `PAYMENTS_FEE_FIXED` | `5`, `0` | The platform fee |
 | `PAYMENTS_HOLD_MINUTES` | `5` | Wait before received money can be withdrawn |
 | `PAYMENTS_MAX_AMOUNT` | 10,000,000 | Largest single payment (Leones) |

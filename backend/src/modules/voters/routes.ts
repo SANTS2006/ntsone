@@ -2,6 +2,7 @@ import { strongPassword } from "../../lib/passwordPolicy.js";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { sendSuccess } from "../../lib/response.js";
+import { runIdempotent } from "../../lib/paymentIdempotency.js";
 import { issueGoogleNonce, verifyGoogleCredential } from "./google.js";
 import * as votersService from "./service.js";
 
@@ -75,8 +76,11 @@ export async function voterRoutes(app: FastifyInstance) {
   // Paid voting: pay for the votes of one position, then use them on a candidate.
   app.post<{ Params: SlugParams & { positionId: string } }>("/polls/:slug/positions/:positionId/pay", authLimit, async (request, reply) => {
     const { amountMinor } = payVotesSchema.parse(request.body ?? {});
-    const started = await votersService.startVotePayment(request, { slug: request.params.slug, positionId: request.params.positionId, amountMinor });
-    return sendSuccess(reply, started, "Payment started", 201);
+    const { slug, positionId } = request.params;
+    return runIdempotent(request, reply, `vote-pay:${slug}:${positionId}:${request.ip}`, { amountMinor: amountMinor ?? null }, async () => {
+      const started = await votersService.startVotePayment(request, { slug, positionId, amountMinor });
+      return { status: 201, body: { success: true, data: started, message: "Payment started" } };
+    });
   });
 
   app.post<{ Params: SlugParams & { paymentId: string } }>("/polls/:slug/credits/:paymentId/vote", voteLimit, async (request, reply) => {

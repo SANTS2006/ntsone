@@ -17,6 +17,8 @@ export const tenants = pgTable(
     // Withdrawals are off until this moment (empty: already on).
     withdrawalsActiveFrom: timestamp("withdrawals_active_from", { withTimezone: true }),
     // The organization's own choice: each payment is sent to this withdrawal account the moment it succeeds, with no hold.
+    // Card payments on the hosted checkout: empty follows the platform default (MONIME_ALLOW_CARDS), true/false is the platform's choice for this organization.
+    allowCards: boolean("allow_cards"),
     autoWithdraw: boolean("auto_withdraw").notNull().default(false),
     autoWithdrawAccountId: uuid("auto_withdraw_account_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

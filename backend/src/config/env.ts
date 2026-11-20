@@ -104,6 +104,11 @@ const envSchema = z.object({
   // The daily automatic backup starts at this hour (UTC, 0-23) on whichever instance gets there first.
   BACKUP_SCHEDULE_HOUR_UTC: z.coerce.number().int().min(0).max(23).default(2),
 
+  // Payment traffic tuning. The webhook limit is high on purpose: Monime sends from few addresses and at volume every event matters.
+  WEBHOOK_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(6000),
+  // How many open payments each background check settles, and how many it talks to Monime about at once.
+  PAYMENTS_RECONCILE_BATCH: z.coerce.number().int().min(1).max(2000).default(200),
+  PAYMENTS_RECONCILE_CONCURRENCY: z.coerce.number().int().min(1).max(50).default(8),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
   RATE_LIMIT_WINDOW: z.string().default("1 minute"),
 });

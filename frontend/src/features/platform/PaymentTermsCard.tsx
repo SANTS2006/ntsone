@@ -29,6 +29,7 @@ export function PaymentTermsCard({ tenantId }: { tenantId: string }) {
   const [fixed, setFixed] = React.useState("");
   const [hold, setHold] = React.useState("");
   const [activeFrom, setActiveFrom] = React.useState("");
+  const [cards, setCards] = React.useState<"default" | "on" | "off">("default");
   const [saving, setSaving] = React.useState(false);
 
   React.useEffect(() => {
@@ -37,6 +38,7 @@ export function PaymentTermsCard({ tenantId }: { tenantId: string }) {
     setFixed(terms.custom.feeFixed ? minorToInput(terms.feeFixedMinor) : "");
     setHold(terms.custom.hold ? String(terms.holdMinutes) : "");
     setActiveFrom(toLocalInput(terms.withdrawalsActiveFrom));
+    setCards(terms.custom.cards ? (terms.allowCards ? "on" : "off") : "default");
   }, [terms]);
 
   if (!terms) return null;
@@ -56,6 +58,7 @@ export function PaymentTermsCard({ tenantId }: { tenantId: string }) {
         feeFixedMinor,
         holdMinutes,
         withdrawalsActiveFrom: activeFrom ? new Date(activeFrom).toISOString() : null,
+        allowCards: cards === "default" ? null : cards === "on",
       });
       await queryClient.invalidateQueries({ queryKey: ["platform-tenants", tenantId, "payment-terms"] });
       toast.success("Payment terms saved. The organization was told by email.");
@@ -99,6 +102,20 @@ export function PaymentTermsCard({ tenantId }: { tenantId: string }) {
             <Label htmlFor="tt-active">Withdrawals switch on from</Label>
             <Input id="tt-active" type="datetime-local" value={activeFrom} onChange={(e) => setActiveFrom(e.target.value)} />
             <p className="text-xs text-muted-foreground">Until this time the organization cannot withdraw (nor automatically). Leave empty to have withdrawals on now.</p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="tt-cards">Card payments at checkout</Label>
+            <select
+              id="tt-cards"
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={cards}
+              onChange={(e) => setCards(e.target.value as "default" | "on" | "off")}
+            >
+              <option value="default">Platform default ({d.allowCards ? "offered" : "not offered"})</option>
+              <option value="on">Offer cards</option>
+              <option value="off">Mobile money only</option>
+            </select>
+            <p className="text-xs text-muted-foreground">Card payments cannot be refunded from NTSOne; refunds for them are arranged with the payer directly.</p>
           </div>
           <div className="sm:col-span-2">
             <Button type="submit" loading={saving}>

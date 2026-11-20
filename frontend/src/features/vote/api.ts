@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, newIdempotencyKey } from "@/lib/api";
 import type { PollResults, PollState } from "../polls/api";
 
 export interface VoteCandidate {
@@ -86,7 +86,7 @@ export const castVote = (slug: string, positionId: string, candidateId: string) 
 export const startVotePayment = (slug: string, positionId: string, amountMinor?: number) =>
   voterFetch<{ token: string; status: "pending" | "failed"; redirectUrl: string | null; amountMinor: number; votes: number; currency: string }>(
     `${slugPath(slug)}/positions/${positionId}/pay`,
-    { method: "POST", body: amountMinor === undefined ? {} : { amountMinor } },
+    { method: "POST", body: amountMinor === undefined ? {} : { amountMinor }, headers: { "Idempotency-Key": newIdempotencyKey() } },
   );
 
 export const castPaidVotes = (slug: string, paymentId: string, candidateId: string) =>

@@ -27,6 +27,11 @@ let refreshPromise: Promise<RefreshResult> | null = null;
 /** How long a request may take before the page is told it failed (a slow server must never leave a page waiting forever). */
 const REQUEST_TIMEOUT_MS = 30_000;
 
+/** A fresh key for one intended money action, so a repeated send of the same request is never carried out twice. */
+export function newIdempotencyKey(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+}
+
 export function setAccessToken(token: string | null) {
   accessToken = token;
 }

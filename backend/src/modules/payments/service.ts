@@ -25,6 +25,7 @@ import {
 import { assertChargeable, type LineItem } from "./pricing.js";
 import { refundableAt } from "./refunds.js";
 import { autoWithdrawAfterPayment } from "./payouts.js";
+import { termsFor } from "./terms.js";
 import { creditPayment } from "./wallet.js";
 
 export type PaymentRow = typeof payments.$inferSelect;
@@ -110,7 +111,9 @@ async function openCheckoutUnchecked(payment: PaymentRow, programName: string): 
   const token = signPaymentToken(payment.id);
   const base = env.APP_URL.replace(/\/$/, "");
   const lines = payment.lineItems as LineItem[];
+  const { allowCards } = await termsFor(payment.tenantId);
   const session = await createCheckoutSession({
+    allowCards,
     // The payment's own id: asking twice for the same payment can never create a second checkout.
     idempotencyKey: payment.id,
     name: programName,
@@ -709,7 +712,7 @@ export async function refreshPayment(paymentId: string): Promise<PaymentRow> {
 }
 
 /** Background check: settles open payments Monime has news about, and closes ones that were abandoned. */
-export async function reconcilePendingPayments(limit = 25): Promise<number> {
+export async function reconcilePendingPayments(limit = env.PAYMENTS_RECONCILE_BATCH): Promise<number> {
   if (!isMonimeConfigured()) return 0;
   const open = await db
     .select({ id: payments.id })
@@ -718,14 +721,19 @@ export async function reconcilePendingPayments(limit = 25): Promise<number> {
     .orderBy(payments.createdAt)
     .limit(limit);
   let handled = 0;
-  for (const { id } of open) {
-    try {
-      await refreshPayment(id);
-      handled++;
-    } catch (err) {
-      console.error("Could not check a payment", id, err instanceof MonimeError ? err.message : err);
+  // A few at a time: fast enough for a backlog, gentle enough not to flood Monime (which limits requests).
+  const queue = [...open];
+  const workers = Array.from({ length: Math.min(env.PAYMENTS_RECONCILE_CONCURRENCY, queue.length) }, async () => {
+    for (let next = queue.shift(); next; next = queue.shift()) {
+      try {
+        await refreshPayment(next.id);
+        handled++;
+      } catch (err) {
+        console.error("Could not check a payment", next.id, err instanceof MonimeError ? err.message : err);
+      }
     }
-  }
+  });
+  await Promise.all(workers);
   // Anything still open long after its checkout lapsed is closed (Monime will have said so; this is the safety net).
   const stale = await db
     .select({ id: payments.id })

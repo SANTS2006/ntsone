@@ -17,6 +17,10 @@ import { RefundDialog } from "./RefundDialog";
 import { PaymentBadge } from "./PaymentBadge";
 
 const CHANNEL: Record<string, string> = { m17: "Orange Money", m18: "Africell Money" };
+const channelLabel = (c: { type?: string | null; provider?: string | null; last4?: string | null } | null | undefined) => {
+  if (c?.type === "card") return c.last4 ? `Card ending ${c.last4}` : "Card";
+  return c?.provider ? (CHANNEL[c.provider] ?? c.provider) : (c?.type ?? "—");
+};
 
 /** Every payment attempt for a program: who paid, how much, how, and whether it went through. */
 export function ProgramPaymentsPage() {
@@ -116,7 +120,7 @@ export function ProgramPaymentsPage() {
                 <TableCell className="whitespace-nowrap font-medium">{p.registrationNumber}</TableCell>
                 <TableCell className="whitespace-nowrap">{p.payerName ?? p.payerEmail ?? "—"}</TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {p.channel?.provider ? (CHANNEL[p.channel.provider] ?? p.channel.provider) : p.channel?.type ?? "—"}
+                  {channelLabel(p.channel)}
                   {p.channel?.phoneNumber ? ` · ${p.channel.phoneNumber}` : ""}
                   {p.providerOrderNumber && <span className="block text-xs text-muted-foreground">Monime order {p.providerOrderNumber}</span>}
                 </TableCell>

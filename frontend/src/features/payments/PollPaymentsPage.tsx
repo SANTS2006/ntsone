@@ -15,6 +15,10 @@ import { RefundButton } from "./RefundButton";
 import { RefundDialog } from "./RefundDialog";
 
 const CHANNEL: Record<string, string> = { m17: "Orange Money", m18: "Africell Money" };
+const channelLabel = (c: { type?: string | null; provider?: string | null; last4?: string | null } | null | undefined) => {
+  if (c?.type === "card") return c.last4 ? `Card ending ${c.last4}` : "Card";
+  return c?.provider ? (CHANNEL[c.provider] ?? c.provider) : (c?.type ?? "—");
+};
 
 /** What voters paid for votes: who, how much, how many votes, and whether they were used. The candidate is never shown. */
 export function PollPaymentsPage() {
@@ -110,7 +114,7 @@ export function PollPaymentsPage() {
                   <TableCell>{p.payerName ?? p.payerEmail ?? "—"}</TableCell>
                   <TableCell>{p.positionTitle ?? "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{p.votes ?? 0}</TableCell>
-                  <TableCell>{p.channel?.provider ? (CHANNEL[p.channel.provider] ?? p.channel.provider) : (p.channel?.type ?? "—")}</TableCell>
+                  <TableCell>{channelLabel(p.channel)}</TableCell>
                   <TableCell className="text-right font-medium">{formatMinor(p.amountMinor, p.currency)}</TableCell>
                   <TableCell>
                     <span className="flex items-center gap-2">
